@@ -56,10 +56,11 @@ if (SG_BUILD_EXAMPLES)
     list(APPEND SG_EXAMPLES
             str
             strmap
-            httpsrv
             httpauth
+            httpcookie
+            httpsrv
             httpuplds
-            httpcookie)
+            httpsrv_benchmark)
     if (SG_HTTPS_SUPPORT AND GNUTLS_FOUND)
         set(SG_EXAMPLES_CERTS_DIR "${SG_EXAMPLES_SOURCE_DIR}/certs")
         add_definitions(-DSG_EXAMPLES_CERTS_DIR="${SG_EXAMPLES_CERTS_DIR}")
