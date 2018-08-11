@@ -62,8 +62,11 @@ if (NOT CPACK_SOURCE_IGNORE_FILES)
             "${CMAKE_BINARY_DIR}/"
             "/.idea/"
             "/.git/"
-            ".gitignore"
+            "/.github/"
+            "/docs/"
             "/lib/"
+            ".gitignore"
+            "_config.yml"
             "cmake-build-*")
 endif ()
 
