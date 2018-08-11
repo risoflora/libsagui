@@ -1,0 +1,36 @@
+---
+name: Bug report
+about: Create a report to help us improve
+
+---
+
+**Describe the bug**
+
+A clear and concise description of what the bug is.
+
+**To reproduce**
+
+Steps to reproduce the behavior:
+
+1. cmake <options> ...
+2. make <options>
+3. Generated log ...
+4. See error ...
+
+**Expected behavior**
+
+A clear and concise description of what you expected to happen.
+
+**Screenshots**
+
+If applicable, add screenshots to help explain your problem.
+
+**Environment:**
+
+ - OS: [e.g. Ubuntu version XX.XX, Windows 10, Raspbian version X.XX, Android version X]
+ - Compiler [e.g. gcc version N.N.N, clang version X.X.X]
+ - Version [e.g. Sagui version N.N.N]
+
+**Additional context**
+
+Add any other context about the problem here.
