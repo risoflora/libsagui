@@ -28,7 +28,7 @@ Sagui is released under GNU Lesser General Public License v3.0. Check the [LICEN
 
 # Documentation
 
-The documentation has been written in [Doxygen](https://www.stack.nl/~dimitri/doxygen) and is available in [HTML](http://risoflora.github.io/libsagui/doc) and [PDF](http://risoflora.github.io/libsagui/doc/libsagui-v1.0.0.pdf).
+The documentation has been written in [Doxygen](https://www.stack.nl/~dimitri/doxygen) and is available in [HTML](https://risoflora.github.io/libsagui/docs/index.html) and [PDF](https://risoflora.github.io/libsagui/docs/libsagui-v1.0.0.pdf).
 
 # Downloading
 
