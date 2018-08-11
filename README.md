@@ -12,7 +12,7 @@ Sagui is an ideal C library to develop cross-platform HTTP servers. Its core has
 * Basic authentication
 * Upload/download streaming by:
   * Payload - for raw data transferring as JSON, XML and other
-  * File - for large data transferring as videos, images, binaries and so on   
+  * File - for large data transferring as videos, images, binaries and so on
 * Dynamic strings (makes it easy strings operations in C)
 * String map (fast key-value mapping)
 * Fields, parameters, cookies, headers under hash table structure
