@@ -20,7 +20,7 @@
 #   DOXYGEN_INPUT_FILE - Template file used to generate the DOXYGEN_OUTPUT_FILE.
 #   DOXYGEN_OUTPUT_FILE - Production file to be used as Doxygen input file. It is generated from the
 #                         template DOXYGEN_INPUT_FILE.
-#   DOXYGEN_DOC_DIR - Directory containing the generated HTML files.
+#   DOXYGEN_DOCS_DIR - Directory containing the documentation in HTML and PDF.
 #   DOXYGEN_PDFLATEX_EXECUTABLE - The path of the `pdflatex` executable when it is found.
 #   DOXYGEN_MAKEINDEX_EXECUTABLE - The path of the `makeindex` executable when it is found.
 #   DOXYGEN_LATEX_DIR - Directory containing the generated PDF file.
@@ -71,7 +71,7 @@ if (SG_BUILD_HTML)
         set(SG_GENERATE_HTML ON)
         set(DOXYGEN_INPUT_FILE ${CMAKE_SOURCE_DIR}/doxygen/Doxyfile.in)
         set(DOXYGEN_OUTPUT_FILE ${CMAKE_BINARY_DIR}/Doxyfile)
-        set(DOXYGEN_DOC_DIR ${CMAKE_BINARY_DIR}/doc)
+        set(DOXYGEN_DOCS_DIR ${CMAKE_BINARY_DIR}/docs)
         set(SG_GENERATE_PDF NO)
         if (SG_BUILD_PDF)
             find_program(DOXYGEN_PDFLATEX_EXECUTABLE pdflatex)
@@ -88,7 +88,7 @@ if (SG_BUILD_HTML)
         endif ()
         #if (SG_BUILD_MAN_PAGES)
         #    set(SG_GENERATE_MAN_PAGES YES)
-        #    set(DOXYGEN_MAN_DIR ${DOXYGEN_DOC_DIR}/man)
+        #    set(DOXYGEN_MAN_DIR ${DOXYGEN_DOCS_DIR}/man)
         #endif ()
         if (SG_HTTPS_SUPPORT AND GNUTLS_FOUND)
             set(SG_HTTPS_SUPPORT_DOC "SG_HTTPS_SUPPORT")
@@ -96,13 +96,13 @@ if (SG_BUILD_HTML)
         configure_file(${DOXYGEN_INPUT_FILE} ${DOXYGEN_OUTPUT_FILE} @ONLY)
         message(STATUS "Generating Doxygen file - done")
         add_custom_target(doc ALL
-                COMMAND ${CMAKE_COMMAND} -E make_directory ${DOXYGEN_DOC_DIR}
+                COMMAND ${CMAKE_COMMAND} -E make_directory ${DOXYGEN_DOCS_DIR}
                 COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUTPUT_FILE}
                 WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
                 COMMENT "Generating API reference with Doxygen [HTML]"
                 VERBATIM)
         if (SG_GENERATE_PDF)
-            set(DOXYGEN_LATEX_DIR ${DOXYGEN_DOC_DIR}/latex)
+            set(DOXYGEN_LATEX_DIR ${DOXYGEN_DOCS_DIR}/latex)
             add_custom_target(pdf
                     COMMAND ${CMAKE_COMMAND} -E chdir ${DOXYGEN_LATEX_DIR} ${CMAKE_BUILD_TOOL}
                     COMMAND ${CMAKE_COMMAND} -E rename ${DOXYGEN_LATEX_DIR}/refman.pdf ${DOXYGEN_LATEX_DIR}/libsagui-v${VERSION}.pdf
