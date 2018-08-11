@@ -60,7 +60,7 @@ static void req_cb(__SG_UNUSED void *cls, __SG_UNUSED struct sg_httpreq *req, st
 
 int main(void) {
     const unsigned int cpu_count = get_cpu_count();
-    const unsigned int con_limit = 10000;
+    const unsigned int con_limit = 1000; /* Change to 10000 for C10K problem. */
     struct sg_httpsrv *srv = sg_httpsrv_new(req_cb, NULL);
     sg_httpsrv_set_thr_pool_size(srv, cpu_count);
     sg_httpsrv_set_con_limit(srv, con_limit);
