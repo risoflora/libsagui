@@ -1,6 +1,6 @@
 # Installing
 
-This page shows the official binaries and packages for each stable version of the Sagui library. They are available for the common systems and below are the steps to install them.  
+This page shows the official installation for each stable version of the Sagui library. They are available for the common systems and below are the steps to install them.
 
 # Windows (pacman)
 
