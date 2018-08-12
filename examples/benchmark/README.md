@@ -378,4 +378,4 @@ Transfer/sec:     23.05MB
 
 # JMeter logs
 
-Take a look at the [CVS](https://en.wikipedia.org/wiki/Comma-separated_values) files in [benchmark_jmeter/](https://github.com/risoflora/libsagui/tree/master/examples/benchmark_jmeter/) folder.
+Take a look at the [CVS](https://en.wikipedia.org/wiki/Comma-separated_values) files in [benchmark/](https://github.com/risoflora/libsagui/tree/master/examples/benchmark).
