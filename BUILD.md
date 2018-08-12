@@ -252,7 +252,7 @@ cmake -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=./Ou
 make sagui install/strip
 ```
 
-it builds and saves the DLL in `Output\bin\libsagui-1.dll`.  
+it builds and saves the DLL in `Output\bin\libsagui-1.dll`.
 
 **Building and running the tests on Android using Google's NDK:**
 

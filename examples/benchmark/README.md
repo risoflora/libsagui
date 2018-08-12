@@ -154,7 +154,7 @@ Completed 10000 requests
 Finished 10000 requests
 
 
-Server Software:        
+Server Software:
 Server Hostname:        127.0.0.1
 Server Port:            8080
 
@@ -276,7 +276,7 @@ Completed 10000 requests
 Finished 10000 requests
 
 
-Server Software:        
+Server Software:
 Server Hostname:        127.0.0.1
 Server Port:            32933
 
