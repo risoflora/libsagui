@@ -1,0 +1,28 @@
+language: c
+compiler:
+  - gcc
+  - clang
+addons:
+  apt:
+    packages:
+      - libgnutls28-dev
+cache:
+  directories:
+    - $HOME/curl
+install:
+  - |
+    export SAVED_DIR=`pwd`
+    export CURL_VER=`pkg-config libcurl --modversion --silence-errors`
+    if [[ "$CURL_VER" < "7.58.0" ]]; then
+        mkdir -p $HOME/curl && cd $HOME/curl/
+        wget -c -q https://curl.haxx.se/download/curl-7.61.0.tar.gz
+        tar -zxf curl-7.61.0.tar.gz
+        mkdir -p curl-7.61.0/build && cd curl-7.61.0/build/
+        ../configure -q --disable-maintainer-mode --disable-ftp --disable-ldap --disable-ldaps --disable-rtsp --disable-dict --disable-telnet --disable-tftp --disable-pop3 --disable-imap --disable-smb --disable-gopher --disable-manual --disable-verbose --disable-smtp --disable-libcurl-option --disable-tls-srp --without-brotli --without-libidn2 --without-libpsl --without-polarssl --without-mbedtls --without-cyassl --without-nss --without-axtls --without-libssh2 --without-librtmp --without-nghttp2 --without-ssl --with-gnutls
+        make -s > /dev/null && sudo make -s install-strip > /dev/null
+      fi
+  - |
+before_script:
+  - cd $SAVED_DIR && rm -rf build && mkdir build && cd build/
+  - cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DSG_HTTPS_SUPPORT=ON ..
+script: make all test
