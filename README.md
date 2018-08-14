@@ -34,10 +34,6 @@ Sagui is released under GNU Lesser General Public License v3.0. Check the [LICEN
 
 The documentation has been written in [Doxygen](https://www.stack.nl/~dimitri/doxygen) and is available in [HTML](https://risoflora.github.io/libsagui/docs/index.html) and [PDF](https://risoflora.github.io/libsagui/docs/libsagui-v1.0.0.pdf).
 
-# Downloading
-
-All packages and binaries contains their respective signatures which can be downloaded on the [releases page](https://github.com/risoflora/libsagui/releases).
-
 # Building/installing
 
 Check the [BUILD.md](https://github.com/risoflora/libsagui/blob/master/BUILD.md) for instructions to build the library, examples, tests and documentation, then, follow the steps in [INSTALL.md](https://github.com/risoflora/libsagui/blob/master/INSTALL.md) to install the library from sources on your system.
