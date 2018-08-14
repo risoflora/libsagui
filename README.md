@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/risoflora/libsagui.svg?branch=master)](https://travis-ci.org/risoflora/libsagui)
+
 # Overview
 
 Sagui is an ideal C library to develop cross-platform HTTP servers. Its core has been developed using the [GNU libmicrohttpd](https://www.gnu.org/software/libmicrohttpd), [uthash](https://troydhanson.github.io/uthash) and [GnuTLS](https://www.gnutls.org), that's why it is so fast, compact and useful to run on embedded systems.
