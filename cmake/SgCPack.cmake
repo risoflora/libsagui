@@ -66,6 +66,7 @@ if (NOT CPACK_SOURCE_IGNORE_FILES)
             "/docs/"
             "/lib/"
             ".gitignore"
+            ".travis.yml"
             "_config.yml"
             "cmake-build-*")
 endif ()
