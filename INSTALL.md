@@ -1,55 +1,20 @@
 # Installing
 
-This page shows the official installation for each stable version of the Sagui library. They are available for the common systems and below are the steps to install them.
-
-# Windows (pacman)
-
-The binaries for Windows can be installed in two ways. The first one is using the`pacman` as following:
-
-**MinGW-w64 i686:**
+Download and install Sagui on [Ubuntu](https://www.ubuntu.com), [Raspbian](https://www.raspberrypi.org/downloads/raspbian), etc.:
 
 ```bash
-pacman -S mingw-w64-i686-libsagui
-```
+# Install required tools.
+sudo apt update
+sudo apt install clang cmake
 
-**MinGW-w64 x86_64:**
+# Download latest release.
+wget --continue --content-disposition https://github.com/risoflora/libsagui/archive/v1.0.0.tar.gz
+tar -zxvf libsagui-1.0.0.tar.gz
+cd libsagui-1.0.0/ && mkdir build && cd build/
 
-```bash
-pacman -S mingw-w64-x86_64-libsagui
-```
-
-or downloading the library package (`32`/`64` bits) at the [releases page](https://github.com/risoflora/libsagui/releases).
-
-# Ubuntu / Raspbian (APT)
-
-On systems based in Debian like Ubuntu and Raspbian, the library can be installed using the `apt` package manager:
-
-**Configuring the PPA:**
-
-```bash
-sudo add-apt-repository ppa:silvioprog/libsagui
-```
-
-**Installing the library for x86 or x86_64:**
-
-```bash
-sudo apt install libsagui1
-```
-
-**Installing the development files and the library for x86 or x86_64 (optional):**
-
-```bash
-sudo apt install libsagui-dev
-```
-
-# From sources
-
-To build and install:
-
-```bash
+# Configure, build and install.
 cmake -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON ..
-make
-sudo make sagui install/strip
+make && sudo make sagui install/strip
 sudo ldconfig # cache update
 ```
 
@@ -59,6 +24,31 @@ to uninstall:
 sudo make uninstall
 ```
 
-# Missing binaries/package for your system?
+Download and install on Windows ([MinGW-w64](http://www.msys2.org)):
 
-If you want binaries and/or package installation for your system and they are not available yet, feel free to contribute to this project by adding and publishing them on this page.
+```bash
+# Install required tools.
+pacman -Syu
+pacman -S cmake wget
+
+# Download latest release.
+wget --continue --content-disposition https://github.com/risoflora/libsagui/archive/v1.0.0.tar.gz
+tar -zxvf libsagui-1.0.0.tar.gz
+cd libsagui-1.0.0/ && mkdir build && cd build/
+
+# Configure, build and install.
+cmake -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/mingw32 -DBUILD_SHARED_LIBS=ON ..
+make sagui install/strip
+
+# NOTE: use prefix "/mingw64" for x86_64. 
+```
+
+to uninstall:
+
+```bash
+make uninstall
+```
+
+# Missing steps for your system?
+
+If you want the steps to install Sagui on your system and they are not available yet, feel free to contribute to this project by adding and publishing them on this page.
