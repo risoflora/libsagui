@@ -48,6 +48,7 @@ set(MHD_NAME "libmicrohttpd")
 set(MHD_VER "0.9.59")
 set(MHD_FULL_NAME "${MHD_NAME}-${MHD_VER}")
 set(MHD_URL "https://ftp.gnu.org/gnu/libmicrohttpd/${MHD_FULL_NAME}.tar.gz")
+set(MHD_URL_MIRROR "https://espejito.fder.edu.uy/gnu/libmicrohttpd/${MHD_FULL_NAME}.tar.gz")
 set(MHD_SHA256 "9b9ccd7d0b11b0e179f1f58dc2caa3e0c62c8609e1e1dc7dcaadf941b67d923c")
 if (SG_HTTPS_SUPPORT AND GNUTLS_FOUND)
     set(_enable_https "yes")
@@ -81,8 +82,9 @@ else ()
 endif ()
 
 ExternalProject_Add(${MHD_FULL_NAME}
-        URL ${MHD_URL}
+        URL ${MHD_URL} ${MHD_URL_MIRROR}
         URL_HASH SHA256=${MHD_SHA256}
+        TIMEOUT 15
         DOWNLOAD_DIR ${CMAKE_SOURCE_DIR}/lib
         PREFIX ${CMAKE_BINARY_DIR}/${MHD_FULL_NAME}
         SOURCE_DIR ${CMAKE_SOURCE_DIR}/lib/${MHD_FULL_NAME}
