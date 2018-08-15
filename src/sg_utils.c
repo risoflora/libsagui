@@ -42,7 +42,7 @@
 
 #define SG_VERSION_STR xstr(SG_VERSION_MAJOR) "." xstr(SG_VERSION_MINOR) "." xstr(SG_VERSION_PATCH)
 
-/* Platform */
+/* Platform. */
 
 #ifdef _WIN32
 
@@ -174,7 +174,7 @@ bool sg__is_cookie_val(const char *val) {
     return true;
 }
 
-/* Version */
+/* Version. */
 
 unsigned int sg_version(void) {
     return SG_VERSION_HEX;
@@ -184,7 +184,7 @@ const char *sg_version_str(void) {
     return SG_VERSION_STR;
 }
 
-/* Memory */
+/* Memory. */
 
 void *sg_alloc(size_t size) {
     void *p = malloc(size);

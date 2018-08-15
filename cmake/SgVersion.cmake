@@ -11,7 +11,7 @@
 #   SG_VERSION_MAJOR - Major version.
 #   SG_VERSION_MINOR - Minor version.
 #   SG_VERSION_PATCH - Patch version.
-#   SOVERSION - Composed by "SG_VERSION_MAJOR.SG_VERSION_MINOR".
+#   SOVERSION - Composed by "SG_VERSION_MAJOR".
 #   VERSION - Composed by "SG_VERSION_MAJOR.SG_VERSION_MINOR.SG_VERSION_PATCH".
 #   VERSION_SUFFIX - Composed by "-SG_VERSION_MAJOR" (Windows only).
 
@@ -56,7 +56,7 @@ if (EXISTS ${SG_INCLUDE_DIR}/sagui.h)
         unset(_regex_version)
     endforeach ()
     set(SOVERSION ${SG_VERSION_MAJOR})
-    set(VERSION ${SOVERSION}.${SG_VERSION_MINOR}.${SG_VERSION_PATCH})
+    set(VERSION ${SG_VERSION_MAJOR}.${SG_VERSION_MINOR}.${SG_VERSION_PATCH})
     if (WIN32)
         set(VERSION_SUFFIX -${SG_VERSION_MAJOR})
     endif ()
