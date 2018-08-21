@@ -49,11 +49,10 @@ static void sg__httpsrv_oel(void *cls, const char *fmt, va_list ap) {
     va_copy(ap_cpy, ap);
     size = (size_t) vsnprintf(NULL, 0, fmt, ap_cpy) + 1;
     va_end(ap_cpy);
-    if (!(err = sg_alloc(size)))
-        oom();
+    sg__alloc(err, size);
     vsnprintf(err, size, fmt, ap);
     srv->err_cb(srv->err_cls, err);
-    sg_free(err);
+    sg__free(err);
 }
 
 static int sg__httpsrv_ahc(void *cls, struct MHD_Connection *con, const char *url, const char *method,
@@ -136,7 +135,7 @@ struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb, void *auth_cls, sg_ht
         errno = EINVAL;
         return NULL;
     }
-    srv = sg_alloc(sizeof(struct sg_httpsrv));
+    sg__new(srv);
     srv->auth_cb = auth_cb;
     srv->auth_cls = auth_cls;
     srv->upld_cb = sg__httpupld_cb;
@@ -169,9 +168,9 @@ struct sg_httpsrv *sg_httpsrv_new(sg_httpreq_cb cb, void *cls) {
 void sg_httpsrv_free(struct sg_httpsrv *srv) {
     if (!srv)
         return;
-    sg_free(srv->uplds_dir);
+    sg__free(srv->uplds_dir);
     sg_httpsrv_shutdown(srv);
-    sg_free(srv);
+    sg__free(srv);
 }
 
 #ifdef SG_HTTPS_SUPPORT
@@ -242,7 +241,7 @@ int sg_httpsrv_set_upld_cbs(struct sg_httpsrv *srv, sg_httpupld_cb cb, void *cls
 int sg_httpsrv_set_upld_dir(struct sg_httpsrv *srv, const char *dir) {
     if (!srv || !dir)
         return EINVAL;
-    sg_free(srv->uplds_dir);
+    sg__free(srv->uplds_dir);
     srv->uplds_dir = strdup(dir);
     return 0;
 }

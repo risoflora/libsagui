@@ -38,9 +38,8 @@
 
 struct sg_httpreq *sg__httpreq_new(struct MHD_Connection *con, const char *version, const char *method,
                                    const char *path) {
-    struct sg_httpreq *req = sg_alloc(sizeof(struct sg_httpreq));
-    if (!req)
-        oom();
+    struct sg_httpreq *req;
+    sg__new(req);
     req->res = sg__httpres_new(con);
     req->auth = sg__httpauth_new(req->res);
     req->payload = sg_str_new();
@@ -63,7 +62,7 @@ void sg__httpreq_free(struct sg_httpreq *req) {
     MHD_destroy_post_processor(req->pp);
     sg__httpres_free(req->res);
     sg__httpauth_free(req->auth);
-    sg_free(req);
+    sg__free(req);
 }
 
 struct sg_strmap **sg_httpreq_headers(struct sg_httpreq *req) {

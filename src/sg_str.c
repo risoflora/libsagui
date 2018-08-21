@@ -31,8 +31,7 @@
 
 struct sg_str *sg_str_new(void) {
     struct sg_str *str;
-    if (!(str = sg_alloc(sizeof(struct sg_str))))
-        oom();
+    sg__new(str);
     utstring_new(str->buf);
     return str;
 }
@@ -41,7 +40,7 @@ void sg_str_free(struct sg_str *str) {
     if (!str)
         return;
     utstring_free(str->buf);
-    sg_free(str);
+    sg__free(str);
 }
 
 int sg_str_write(struct sg_str *str, const char *val, size_t len) {

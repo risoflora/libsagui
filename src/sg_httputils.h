@@ -31,6 +31,7 @@
 #include "microhttpd.h"
 #include "sg_macros.h"
 #include "sg_strmap.h"
+#include "sagui.h"
 
 SG__EXTERN int sg__httpcon_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind, const char *key, const char *val);
 

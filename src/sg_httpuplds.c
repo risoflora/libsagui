@@ -37,8 +37,7 @@
 
 static void sg__httpuplds_add(struct sg_httpsrv *srv, struct sg_httpreq *req, const char *fieldname,
                               const char *filename, const char *content_type, const char *transfer_encoding) {
-    if (!(req->curr_upld = sg_alloc(sizeof(struct sg_httpupld))))
-        oom();
+    sg__new(req->curr_upld);
     LL_APPEND(req->uplds, req->curr_upld);
     req->curr_upld->dir = sg__strdup(srv->uplds_dir);
     req->curr_upld->field = sg__strdup(fieldname);
@@ -54,12 +53,12 @@ static void sg__httpuplds_free(struct sg_httpsrv *srv, struct sg_httpreq *req) {
         return;
     if (srv && srv->upld_free_cb)
         srv->upld_free_cb(req->curr_upld->handle);
-    sg_free(req->curr_upld->dir);
-    sg_free(req->curr_upld->field);
-    sg_free(req->curr_upld->name);
-    sg_free(req->curr_upld->mime);
-    sg_free(req->curr_upld->encoding);
-    sg_free(req->curr_upld);
+    sg__free(req->curr_upld->dir);
+    sg__free(req->curr_upld->field);
+    sg__free(req->curr_upld->name);
+    sg__free(req->curr_upld->mime);
+    sg__free(req->curr_upld->encoding);
+    sg__free(req->curr_upld);
 }
 
 static void sg__httpuplds_err(struct sg_httpsrv *srv, const char *fmt, ...) {
@@ -69,13 +68,12 @@ static void sg__httpuplds_err(struct sg_httpsrv *srv, const char *fmt, ...) {
     va_start(ap, fmt);
     size = (size_t) vsnprintf(NULL, 0, fmt, ap) + 1;
     va_end(ap);
-    if (!(err = sg_alloc(size)))
-        oom();
+    sg__alloc(err, size);
     va_start(ap, fmt);
     vsnprintf(err, size, fmt, ap);
     va_end(ap);
     srv->err_cb(srv->err_cls, err);
-    sg_free(err);
+    sg__free(err);
 }
 
 static int sg__httpuplds_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind, const char *key, const char *filename,
@@ -106,7 +104,7 @@ static int sg__httpuplds_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind, co
                 sg__strmap_new(&holder->req->curr_field, key, data);
                 HASH_ADD_STR(holder->req->fields, key, holder->req->curr_field);
             } else {
-                holder->req->curr_field->val = sg_realloc(holder->req->curr_field->val, off + size);
+                holder->req->curr_field->val = sg__realloc(holder->req->curr_field->val, off + size);
                 memcpy(holder->req->curr_field->val + off, data, size);
             }
             if (holder->srv->payld_limit > 0) {
@@ -163,9 +161,8 @@ int sg__httpupld_cb(void *cls, void **handle, const char *dir, __SG_UNUSED const
     struct stat sbuf;
     char err[ERR_BUF_SIZE];
     int fd, errnum;
-    if (!(*handle = sg_alloc(sizeof(struct sg__httpupld))))
-        oom();
-    h = *handle;
+    sg__new(h);
+    *handle = h;
     h->srv = cls;
     if (stat(dir, &sbuf) != 0) {
         errnum = errno;
@@ -204,9 +201,9 @@ int sg__httpupld_cb(void *cls, void **handle, const char *dir, __SG_UNUSED const
     }
     return 0;
 fail:
-    sg_free(h->path);
-    sg_free(h->dest_path);
-    sg_free(h);
+    sg__free(h->path);
+    sg__free(h->dest_path);
+    sg__free(h);
     *handle = NULL;
     if (errnum == ENOMEM)
         oom();
@@ -243,9 +240,9 @@ void sg__httpupld_free_cb(void *handle) {
         sg__httpuplds_err(h->srv, _("Cannot close temporary file \"%s\": %s.\n"), h->path,
                           sg_strerror(errno, err, sizeof(err)));
 done:
-    sg_free(h->path);
-    sg_free(h->dest_path);
-    sg_free(h);
+    sg__free(h->path);
+    sg__free(h->dest_path);
+    sg__free(h);
 }
 
 int sg__httpupld_save_cb(void *handle, bool overwritten) {

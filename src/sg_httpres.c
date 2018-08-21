@@ -52,9 +52,8 @@ static void sg__httpfilefree_cb(void *handle) {
 }
 
 struct sg_httpres *sg__httpres_new(struct MHD_Connection *con) {
-    struct sg_httpres *res = sg_alloc(sizeof(struct sg_httpres));
-    if (!res)
-        oom();
+    struct sg_httpres *res;
+    sg__new(res);
     res->con = con;
     res->status = 500;
     return res;
@@ -65,7 +64,7 @@ void sg__httpres_free(struct sg_httpres *res) {
         return;
     sg_strmap_cleanup(&res->headers);
     MHD_destroy_response(res->handle);
-    sg_free(res);
+    sg__free(res);
 }
 
 int sg__httpres_dispatch(struct sg_httpres *res) {
@@ -89,11 +88,10 @@ int sg_httpres_set_cookie(struct sg_httpres *res, const char *name, const char *
     if (!res || !name || !val || !sg__is_cookie_name(name) || !sg__is_cookie_val(val))
         return EINVAL;
     len = strlen(name) + strlen("=") + strlen(val) + 1;
-    if (!(str = sg_alloc(len)))
-        oom();
+    sg__alloc(str, len);
     snprintf(str, len, "%s=%s", name, val);
     ret = sg_strmap_add(&res->headers, MHD_HTTP_HEADER_SET_COOKIE, str);
-    sg_free(str);
+    sg__free(str);
     return ret;
 }
 
@@ -159,15 +157,16 @@ int sg_httpres_sendfile(struct sg_httpres *res, size_t block_size, uint64_t max_
     cd_type = rendered ? "inline" : "attachment";
     cd_basename = basename(absolute_path);
     fn_size = (size_t) snprintf(NULL, 0, SG_FNFMT, cd_type, cd_basename) + 1;
-    if (!(cd_header = sg_alloc(fn_size))) {
+    if (!(cd_header = sg__malloc(fn_size))) {
         errnum = ENOMEM;
         goto fail;
     }
     snprintf(cd_header, fn_size, SG_FNFMT, cd_type, cd_basename);
-    sg_free(absolute_path);
+    sg__free(absolute_path);
 #undef SG_FNFMT
+    cd_header[fn_size] = '\0'; /* Null terminate, just to be safe. */
     sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_DISPOSITION, cd_header);
-    sg_free(cd_header);
+    sg__free(cd_header);
     if (!(res->handle = MHD_create_response_from_callback((uint64_t) sbuf.st_size, block_size, sg__httpfileread_cb,
                                                           file, sg__httpfilefree_cb))) {
         errnum = ENOMEM;
@@ -176,7 +175,7 @@ int sg_httpres_sendfile(struct sg_httpres *res, size_t block_size, uint64_t max_
     res->status = status;
     return 0;
 fail:
-    sg_free(absolute_path);
+    sg__free(absolute_path);
     if (file) {
         if (errnum == 0)
             errnum = fclose(file);

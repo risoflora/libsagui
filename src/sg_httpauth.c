@@ -37,9 +37,8 @@
 #include "sg_httpauth.h"
 
 struct sg_httpauth *sg__httpauth_new(struct sg_httpres *res) {
-    struct sg_httpauth *auth = sg_alloc(sizeof(struct sg_httpauth));
-    if (!auth)
-        oom();
+    struct sg_httpauth *auth;
+    sg__new(auth);
     auth->usr = MHD_basic_auth_get_username_password(res->con, &auth->pwd);
     auth->res = res;
     return auth;
@@ -48,10 +47,10 @@ struct sg_httpauth *sg__httpauth_new(struct sg_httpres *res) {
 void sg__httpauth_free(struct sg_httpauth *auth) {
     if (!auth)
         return;
-    sg_free(auth->usr);
-    sg_free(auth->pwd);
-    sg_free(auth->realm);
-    sg_free(auth);
+    sg__free(auth->usr);
+    sg__free(auth->pwd);
+    sg__free(auth->realm);
+    sg__free(auth);
 }
 
 bool sg__httpauth_dispatch(struct sg_httpauth *auth) {

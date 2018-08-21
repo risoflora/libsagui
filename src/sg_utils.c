@@ -51,12 +51,11 @@ static wchar_t *stow(const char *str) {
     wchar_t *res = NULL;
     int len;
     if (str) {
-        len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str, -1, NULL, 0);
-        if (len > 0) {
-            res = sg_alloc(len * sizeof(wchar_t));
+        if ((len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str, -1, NULL, 0)) > 0) {
+            sg__alloc(res, len * sizeof(wchar_t));
             if (res) {
                 if (MultiByteToWideChar(CP_UTF8, 0, str, -1, res, len) == 0) {
-                    sg_free(res);
+                    sg__free(res);
                     return NULL;
                 }
             }
@@ -70,12 +69,11 @@ static char *wtos(const wchar_t *str) {
     char *res = NULL;
     int len;
     if (str) {
-        len = WideCharToMultiByte(CP_UTF8, 0, str, -1, NULL, 0, NULL, NULL);
-        if (len > 0) {
-            res = sg_alloc(len * sizeof(wchar_t));
+        if ((len = WideCharToMultiByte(CP_UTF8, 0, str, -1, NULL, 0, NULL, NULL)) > 0) {
+            sg__alloc(res, len * sizeof(wchar_t));
             if (res) {
                 if (WideCharToMultiByte(CP_UTF8, 0, str, -1, res, len, NULL, FALSE) == 0) {
-                    sg_free(res);
+                    sg__free(res);
                     return NULL;
                 }
             }
@@ -94,9 +92,9 @@ int sg__rename(const char *old, const char *new) {
         goto done;
     }
     ret = _wrename(o, n);
-    sg_free(n);
+    sg__free(n);
 done:
-    sg_free(o);
+    sg__free(o);
     return ret;
 }
 
@@ -138,21 +136,21 @@ char *sg__strjoin(char sep, const char *a, const char *b) {
     len = strlen(a);
     if ((len == 0) || (a[len - 1] == sep)) {
         len += strlen(b) + 1;
-        if (!(str = sg_alloc(len)))
+        if (!(str = sg__malloc(len)))
             return NULL;
         snprintf(str, len, "%s%s", a, b);
     } else if (strlen(b) == 0) {
         len += 1;
-        if (!(str = sg_alloc(len)))
+        if (!(str = sg__malloc(len)))
             return NULL;
         memcpy(str, a, len);
     } else {
         len += 1 + strlen(b) + 1;
-        if (!(str = sg_alloc(len)))
+        if (!(str = sg__malloc(len)))
             return NULL;
         snprintf(str, len, "%s%c%s", a, sep, b);
     }
-    str[len - 1] = '\0'; /* just to be safe */
+    str[len - 1] = '\0'; /* Null terminate, just to be safe. */
     return str;
 }
 
@@ -187,18 +185,17 @@ const char *sg_version_str(void) {
 /* Memory. */
 
 void *sg_alloc(size_t size) {
-    void *p = malloc(size);
-    if (p)
-        memset(p, 0, size);
-    return p;
+    void *ptr;
+    sg__alloc(ptr, size);
+    return ptr;
 }
 
 void *sg_realloc(void *ptr, size_t size) {
-    return realloc(ptr, size);
+    return sg__realloc(ptr, size);
 }
 
 void sg_free(void *ptr) {
-    free(ptr);
+    sg__free(ptr);
 }
 
 /* String. */
