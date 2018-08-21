@@ -15,4 +15,4 @@ xdg-open compat_reports/sagui/1.0.0_to_1.0.1/compat_report.html
 # or just open compat_report.html on your browser
 ```
 
-**NOTE:** the `Binary Compatibility` and `Source Compatibility` tabs `Compatibility: 100%` in their `Test Results` table.
+**NOTE:** the `Binary Compatibility` and `Source Compatibility` tabs should show `Compatibility: 100%` in their `Test Results` table.
