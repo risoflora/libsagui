@@ -162,7 +162,6 @@ int sg_httpres_sendfile(struct sg_httpres *res, size_t block_size, uint64_t max_
         goto fail;
     }
     snprintf(cd_header, fn_size, SG_FNFMT, cd_type, cd_basename);
-    sg__free(absolute_path);
 #undef SG_FNFMT
     cd_header[fn_size] = '\0'; /* Null terminate, just to be safe. */
     sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_DISPOSITION, cd_header);
@@ -172,6 +171,7 @@ int sg_httpres_sendfile(struct sg_httpres *res, size_t block_size, uint64_t max_
         errnum = ENOMEM;
         goto fail;
     }
+    sg__free(absolute_path);
     res->status = status;
     return 0;
 fail:

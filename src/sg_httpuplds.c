@@ -80,6 +80,7 @@ static int sg__httpuplds_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind, co
                               const char *content_type, const char *transfer_encoding, const char *data,
                               uint64_t off, size_t size) {
     struct sg__httpupld_holder *holder;
+    char *val;
     if (/*kind == MHD_POSTDATA_KIND && */ size > 0) {
         holder = cls;
         if (filename) {
@@ -104,7 +105,9 @@ static int sg__httpuplds_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind, co
                 sg__strmap_new(&holder->req->curr_field, key, data);
                 HASH_ADD_STR(holder->req->fields, key, holder->req->curr_field);
             } else {
-                holder->req->curr_field->val = sg__realloc(holder->req->curr_field->val, off + size);
+                if (!(val = sg__realloc(holder->req->curr_field->val, off + size)))
+                    oom();
+                holder->req->curr_field->val = val;
                 memcpy(holder->req->curr_field->val + off, data, size);
             }
             if (holder->srv->payld_limit > 0) {
