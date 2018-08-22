@@ -82,7 +82,7 @@ do {                                                                            
 #define sg__alloc(ptr, size)           \
 do {                                   \
     if (!((ptr) = sg__malloc((size)))) \
-        oom() ;                        \
+        oom();                         \
     memset((ptr), 0, (size));          \
 } while (0)
 #endif
