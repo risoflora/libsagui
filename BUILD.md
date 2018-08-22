@@ -103,7 +103,7 @@ Scanning dependencies of target sagui
 Supposing the shared library will be built using the `clang` front-end, set the variable `CMAKE_C_COMPILER` to `clang` and turn on the variable `BUILD_SHARED_LIBS`:
 
 ```bash
-cmake -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON ..
+cmake -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_SHARED_LIBS=ON ..
 make sagui
 ```
 
@@ -169,7 +169,7 @@ both HTML and PDF files are saved in the `build/doc` directory.
 The HTTPS support is possible linking the [GnuTLS](https://www.gnutls.org) library though `SG_HTTPS_SUPPORT` build option:
 
 ```bash
-cmake -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DSG_HTTPS_SUPPORT=ON ..
+cmake -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_SHARED_LIBS=ON -DSG_HTTPS_SUPPORT=ON ..
 ```
 
 **NOTE:** If the development version of the GnuTLS library is not available in the environment, the HTTPS support will be disable automatically.
@@ -210,7 +210,7 @@ libsagui-1.0.0/lib/libsagui.a
 To distribute the shared library:
 
 ```bash
-cmake -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON ..
+cmake -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_SHARED_LIBS=ON ..
 make package
 ```
 
@@ -232,14 +232,14 @@ libsagui-1.0.0/lib/libsagui.so.1.0.0 <symbolic link>
 **Building the shared library for Windows 32/64 bits using MinGW installed on Linux:**
 
 ```bash
-cmake -DCMAKE_C_COMPILER=i686-w64-mingw32-gcc -DCMAKE_RC_COMPILER=i686-w64-mingw32-windres -DCMAKE_SYSTEM_NAME="Windows" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=./Output -DBUILD_SHARED_LIBS=ON ..
+cmake -DCMAKE_C_COMPILER=i686-w64-mingw32-gcc -DCMAKE_RC_COMPILER=i686-w64-mingw32-windres -DCMAKE_SYSTEM_NAME="Windows" -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=./Output -DBUILD_SHARED_LIBS=ON ..
 make sagui install/strip
 ```
 
 for 64 bits:
 
 ```bash
-cmake -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DCMAKE_RC_COMPILER=x86_64-w64-mingw32-windres -DCMAKE_SYSTEM_NAME="Windows" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=./Output -DBUILD_SHARED_LIBS=ON ..
+cmake -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DCMAKE_RC_COMPILER=x86_64-w64-mingw32-windres -DCMAKE_SYSTEM_NAME="Windows" -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=./Output -DBUILD_SHARED_LIBS=ON ..
 make sagui install/strip
 ```
 
@@ -248,7 +248,7 @@ it builds and saves the DLL in `Output/bin/libsagui-1.dll`.
 **Building the shared library for Windows 32/64 bits using MinGW installed on Windows:**
 
 ```bash
-cmake -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=./Output -DBUILD_SHARED_LIBS=ON ..
+cmake -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=./Output -DBUILD_SHARED_LIBS=ON ..
 make sagui install/strip
 ```
 
