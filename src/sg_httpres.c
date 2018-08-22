@@ -163,7 +163,6 @@ int sg_httpres_sendfile(struct sg_httpres *res, size_t block_size, uint64_t max_
     }
     snprintf(cd_header, fn_size, SG_FNFMT, cd_type, cd_basename);
 #undef SG_FNFMT
-    cd_header[fn_size] = '\0'; /* Null terminate, just to be safe. */
     sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_DISPOSITION, cd_header);
     sg__free(cd_header);
     if (!(res->handle = MHD_create_response_from_callback((uint64_t) sbuf.st_size, block_size, sg__httpfileread_cb,
