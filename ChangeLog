@@ -1,0 +1,93 @@
+2018-08-24  silvioprog  <silvioprog@gmail.com>
+
+	Adds the LGTM status :sunglasses: . [ci skip]
+
+2018-08-22  silvioprog  <silvioprog@gmail.com>
+
+	Fix broken link. [ci skip]
+
+	Bump v1.0.2
+
+	Removes redundant assignment (according to `man 3 snprintf()` the null-terminated character it already set).
+
+	Upgrades PVS-Studio script. [ci skip]
+
+	Improves documentation. [ci skip]
+
+	Upgrade UT libs.
+
+	Cosmetic fix.
+
+	Moves the documentation to its own repository (https://risoflora.github.io/libsagui-docs/index.html).
+
+2018-08-21  silvioprog  <silvioprog@gmail.com>
+
+	Bump library version and fix spellings.
+
+	Allows to check the backward API/ABI compatibility of Sagui library versions.
+
+	Fix PVS Studio alerts.
+
+	Adds a very simple macro-based memory manager.
+
+2018-08-15  silvioprog  <silvioprog@gmail.com>
+
+	Fix #1.
+
+	Fix docs.
+
+2018-08-14  silvioprog  <silvioprog@gmail.com>
+
+	Update INSTALL.md
+
+	Ignores Travis file in distribution packages.
+
+	Removes "Downloading" entry because Github releases does not accept ASC/SIG files anymore.
+
+	Adds Travis building status.
+
+	Adds Travis CI file.
+
+2018-08-11  silvioprog  <silvioprog@gmail.com>
+
+	Fix doc.
+
+	Hygiene.
+
+	Add benchmark and jmeter files.
+
+	Use only 1000 connections simultaneously.
+
+	Add HTTP benchmark example.
+
+	Remove empty spaces for hygiene.
+
+	Add license logo.
+
+2018-08-10  silvioprog  <silvioprog@gmail.com>
+
+	Fix doc.
+
+	Skip temporary directories.
+
+	Fix docs links.
+
+	Add HTML/PDF docs.
+
+	Fix docs output.
+
+2018-08-10  silvioprog  <silvioprog@gmail.com>
+
+	Set theme jekyll-theme-midnight
+
+2018-08-10  silvioprog  <silvioprog@gmail.com>
+
+	Update issues template
+
+2018-08-10  silvioprog  <silvioprog@gmail.com>
+
+	Update issue templates
+
+2018-08-10  silvioprog  <silvioprog@gmail.com>
+
+	Initial commit
