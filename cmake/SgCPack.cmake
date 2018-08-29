@@ -63,6 +63,7 @@ if (NOT CPACK_SOURCE_IGNORE_FILES)
             "/.idea/"
             "/.git/"
             "/.github/"
+            "/build/"
             "/docs/"
             "/lib/"
             ".gitignore"
