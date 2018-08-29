@@ -1,4 +1,20 @@
+2018-08-29  silvioprog  <silvioprog@gmail.com>
+
+	Uses better parameter names in the sg_strerror() function.
+
+	Update the SECURITY document. [ci skip]
+
+	Publishes the main header even for static library.
+
+	Avoids the "build" folder inside distribution packages. [ci skip]
+
 2018-08-24  silvioprog  <silvioprog@gmail.com>
+
+	Adds CII Best Practices. [ci skip]
+
+	Adds the SECURITY file. [ci skip]
+
+	Adds the ChangeLog file. [ci skip]
 
 	Adds the LGTM status :sunglasses: . [ci skip]
 
