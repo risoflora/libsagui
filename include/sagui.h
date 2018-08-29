@@ -177,11 +177,11 @@ SG_EXTERN void sg_free(void *ptr);
 /**
  * Returns string describing an error number.
  * \param[in] errnum Error number.
- * \param[in] str Pointer of a string to store the error message.
- * \param[in] len Length of the error message.
+ * \param[in] errmsg Pointer of a string to store the error message.
+ * \param[in] errlen Length of the error message.
  * \return Pointer to \p str.
  */
-SG_EXTERN char *sg_strerror(int errnum, char *str, size_t len);
+SG_EXTERN char *sg_strerror(int errnum, char *errmsg, size_t errlen);
 
 /**
  * Checks if a string is a HTTP post method.
