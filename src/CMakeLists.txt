@@ -84,10 +84,11 @@ if (SG_HTTPS_SUPPORT AND GNUTLS_FOUND)
 endif ()
 target_link_libraries(sagui ${_libs})
 unset(_libs)
+set_target_properties(sagui PROPERTIES
+        PUBLIC_HEADER ${SG_INCLUDE_DIR}/sagui.h)
 if (BUILD_SHARED_LIBS)
     set_target_properties(sagui PROPERTIES
             COMPILE_DEFINITIONS BUILDING_LIBSAGUI
-            PUBLIC_HEADER ${SG_INCLUDE_DIR}/sagui.h
             VERSION ${VERSION}
             SOVERSION ${SOVERSION})
     if (WIN32)
