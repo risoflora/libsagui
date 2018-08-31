@@ -290,6 +290,14 @@ make all test
 make clean_pushed_tests
 ```
 
+**Building the shared library for Raspbian using `arm-linux-gnueabihf` installed on Linux:**
+
+```code
+export target_host=arm-linux-gnueabihf && export AR=$target_host-ar && export AS=$target_host-gcc && export CC=$target_host-gcc && export LD=$target_host-ld && export STRIP=$target_host-strip
+cmake -DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=./Output -DBUILD_SHARED_LIBS=ON ..
+make sagui install/strip
+```
+
 # Wishlist
 
 Tests on:
