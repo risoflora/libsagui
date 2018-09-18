@@ -61,9 +61,11 @@ static int sg__httpsrv_ahc(void *cls, struct MHD_Connection *con, const char *ur
         }
         return MHD_YES;
     }
-    if (sg__httpuplds_process(srv, req, con, upld_data, upld_data_size, &req->res->ret))
-        return req->res->ret;
-    srv->req_cb(srv->req_cls, req, req->res);
+    if (!req->auth->canceled) {
+        if (sg__httpuplds_process(srv, req, con, upld_data, upld_data_size, &req->res->ret))
+            return req->res->ret;
+        srv->req_cb(srv->req_cls, req, req->res);
+    }
     return sg__httpres_dispatch(req->res);
 }
 

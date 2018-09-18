@@ -58,6 +58,14 @@ static void test__httpauth_dispatch(struct sg_httpauth *auth) {
     ASSERT(auth->res->ret == MHD_NO);
 
     auth->res->ret = false;
+    auth->canceled = true;
+    auth->res->handle = MHD_create_response_from_buffer(len, "foo", MHD_RESPMEM_PERSISTENT);
+    ASSERT(sg__httpauth_dispatch(auth));
+    ASSERT(auth->res->ret == MHD_YES);
+    MHD_destroy_response(auth->res->handle);
+    auth->res->handle = NULL;
+
+    auth->res->ret = false;
     auth->canceled = false;
     auth->res->handle = NULL;
     ASSERT(!sg__httpauth_dispatch(auth));

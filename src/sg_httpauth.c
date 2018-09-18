@@ -58,13 +58,16 @@ bool sg__httpauth_dispatch(struct sg_httpauth *auth) {
         auth->res->ret = MHD_YES;
         goto done;
     }
-    if (auth->canceled || !auth->res->handle) {
-        auth->res->ret = MHD_NO;
+    if (auth->canceled) {
+        auth->res->ret = auth->res->handle ? MHD_YES : MHD_NO;
         goto done;
     }
-    sg_strmap_iter(auth->res->headers, sg__httpheaders_iter, auth->res->handle);
-    auth->res->ret = MHD_queue_basic_auth_fail_response(auth->res->con, auth->realm ? auth->realm : _("Sagui realm"),
-                                                        auth->res->handle);
+    if (auth->res->handle) {
+        sg_strmap_iter(auth->res->headers, sg__httpheaders_iter, auth->res->handle);
+        auth->res->ret = MHD_queue_basic_auth_fail_response(auth->res->con,
+                                                            auth->realm ? auth->realm : _("Sagui realm"),
+                                                            auth->res->handle);
+    }
     return false;
 done:
     return auth->res->ret == MHD_YES;

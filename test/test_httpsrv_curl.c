@@ -82,6 +82,8 @@ static bool srv_auth_cb(__SG_UNUSED void *cls, struct sg_httpauth *auth, struct 
     if (!(pass = strmatch(sg_httpauth_usr(auth), "foo") && strmatch(sg_httpauth_pwd(auth), "bar"))) {
         sg_free(data);
         ASSERT(sg_httpauth_deny(auth, DENIED_MSG, "text/plain") == 0);
+        if (strcmp(sg_httpreq_path(req), "/cancel-auth") == 0)
+            ASSERT(sg_httpauth_cancel(auth) == 0);
     }
     return pass;
 }
@@ -273,7 +275,19 @@ int main(void) {
     ASSERT(status == 200);
     ASSERT(strcmp(sg_str_content(res), OK_MSG) == 0);
 
+    snprintf(url, sizeof(url), "http://localhost:%d/cancel-auth", TEST_HTTPSRV_CURL_PORT);
+    ASSERT(curl_easy_setopt(curl, CURLOPT_USERPWD, "wrong:pass") == CURLE_OK);
+    ASSERT(curl_easy_setopt(curl, CURLOPT_URL, url) == CURLE_OK);
+    ASSERT(sg_str_clear(res) == 0);
+    ret = curl_easy_perform(curl);
+    CURL_LOG(ret);
+    ASSERT(ret == CURLE_OK);
+    ASSERT(curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &status) == CURLE_OK);
+    ASSERT(status == 500);
+    ASSERT(strcmp(sg_str_content(res), DENIED_MSG) == 0);
+
     snprintf(url, sizeof(url), "http://localhost:%d/wrong", TEST_HTTPSRV_CURL_PORT);
+    ASSERT(curl_easy_setopt(curl, CURLOPT_USERPWD, "foo:bar") == CURLE_OK);
     ASSERT(curl_easy_setopt(curl, CURLOPT_URL, url) == CURLE_OK);
     ASSERT(sg_str_clear(res) == 0);
     ret = curl_easy_perform(curl);
