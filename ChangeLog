@@ -1,4 +1,24 @@
+2018-09-18  silvioprog  <silvioprog@gmail.com>
+
+	Bump v1.1.0
+
+	Upgrade document "ABIComplianceChecker.md". [ci skip]
+
+	Fix #2 issued as "The authentication process doesn't allow to send a response when it is cancelled".
+
+	Handle errors using fixed buffer size.
+
+2018-09-17  silvioprog  <silvioprog@gmail.com>
+
+	Implements the response cleaning feature: sg_httpres_clear().
+
+2018-08-31  silvioprog  <silvioprog@gmail.com>
+
+	Adds steps to build for Raspbian. [ci skip]
+
 2018-08-29  silvioprog  <silvioprog@gmail.com>
+
+	Bump v1.0.3
 
 	Uses better parameter names in the sg_strerror() function.
 
@@ -92,7 +112,7 @@
 
 	Fix docs output.
 
-2018-08-10  silvioprog  <silvioprog@gmail.com>
+2018-08-10  Silvio Clecio  <silvioprog@gmail.com>
 
 	Set theme jekyll-theme-midnight
 
@@ -100,7 +120,7 @@
 
 	Update issues template
 
-2018-08-10  silvioprog  <silvioprog@gmail.com>
+2018-08-10  Silvio Clecio  <silvioprog@gmail.com>
 
 	Update issue templates
 
