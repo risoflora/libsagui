@@ -211,3 +211,13 @@ failed:
         oom();
     return errnum;
 }
+
+int sg_httpres_clear(struct sg_httpres *res) {
+    if (!res)
+        return EINVAL;
+    sg_strmap_cleanup(&res->headers);
+    MHD_destroy_response(res->handle);
+    res->handle = NULL;
+    res->status = 500;
+    return 0;
+}

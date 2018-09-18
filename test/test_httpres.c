@@ -263,6 +263,31 @@ static void test_httpres_sendstream(struct sg_httpres *res) {
     sg_free(str);
 }
 
+static void test_httpres_clear(struct sg_httpres *res) {
+    struct sg_strmap **headers;
+    ASSERT(sg_httpres_clear(NULL) == EINVAL);
+
+    headers = sg_httpres_headers(res);
+    ASSERT(sg_strmap_add(headers, "foo", "bar") == 0);
+    ASSERT(sg_strmap_add(headers, "lorem", "ipsum") == 0);
+    ASSERT(sg_httpres_set_cookie(res, "my", "cookie") == 0);
+    ASSERT(sg_httpres_send(res, "", "", 200) == 0);
+
+    ASSERT(res->handle);
+    ASSERT(strcmp(sg_strmap_get(*headers, "foo"), "bar") == 0);
+    ASSERT(strcmp(sg_strmap_get(*headers, "lorem"), "ipsum") == 0);
+    ASSERT(strcmp(sg_strmap_get(*headers, "Set-Cookie"), "my=cookie") == 0);
+    ASSERT(res->status == 200);
+
+    ASSERT(sg_httpres_clear(res) == 0);
+
+    ASSERT(!res->handle);
+    ASSERT(!sg_strmap_get(*headers, "foo"));
+    ASSERT(!sg_strmap_get(*headers, "lorem"));
+    ASSERT(!sg_strmap_get(*headers, "Set-Cookie"));
+    ASSERT(res->status == 500);
+}
+
 int main(void) {
     struct sg_httpres *res = sg__httpres_new(NULL);
     test__httpfileread_cb();
@@ -275,6 +300,7 @@ int main(void) {
     test_httpres_sendbinary(res);
     test_httpres_sendfile(res);
     test_httpres_sendstream(res);
+    test_httpres_clear(res);
     sg__httpres_free(res);
     return EXIT_SUCCESS;
 }

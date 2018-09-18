@@ -874,6 +874,14 @@ SG_EXTERN int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, size_
                                     void *handle, sg_free_cb free_cb, unsigned int status);
 
 /**
+ * Clears all headers, cookies, status and internal buffers of the response handle.
+ * \param[in] res Response handle.
+ * \retval 0 - Success.
+ * \retval EINVAL - Invalid argument.
+ */
+SG_EXTERN int sg_httpres_clear(struct sg_httpres *res);
+
+/**
  * Creates a new HTTP server handle.
  * \param[in] auth_cb Callback to grant/deny user access to the server resources.
  * \param[in] auth_cls User-defined closure for \p auth_cb.
