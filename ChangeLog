@@ -2,7 +2,7 @@
 
 	Bump v1.1.0
 
-	Upgrade document "ABIComplianceChecker.md". [ci skip]
+	Upgrade document "ABIComplianceChecker.md".
 
 	Fix #2 issued as "The authentication process doesn't allow to send a response when it is cancelled".
 
@@ -14,7 +14,7 @@
 
 2018-08-31  silvioprog  <silvioprog@gmail.com>
 
-	Adds steps to build for Raspbian. [ci skip]
+	Adds steps to build for Raspbian.
 
 2018-08-29  silvioprog  <silvioprog@gmail.com>
 
@@ -22,33 +22,33 @@
 
 	Uses better parameter names in the sg_strerror() function.
 
-	Update the SECURITY document. [ci skip]
+	Update the SECURITY document.
 
 	Publishes the main header even for static library.
 
-	Avoids the "build" folder inside distribution packages. [ci skip]
+	Avoids the "build" folder inside distribution packages.
 
 2018-08-24  silvioprog  <silvioprog@gmail.com>
 
-	Adds CII Best Practices. [ci skip]
+	Adds CII Best Practices.
 
-	Adds the SECURITY file. [ci skip]
+	Adds the SECURITY file.
 
-	Adds the ChangeLog file. [ci skip]
+	Adds the ChangeLog file.
 
-	Adds the LGTM status :sunglasses: . [ci skip]
+	Adds the LGTM status :sunglasses: .
 
 2018-08-22  silvioprog  <silvioprog@gmail.com>
 
-	Fix broken link. [ci skip]
+	Fix broken link.
 
 	Bump v1.0.2
 
 	Removes redundant assignment (according to `man 3 snprintf()` the null-terminated character it already set).
 
-	Upgrades PVS-Studio script. [ci skip]
+	Upgrades PVS-Studio script.
 
-	Improves documentation. [ci skip]
+	Improves documentation.
 
 	Upgrade UT libs.
 
