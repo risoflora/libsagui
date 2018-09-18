@@ -63,17 +63,11 @@ static void sg__httpuplds_free(struct sg_httpsrv *srv, struct sg_httpreq *req) {
 
 static void sg__httpuplds_err(struct sg_httpsrv *srv, const char *fmt, ...) {
     va_list ap;
-    size_t size;
-    char *err;
+    char err[SG_ERR_SIZE];
     va_start(ap, fmt);
-    size = (size_t) vsnprintf(NULL, 0, fmt, ap) + 1;
-    va_end(ap);
-    sg__alloc(err, size);
-    va_start(ap, fmt);
-    vsnprintf(err, size, fmt, ap);
+    vsnprintf(err, sizeof(err), fmt, ap);
     va_end(ap);
     srv->err_cb(srv->err_cls, err);
-    sg__free(err);
 }
 
 static int sg__httpuplds_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind, const char *key, const char *filename,
@@ -162,7 +156,7 @@ int sg__httpupld_cb(void *cls, void **handle, const char *dir, __SG_UNUSED const
                     __SG_UNUSED const char *mime, __SG_UNUSED const char *encoding) {
     struct sg__httpupld *h;
     struct stat sbuf;
-    char err[ERR_BUF_SIZE];
+    char err[SG_ERR_SIZE >> 2];
     int fd, errnum;
     sg__new(h);
     *handle = h;
@@ -228,7 +222,7 @@ size_t sg__httpupld_write_cb(void *handle, __SG_UNUSED uint64_t offset, const ch
 
 void sg__httpupld_free_cb(void *handle) {
     struct sg__httpupld *h;
-    char err[ERR_BUF_SIZE];
+    char err[SG_ERR_SIZE >> 2];
     if (!(h = handle))
         return;
     if (!h->file)

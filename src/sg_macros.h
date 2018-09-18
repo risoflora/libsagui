@@ -55,10 +55,6 @@
 #define PATH_SEP '/'
 #endif
 
-#ifndef ERR_BUF_SIZE
-#define ERR_BUF_SIZE 64
-#endif
-
 /* macro used for handling `Out of memory` errors. */
 #ifndef oom
 #ifdef NDEBUG

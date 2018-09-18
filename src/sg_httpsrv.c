@@ -43,16 +43,9 @@ static void sg__httperr_cb(__SG_UNUSED void *cls, const char *err) {
 
 static void sg__httpsrv_oel(void *cls, const char *fmt, va_list ap) {
     struct sg_httpsrv *srv = cls;
-    va_list ap_cpy;
-    size_t size;
-    char *err;
-    va_copy(ap_cpy, ap);
-    size = (size_t) vsnprintf(NULL, 0, fmt, ap_cpy) + 1;
-    va_end(ap_cpy);
-    sg__alloc(err, size);
-    vsnprintf(err, size, fmt, ap);
+    char err[SG_ERR_SIZE];
+    vsnprintf(err, sizeof(err), fmt, ap);
     srv->err_cb(srv->err_cls, err);
-    sg__free(err);
 }
 
 static int sg__httpsrv_ahc(void *cls, struct MHD_Connection *con, const char *url, const char *method,
