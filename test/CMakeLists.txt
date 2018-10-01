@@ -69,6 +69,10 @@ if (BUILD_TESTING)
             utils
             str
             strmap
+            entrypoint
+            entrypoints
+            routes
+            router
             httputils
             httpauth
             httpuplds

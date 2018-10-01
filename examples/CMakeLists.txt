@@ -67,6 +67,14 @@ if (SG_BUILD_EXAMPLES)
         list(APPEND SG_EXAMPLES httpsrv_tls)
         list(APPEND SG_EXAMPLES httpsrv_tls_cert_auth)
     endif ()
+    if (SG_PATH_ROUTING)
+        list(APPEND SG_EXAMPLES
+                entrypoint
+                router_simple
+                router_segments
+                router_vars
+                router_srv)
+    endif ()
     set(SG_EXAMPLES ${SG_EXAMPLES} PARENT_SCOPE)
     list(APPEND _libs sagui)
     foreach (_example ${SG_EXAMPLES})

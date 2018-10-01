@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include <sagui.h>
 
-/* NOTE: Error checking has been omitted for clarity. */
+/* NOTE: Error checking has been omitted to make it clear. */
 
 /*
  * Very simple insecure HTTPS server. For total security, use: https://help.ubuntu.com/community/OpenSSL.

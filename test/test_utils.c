@@ -31,8 +31,9 @@
 #include <windows.h>
 #endif
 #include <string.h>
-#include <sagui.h>
+#include "sg_macros.h"
 #include "sg_utils.h"
+#include <sagui.h>
 
 static void test__strdup(void) {
     char *str1, *str2;
@@ -296,6 +297,74 @@ static void test_is_post(void) {
     ASSERT(sg_is_post("OPTIONS"));
 }
 
+static void test_extract_entrypoint(void) {
+    char *str;
+    errno = 0;
+    ASSERT(!sg_extract_entrypoint(NULL));
+    ASSERT(errno == EINVAL);
+
+    ASSERT((str = sg_extract_entrypoint("")));
+    ASSERT(strcmp(str, "/") == 0);
+    sg__free(str);
+    ASSERT((str = sg_extract_entrypoint("/")));
+    ASSERT(strcmp(str, "/") == 0);
+    sg__free(str);
+    ASSERT((str = sg_extract_entrypoint("//")));
+    ASSERT(strcmp(str, "/") == 0);
+    sg__free(str);
+    ASSERT((str = sg_extract_entrypoint("///////")));
+    ASSERT(strcmp(str, "/") == 0);
+    sg__free(str);
+    ASSERT((str = sg_extract_entrypoint("foo")));
+    ASSERT(strcmp(str, "/foo") == 0);
+    sg__free(str);
+    ASSERT((str = sg_extract_entrypoint("/foo")));
+    ASSERT(strcmp(str, "/foo") == 0);
+    sg__free(str);
+    ASSERT((str = sg_extract_entrypoint("//foo")));
+    ASSERT(strcmp(str, "/foo") == 0);
+    sg__free(str);
+    ASSERT((str = sg_extract_entrypoint("///////foo")));
+    ASSERT(strcmp(str, "/foo") == 0);
+    sg__free(str);
+    ASSERT((str = sg_extract_entrypoint("foo/")));
+    ASSERT(strcmp(str, "/foo") == 0);
+    sg__free(str);
+    ASSERT((str = sg_extract_entrypoint("foo//")));
+    ASSERT(strcmp(str, "/foo") == 0);
+    sg__free(str);
+    ASSERT((str = sg_extract_entrypoint("/foo/")));
+    ASSERT(strcmp(str, "/foo") == 0);
+    sg__free(str);
+    ASSERT((str = sg_extract_entrypoint("///foo///")));
+    ASSERT(strcmp(str, "/foo") == 0);
+    sg__free(str);
+    ASSERT((str = sg_extract_entrypoint("/foo/bar")));
+    ASSERT(strcmp(str, "/foo") == 0);
+    sg__free(str);
+    ASSERT((str = sg_extract_entrypoint("///foo/bar")));
+    ASSERT(strcmp(str, "/foo") == 0);
+    sg__free(str);
+    ASSERT((str = sg_extract_entrypoint("/foo///bar")));
+    ASSERT(strcmp(str, "/foo") == 0);
+    sg__free(str);
+    ASSERT((str = sg_extract_entrypoint("///foo///bar")));
+    ASSERT(strcmp(str, "/foo") == 0);
+    sg__free(str);
+    ASSERT((str = sg_extract_entrypoint("/a")));
+    ASSERT(strcmp(str, "/a") == 0);
+    sg__free(str);
+    ASSERT((str = sg_extract_entrypoint("/a/b")));
+    ASSERT(strcmp(str, "/a") == 0);
+    sg__free(str);
+    ASSERT((str = sg_extract_entrypoint("//a/b")));
+    ASSERT(strcmp(str, "/a") == 0);
+    sg__free(str);
+    ASSERT((str = sg_extract_entrypoint("//a//b")));
+    ASSERT(strcmp(str, "/a") == 0);
+    sg__free(str);
+}
+
 static void test_tmpdir(void) {
 #ifdef _WIN32
     char path[MAX_PATH + 1];
@@ -330,6 +399,7 @@ int main(void) {
     test_free();
     test_strerror();
     test_is_post();
+    test_extract_entrypoint();
     test_tmpdir();
     return EXIT_SUCCESS;
 }

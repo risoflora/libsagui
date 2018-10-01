@@ -25,26 +25,19 @@
  * along with Sagui library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <sagui.h>
+#ifndef SG_ENTRYPOINT_H
+#define SG_ENTRYPOINT_H
 
-/* NOTE: Error checking has been omitted to make it clear. */
+#include "sg_macros.h"
+#include "sagui.h"
 
-static void req_cb(__SG_UNUSED void *cls, __SG_UNUSED struct sg_httpreq *req, struct sg_httpres *res) {
-    sg_httpres_send(res, "<html><head><title>Hello world</title></head><body>Hello world</body></html>",
-                    "text/html; charset=utf-8", 200);
-}
+struct sg_entrypoint {
+    char *name;
+    void *user_data;
+};
 
-int main(void) {
-    struct sg_httpsrv *srv = sg_httpsrv_new(req_cb, NULL);
-    if (!sg_httpsrv_listen(srv, 0 /* 0 = port chosen randomly */, false)) {
-        sg_httpsrv_free(srv);
-        return EXIT_FAILURE;
-    }
-    fprintf(stdout, "Server running at http://localhost:%d\n", sg_httpsrv_port(srv));
-    fflush(stdout);
-    getchar();
-    sg_httpsrv_free(srv);
-    return EXIT_SUCCESS;
-}
+SG__EXTERN void sg__entrypoint_prepare(struct sg_entrypoint *entrypoint, char *name, void *user_data);
+
+SG__EXTERN int sg__entrypoint_cmp(const void *a, const void *b);
+
+#endif /* SG_ENTRYPOINT_H */

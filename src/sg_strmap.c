@@ -145,7 +145,7 @@ int sg_strmap_iter(struct sg_strmap *map, sg_strmap_iter_cb cb, void *cls) {
 int sg_strmap_sort(struct sg_strmap **map, sg_strmap_sort_cb cb, void *cls) {
     if (!map || !cb)
         return EINVAL;
-#define SG_STRMAP_CMP(a, b) cb(cls, a, b)
+#define SG_STRMAP_CMP(a, b) cb(cls, (a), (b))
     HASH_SORT(*map, SG_STRMAP_CMP);
 #undef SG_STRMAP_CMP
     return 0;

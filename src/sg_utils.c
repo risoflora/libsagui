@@ -29,12 +29,11 @@
 #include <windows.h>
 #include <wchar.h>
 #endif
-#ifdef __GNUC__
 #include <stdio.h>
-#endif
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
 #include <ctype.h>
 #include "sg_macros.h"
 #include "sagui.h"
@@ -45,6 +44,17 @@
 /* Platform. */
 
 #ifdef _WIN32
+
+char *strndup(const char *s, size_t n) {
+    char *cpy;
+    size_t len = strlen(s);
+    if (n < len)
+        len = n;
+    if (!(cpy = sg__malloc(len + 1)))
+        return NULL;
+    cpy[len] = '\0';
+    return memcpy(cpy, s, len);
+}
 
 /* Maps a character string to a UTF-16 (wide character) string. */
 static wchar_t *stow(const char *str) {
@@ -245,6 +255,31 @@ bool sg_is_post(const char *method) {
     return false;
 }
 
+char *sg_extract_entrypoint(const char *path) {
+    char *str;
+    size_t len, start, end;
+    if (!path) {
+        errno = EINVAL;
+        return NULL;
+    }
+    len = strlen(path);
+    start = 0;
+    while (*(path + start) == '/')
+        start++;
+    for (end = start; end < len; end++)
+        if (*(path + end) == '/')
+            break;
+    len = (end - start) + 1;
+    str = sg__malloc(len + 1);
+    if (!str) {
+        errno = EINVAL;
+        return NULL;
+    }
+    snprintf(str, len + 1, "/%s", start + path);
+    str[len] = '\0';
+    return str;
+}
+
 /* File/directory. */
 
 char *sg_tmpdir() {
@@ -288,4 +323,11 @@ done:
     buf[len] = '\0';
     return buf;
 #endif
+}
+
+/* Errors. */
+
+void sg__err_cb(__SG_UNUSED void *cls, const char *err) {
+    if (isatty(fileno(stderr)) && (fprintf(stderr, "%s", err) > 0))
+        fflush(stderr);
 }

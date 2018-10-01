@@ -30,7 +30,7 @@
 #include <limits.h>
 #include <sagui.h>
 
-/* NOTE: Error checking has been omitted for clarity. */
+/* NOTE: Error checking has been omitted to make it clear. */
 
 #ifdef _WIN32
 #define PATH_SEP '\\'

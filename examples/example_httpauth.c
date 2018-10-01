@@ -30,7 +30,7 @@
 #include <string.h>
 #include <sagui.h>
 
-/* NOTE: Error checking has been omitted for clarity. */
+/* NOTE: Error checking has been omitted to make it clear. */
 
 static bool strmatch(const char *s1, const char *s2) {
     if (!s1 || !s2)

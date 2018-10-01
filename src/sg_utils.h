@@ -34,13 +34,19 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "sg_macros.h"
+#include "sagui.h"
 
 #ifdef _WIN32
 #ifndef PATH_MAX
 #define PATH_MAX _MAX_PATH
 #endif
+
 #define realpath(n, r) _fullpath((r), (n), PATH_MAX)
+
+SG__EXTERN char *strndup(const char *s, size_t n);
+
 SG__EXTERN int sg__rename(const char *old, const char *new);
+
 #else
 #define sg__rename rename
 #endif
@@ -59,5 +65,7 @@ SG__EXTERN char *sg__strjoin(char sep, const char *a, const char *b);
 SG__EXTERN bool sg__is_cookie_name(const char *name);
 
 SG__EXTERN bool sg__is_cookie_val(const char *val);
+
+SG__EXTERN void sg__err_cb(__SG_UNUSED void *cls, const char *err);
 
 #endif /* SG_UTILS_H */

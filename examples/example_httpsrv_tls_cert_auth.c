@@ -32,7 +32,7 @@
 #include <gnutls/x509.h>
 #include <sagui.h>
 
-/* NOTE: Some error checking has been omitted for clarity. */
+/* NOTE: Error checking has been omitted to make it clear. */
 
 /*
  * Simple example using TLS client authentication.

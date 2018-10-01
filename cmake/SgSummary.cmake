@@ -84,6 +84,12 @@ else ()
     set(_https_support "No")
 endif ()
 
+if (SG_PATH_ROUTING)
+    set(_routing "Yes")
+else ()
+    set(_routing "No")
+endif ()
+
 if (SG_BUILD_EXAMPLES)
     set(_build_examples "Yes")
     if (SG_EXAMPLES)
@@ -169,6 +175,8 @@ endif ()
 #    Machine: ${CMAKE_C_MACHINE}
 #    CFLAGS: ${_cflags}
 #  Build: ${_build_type}-${_build_arch} (${_lib_type})
+#  HTTPS: ${_https_support}
+#  Routing: ${_routing}
 #  Examples: ${_build_examples}
 #  Docs:
 #    HTML: ${_build_html}
@@ -190,6 +198,7 @@ Sagui library ${VERSION} - building summary:
     CFLAGS: ${_cflags}
   Build: ${_build_type}-${_build_arch} (${_lib_type})
   HTTPS: ${_https_support}
+  Routing: ${_routing}
   Examples: ${_build_examples}
   Docs:
     HTML: ${_build_html}

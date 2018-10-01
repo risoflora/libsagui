@@ -35,7 +35,7 @@
 #endif
 #include <sagui.h>
 
-/* NOTE: Error checking has been omitted for clarity. */
+/* NOTE: Error checking has been omitted to make it clear. */
 
 static unsigned int get_cpu_count(void) {
 #ifdef _WIN32

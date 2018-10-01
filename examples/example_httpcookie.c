@@ -30,7 +30,7 @@
 #include <string.h>
 #include <sagui.h>
 
-/* NOTE: Error checking has been omitted for clarity. */
+/* NOTE: Error checking has been omitted to make it clear. */
 
 #define CONTENT_TYPE "text/html; charset=utf-8"
 #define BEGIN_PAGE "<html><head><title>Cookies</title></head><body>"

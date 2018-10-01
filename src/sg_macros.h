@@ -36,6 +36,13 @@
 #include <errno.h>
 #endif
 
+#ifdef SG_PATH_ROUTING
+# ifndef PCRE2_CODE_UNIT_WIDTH
+#  define PCRE2_CODE_UNIT_WIDTH 8
+# endif
+#include <pcre2.h>
+#endif
+
 #ifndef SG__EXTERN
 # if defined(_WIN32) && defined(BUILD_TESTING)
 #  define SG__EXTERN __declspec(dllexport) extern

@@ -61,12 +61,23 @@ list(APPEND SG_C_SOURCE
         ${SG_SOURCE_DIR}/sg_httpreq.c
         ${SG_SOURCE_DIR}/sg_httpres.c
         ${SG_SOURCE_DIR}/sg_httpsrv.c)
+if (SG_PATH_ROUTING)
+    list(APPEND SG_C_SOURCE
+            ${SG_SOURCE_DIR}/sg_entrypoint.c
+            ${SG_SOURCE_DIR}/sg_entrypoints.c
+            ${SG_SOURCE_DIR}/sg_routes.c
+            ${SG_SOURCE_DIR}/sg_router.c)
+endif ()
 set(SG_C_SOURCE ${SG_C_SOURCE} PARENT_SCOPE)
 
 list(APPEND SG_SOURCE
         ${SG_INCLUDE_DIR}/sagui.h # allows many IDEs to find it
         ${SG_SOURCE_DIR}/sg_macros.h
         ${SG_C_SOURCE})
+if (WIN32 AND BUILD_SHARED_LIBS)
+    list(APPEND SG_SOURCE
+            ${SG_LIBSAGUI_RC})
+endif ()
 set(SG_SOURCE ${SG_SOURCE} PARENT_SCOPE)
 
 add_library(sagui ${SG_SOURCE})
@@ -81,6 +92,10 @@ elseif (WIN32)
 endif ()
 if (SG_HTTPS_SUPPORT AND GNUTLS_FOUND)
     list(APPEND _libs ${GNUTLS_LIBRARIES})
+endif ()
+if (SG_PATH_ROUTING)
+    add_dependencies(sagui ${PCRE2_FULL_NAME})
+    list(APPEND _libs ${PCRE2_ARCHIVE_LIB})
 endif ()
 target_link_libraries(sagui ${_libs})
 unset(_libs)

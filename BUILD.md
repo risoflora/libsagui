@@ -12,6 +12,26 @@ and was successfully tested in:
 * GCC on Raspbian - version 6.3.0 [`i686` / `arm-linux-gnueabihf`]
 * CLang on Raspbian - version 3.8.1 [`i686` / `armv6--linux-gnueabihf`]
 
+# Build options
+
+There are a few options of the Sagui building, they are:
+
+```bash
+-DSG_ABI_COMPLIANCE_CHECKER=<ON|OFF>
+-DSG_BUILD_HTML=<ON|OFF>
+-DSG_BUILD_PDF=<ON|OFF>
+-DSG_PICKY_COMPILER=<ON|OFF>
+-DPCRE2_JIT_SUPPORT=<ON|OFF>
+-DSG_PVS_STUDIO=<ON|OFF>
+-DSG_BUILD_EXAMPLES=<ON|OFF>
+-DSG_BUILD_<EXAMPLE>_EXAMPLE=<ON|OFF>
+-DSG_BUILD_<TEST>_TESTING=<ON|OFF>
+-DSG_HTTPS_SUPPORT=<ON|OFF>
+-DSG_PATH_ROUTING=<ON|OFF>
+```
+
+and many specific variables, like `SG_BUILD_HTML`, `SG_BUILD_PDF`, `SG_LIBSAGUI_RC`, `PCRE2_INCLUDE_DIR`, `PCRE2_JIT_SUPPORT` and so on. Please take a look at the `/cmake` directory for more information.
+
 # Build types
 
 One build type can be specified though the variable `CMAKE_BUILD_TYPE=<Release|Debug>`. A minimal command to prepare the release type is:

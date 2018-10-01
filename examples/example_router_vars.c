@@ -25,26 +25,40 @@
  * along with Sagui library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <sagui.h>
 
 /* NOTE: Error checking has been omitted to make it clear. */
 
-static void req_cb(__SG_UNUSED void *cls, __SG_UNUSED struct sg_httpreq *req, struct sg_httpres *res) {
-    sg_httpres_send(res, "<html><head><title>Hello world</title></head><body>Hello world</body></html>",
-                    "text/html; charset=utf-8", 200);
+static int get_vars_cb(__SG_UNUSED void *cls, const char *name, const char *val) {
+    fprintf(stdout, " %s: %s\n", name, val);
+    return 0;
+}
+
+static void route_cb(void *cls, struct sg_route *route) {
+    fprintf(stdout, "%s: %s\n", sg_route_path(route), (const char *) cls);
+    sg_route_get_vars(route, get_vars_cb, NULL);
 }
 
 int main(void) {
-    struct sg_httpsrv *srv = sg_httpsrv_new(req_cb, NULL);
-    if (!sg_httpsrv_listen(srv, 0 /* 0 = port chosen randomly */, false)) {
-        sg_httpsrv_free(srv);
-        return EXIT_FAILURE;
-    }
-    fprintf(stdout, "Server running at http://localhost:%d\n", sg_httpsrv_port(srv));
+    struct sg_router *router;
+    struct sg_route *routes = NULL;
+    sg_routes_add(&routes, "/foo/bar", route_cb, "foo-bar-data");
+    sg_routes_add(&routes, "/bar", route_cb, "bar-data");
+    sg_routes_add(&routes, "/customer/(?P<name>[a-zA-Z]+)", route_cb, "customer-data");
+    sg_routes_add(&routes, "/product/(?P<id>[0-9]+)", route_cb, "product-data");
+    sg_routes_add(&routes, "/employee/(?P<id>[0-9]+)/[a|i]", route_cb, "employee-data");
+    router = sg_router_new(routes);
+    sg_router_dispatch(router, "/foo/bar", NULL);
+    fprintf(stdout, "---\n");
+    sg_router_dispatch(router, "/customer/Torvalds", NULL);
+    fprintf(stdout, "---\n");
+    sg_router_dispatch(router, "/product/123", NULL);
+    fprintf(stdout, "---\n");
+    sg_router_dispatch(router, "/employee/123/i", NULL);
+    sg_routes_cleanup(&routes);
+    sg_router_free(router);
     fflush(stdout);
-    getchar();
-    sg_httpsrv_free(srv);
     return EXIT_SUCCESS;
 }

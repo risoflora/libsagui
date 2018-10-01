@@ -12,6 +12,10 @@ Sagui is an ideal C library to develop cross-platform HTTP servers. Its core has
   * Event-driven - _single-thread + main loop + select_
   * Threaded - _one thread per request_
   * Thread pool - _thread pool + select_
+* High-performance path routing that supports:
+  * Regular expressions using [PCRE2](https://www.pcre.org/current/doc/html/pcre2pattern.html) [syntax](https://www.pcre.org/current/doc/html/pcre2syntax.html)
+  * Just-in-time optimization ([JIT](https://www.pcre.org/current/doc/html/pcre2jit.html))
+  * Binary search in path entry-points
 * HTTPS support using [GnuTLS](https://www.gnutls.org)
 * Basic authentication
 * Upload/download streaming by:
@@ -39,6 +43,12 @@ The documentation has been written in [Doxygen](https://www.stack.nl/~dimitri/do
 # Building/installing
 
 Check the [BUILD.md](https://github.com/risoflora/libsagui/blob/master/BUILD.md) for instructions to build the library, examples, tests and documentation, then, follow the steps in [INSTALL.md](https://github.com/risoflora/libsagui/blob/master/INSTALL.md) to install the library from sources on your system.
+
+# Compatibility
+
+A typical upgrade of the Sagui library does not break the ABI at all. Take a look at the [API/ABI compatibility report](https://abi-laboratory.pro/?view=timeline&l=libsagui) to compare most recent library versions.
+
+See also [Checking backward API/ABI compatibility of Sagui library versions](https://github.com/risoflora/libsagui/blob/master/ABIComplianceChecker.md).
 
 # Contributing
 

@@ -27,19 +27,14 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 #include <errno.h>
 #include "sg_macros.h"
 #include "microhttpd.h"
 #include "sagui.h"
+#include "sg_utils.h"
 #include "sg_httpsrv.h"
 #include "sg_httpauth.h"
 #include "sg_httpreq.h"
-
-static void sg__httperr_cb(__SG_UNUSED void *cls, const char *err) {
-    if (isatty(fileno(stderr)) && (fprintf(stderr, "%s", err) > 0))
-        fflush(stderr);
-}
 
 static void sg__httpsrv_oel(void *cls, const char *fmt, va_list ap) {
     struct sg_httpsrv *srv = cls;
@@ -157,7 +152,7 @@ struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb, void *auth_cls, sg_ht
 }
 
 struct sg_httpsrv *sg_httpsrv_new(sg_httpreq_cb cb, void *cls) {
-    return sg_httpsrv_new2(NULL, NULL, cb, cls, sg__httperr_cb, NULL);
+    return sg_httpsrv_new2(NULL, NULL, cb, cls, sg__err_cb, NULL);
 }
 
 void sg_httpsrv_free(struct sg_httpsrv *srv) {

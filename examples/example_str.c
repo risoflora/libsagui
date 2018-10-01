@@ -25,7 +25,7 @@
  * along with Sagui library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* NOTE: Error checking has been omitted for clarity. */
+/* NOTE: Error checking has been omitted to make it clear. */
 
 #include <stdio.h>
 #include <stdlib.h>

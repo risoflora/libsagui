@@ -25,26 +25,12 @@
  * along with Sagui library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <sagui.h>
+#ifndef EXAMPLE_HTTPSRV_BENCHMARK_H
+#define EXAMPLE_HTTPSRV_BENCHMARK_H
 
-/* NOTE: Error checking has been omitted to make it clear. */
+/**
+ * \example example_httpsrv_benchmark.c
+ * Simple "hello world" HTTP server to be used by benchmark tests.
+ */
 
-static void req_cb(__SG_UNUSED void *cls, __SG_UNUSED struct sg_httpreq *req, struct sg_httpres *res) {
-    sg_httpres_send(res, "<html><head><title>Hello world</title></head><body>Hello world</body></html>",
-                    "text/html; charset=utf-8", 200);
-}
-
-int main(void) {
-    struct sg_httpsrv *srv = sg_httpsrv_new(req_cb, NULL);
-    if (!sg_httpsrv_listen(srv, 0 /* 0 = port chosen randomly */, false)) {
-        sg_httpsrv_free(srv);
-        return EXIT_FAILURE;
-    }
-    fprintf(stdout, "Server running at http://localhost:%d\n", sg_httpsrv_port(srv));
-    fflush(stdout);
-    getchar();
-    sg_httpsrv_free(srv);
-    return EXIT_SUCCESS;
-}
+#endif /* EXAMPLE_HTTPSRV_BENCHMARK_H */
