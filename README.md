@@ -50,15 +50,15 @@ A typical upgrade of the Sagui library does not break the ABI at all. Take a loo
 
 See also [Checking backward API/ABI compatibility of Sagui library versions](https://github.com/risoflora/libsagui/blob/master/ABIComplianceChecker.md).
 
+# Projects using Sagui
+
+* [Brook framework](https://github.com/silvioprog/brookframework) -  Pascal framework which helps to develop web applications.
+
 # Contributing
 
 Sagui is totally open source and would not be possible without our [contributors](https://github.com/risoflora/libsagui/blob/master/THANKS). If you want to submit contributions, please fork the project on GitHub and send a pull request. You retain the copyright on your contributions. If you have questions, open a new issue at the [issues page](https://github.com/risoflora/libsagui/issues). For donations to support this project, please click the botton below.
 
 [![Support this project](https://www.paypalobjects.com/en_US/GB/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=silvioprog%40gmail%2ecom&lc=US&item_name=libsagui&item_number=libsagui&currency_code=USD&bn=PP%2dDonationsBF%3aproject%2dsupport%2ejpg%3aNonHosted)
-
-# Projects using Sagui
-
-* [Brook framework](https://github.com/silvioprog/brookframework) -  Pascal framework which helps to develop web applications.
 
 # Support
 
