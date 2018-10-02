@@ -56,6 +56,10 @@ Sagui is totally open source and would not be possible without our [contributors
 
 [![Support this project](https://www.paypalobjects.com/en_US/GB/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=silvioprog%40gmail%2ecom&lc=US&item_name=libsagui&item_number=libsagui&currency_code=USD&bn=PP%2dDonationsBF%3aproject%2dsupport%2ejpg%3aNonHosted)
 
+# Projects using Sagui
+
+* [Brook framework](https://github.com/silvioprog/brookframework) -  Pascal framework which helps to develop web applications.
+
 # Support
 
 This project is completely self-explanatory, but, if you need a consulting service to integrate it on your project, [contact us](mailto:silvioprog@gmail.com).
