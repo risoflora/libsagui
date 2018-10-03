@@ -74,6 +74,12 @@ if (${_build_type} MATCHES "[Rr]elease|RELEASE")
     set(_is_release ON)
 endif ()
 
+if (SG_FFI_SUPPORT)
+    set(_ffi "Yes")
+else ()
+    set(_ffi "No")
+endif ()
+
 if (SG_HTTPS_SUPPORT)
     if (GNUTLS_FOUND)
         set(_https_support "Yes")
@@ -175,6 +181,7 @@ endif ()
 #    Machine: ${CMAKE_C_MACHINE}
 #    CFLAGS: ${_cflags}
 #  Build: ${_build_type}-${_build_arch} (${_lib_type})
+#  FFI: ${_ffi}
 #  HTTPS: ${_https_support}
 #  Routing: ${_routing}
 #  Examples: ${_build_examples}
@@ -197,6 +204,7 @@ Sagui library ${VERSION} - building summary:
     Machine: ${CMAKE_C_MACHINE}
     CFLAGS: ${_cflags}
   Build: ${_build_type}-${_build_arch} (${_lib_type})
+  FFI: ${_ffi}
   HTTPS: ${_https_support}
   Routing: ${_routing}
   Examples: ${_build_examples}
@@ -212,6 +220,7 @@ unset(_cflags)
 unset(_build_type)
 unset(_build_arch)
 unset(_lib_type)
+unset(_ffi)
 unset(_https_support)
 unset(_build_examples)
 unset(_build_html)
