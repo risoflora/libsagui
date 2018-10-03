@@ -89,13 +89,12 @@ ExternalProject_Add(${MHD_FULL_NAME}
         PREFIX ${CMAKE_BINARY_DIR}/${MHD_FULL_NAME}
         SOURCE_DIR ${CMAKE_SOURCE_DIR}/lib/${MHD_FULL_NAME}
         CONFIGURE_COMMAND <SOURCE_DIR>/configure ${_manifest_tool} --host=${CMAKE_C_MACHINE} --prefix=<INSTALL_DIR> ${MHD_OPTIONS}
-        BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} ${_ldflags}
+        BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
         INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
         LOG_DOWNLOAD ON
         LOG_CONFIGURE ${_log_configure}
         LOG_BUILD ON
         LOG_INSTALL ON)
-unset(_ldflags)
 
 ExternalProject_Get_Property(${MHD_FULL_NAME} INSTALL_DIR)
 set(MHD_INCLUDE_DIR ${INSTALL_DIR}/include)
