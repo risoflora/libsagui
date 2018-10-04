@@ -41,9 +41,9 @@ static ffi_type *sg__ffi_otot(char opt) {
         case 'C':
             return &ffi_type_uint8;
         case 'i':
-            return &ffi_type_sint;
+            return &ffi_type_sint32;
         case 'I':
-            return &ffi_type_uint;
+            return &ffi_type_uint32;
         case 's':
             return &ffi_type_sint16;
         case 'S':
@@ -83,6 +83,8 @@ static enum ffi_abi sg__ffi_otoa(char opt) {
 }
 
 static bool sg__ffi_prep(struct sg_ffi *ffi, const char *opts) {
+    ffi->abi = FFI_DEFAULT_ABI;
+    ffi->rtype = &ffi_type_void;
     while (*opts != ':') {
         if (!(*opts))
             return true;
