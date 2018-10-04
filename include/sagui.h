@@ -192,7 +192,12 @@ SG_EXTERN char *sg_strerror(int errnum, char *errmsg, size_t errlen);
  */
 SG_EXTERN bool sg_is_post(const char *method);
 
-/* experimental */
+/**
+ * Extracts the entry-point of a path or resource. For example, given a path
+ * `/api1/customer`, the part considered as entry-point is `/api1`.
+ * \param path Entry-point as null-terminated string.
+ * \retval NULL If no memory space is available.
+ */
 SG_EXTERN char *sg_extract_entrypoint(const char *path);
 
 /**
@@ -213,7 +218,8 @@ struct sg_ffi;
 typedef void (*sg_ffi_fn)(void);
 
 /* experimental */
-SG_EXTERN struct sg_ffi *sg_ffi_new(const char *opts);
+SG_EXTERN struct sg_ffi *sg_ffi_new(const char *opts)
+__SG_MALLOC;
 
 /* experimental */
 SG_EXTERN void sg_ffi_free(struct sg_ffi *ffi);
