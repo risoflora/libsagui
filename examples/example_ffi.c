@@ -33,13 +33,13 @@
 
 /* NOTE: Error checking has been omitted to make it clear. */
 
-static char *my_function(bool b, int i, const char *s) {
+static char *my_function(const char *s, int i, bool b) {
     const char *fmt = "%s|%d|%s";
-    const char *tf = (b ? "TRUE" : "FALSE");
+    const char *tf = (b ? "true" : "false");
     char *str;
-    size_t len = (size_t) snprintf(NULL, 0, fmt, tf, i, s) + 1;
+    size_t len = (size_t) snprintf(NULL, 0, fmt, s, i, tf) + 1;
     str = sg_alloc(len);
-    snprintf(str, len, fmt, tf, i, s);
+    snprintf(str, len, fmt, s, i, tf);
     return str;
 }
 
@@ -47,21 +47,14 @@ int main(void) {
     struct sg_ffi *ffi;
     void *args[3];
     char *ret = NULL;
-    bool b = true;
-    int i = 123;
     const char *s = "abc";
-    args[0] = &b;
+    int i = 123;
+    bool b = true;
+    args[0] = &s;
     args[1] = &i;
-    args[2] = &s;
-    /* bis:s+p
-     * b = param 1: bool
-     * i = param 2: int
-     * p = param 3: pointer
-     * p = return: pointer
-     * d = default ABI
-     */
-    //ffi = sg_ffi_new("bip:p:d");
-    ffi = sg_ffi_new("bip:p:d");
+    args[2] = &b;
+    /* Param 1: (p)pointer; Param 2: (i)nt; Param 3: (c)char; Return: (p)ointer; ABI: (d)efault (cdecl) */
+    ffi = sg_ffi_new("pic:p:d");
     sg_ffi_call(ffi, (sg_ffi_fn) my_function, args, &ret);
     printf("my_function: %s\n", ret);
     sg_free(ret);

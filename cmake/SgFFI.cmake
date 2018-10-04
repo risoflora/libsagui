@@ -47,7 +47,8 @@ set(__SG_FFI_INCLUDED ON)
 set(FFI_NAME "libffi")
 set(FFI_VER "3.2.1")
 set(FFI_FULL_NAME "${FFI_NAME}-${FFI_VER}")
-set(FFI_URL "ftp://sourceware.org/pub/libffi/${FFI_FULL_NAME}.tar.gz")
+set(FFI_URL "https://sourceware.org/ftp/libffi/${FFI_FULL_NAME}.tar.gz")
+set(MHD_URL_MIRROR "ftp://sourceware.org/pub/libffi/${FFI_FULL_NAME}.tar.gz")
 set(FFI_SHA256 "d06ebb8e1d9a22d19e38d63fdb83954253f39bedc5d46232a05645685722ca37")
 set(FFI_OPTIONS
         --enable-static=yes

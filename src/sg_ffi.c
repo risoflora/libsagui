@@ -36,9 +36,9 @@
 
 static ffi_type *sg__ffi_otot(char opt) {
     switch (opt) {
-        case 'b':
+        case 'c':
             return &ffi_type_sint8;
-        case 'B':
+        case 'C':
             return &ffi_type_uint8;
         case 'i':
             return &ffi_type_sint;
