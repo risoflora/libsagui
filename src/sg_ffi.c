@@ -71,7 +71,7 @@ static enum ffi_abi sg__ffi_otoa(char opt) {
     switch (opt) {
         case 'd':
             return FFI_DEFAULT_ABI;
-#ifndef X86_WIN64
+#ifdef X86_WIN32
         case 's':
             return FFI_STDCALL;
         case 'r':

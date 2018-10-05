@@ -45,14 +45,15 @@ endif ()
 set(__SG_FFI_INCLUDED ON)
 
 set(FFI_NAME "libffi")
-set(FFI_VER "3.2.1")
+set(FFI_VER "3.3-rc0")
 set(FFI_FULL_NAME "${FFI_NAME}-${FFI_VER}")
-set(FFI_URL "https://sourceware.org/ftp/libffi/${FFI_FULL_NAME}.tar.gz")
-set(MHD_URL_MIRROR "ftp://sourceware.org/pub/libffi/${FFI_FULL_NAME}.tar.gz")
-set(FFI_SHA256 "d06ebb8e1d9a22d19e38d63fdb83954253f39bedc5d46232a05645685722ca37")
+set(FFI_URL "https://github.com/libffi/libffi/releases/download/v3.3-rc0/${FFI_FULL_NAME}.tar.gz")
+set(FFI_URL_MIRROR "https://github.com/libffi/libffi/releases/download/v3.3-rc0/${FFI_FULL_NAME}.tar.gz")
+set(FFI_SHA256 "403d67aabf1c05157855ea2b1d9950263fb6316536c8c333f5b9ab1eb2f20ecf")
 set(FFI_OPTIONS
         --enable-static=yes
-        --enable-shared=no)
+        --enable-shared=no
+        --disable-multi-os-directory)
 
 if (MINGW)
     set(FFI_OPTIONS ${FFI_OPTIONS} --quiet)
@@ -70,7 +71,6 @@ ExternalProject_Add(${FFI_FULL_NAME}
         SOURCE_DIR ${CMAKE_SOURCE_DIR}/lib/${FFI_FULL_NAME}
         CONFIGURE_COMMAND <SOURCE_DIR>/configure --host=${CMAKE_C_MACHINE} --prefix=<INSTALL_DIR> ${FFI_OPTIONS}
         BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
-        BINARY_DIR ${CMAKE_BINARY_DIR}/${FFI_FULL_NAME}
         INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
         LOG_DOWNLOAD ON
         LOG_CONFIGURE ${_log_configure}
