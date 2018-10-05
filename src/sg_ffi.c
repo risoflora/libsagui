@@ -71,12 +71,16 @@ static enum ffi_abi sg__ffi_otoa(char opt) {
     switch (opt) {
         case 'd':
             return FFI_DEFAULT_ABI;
+#ifndef X86_WIN64
         case 's':
             return FFI_STDCALL;
-        case 'p':
-            return FFI_PASCAL;
         case 'r':
             return FFI_REGISTER;
+        case 'f':
+            return FFI_FASTCALL;
+        case 't':
+            return FFI_THISCALL;
+#endif
         default:;
     }
     return -1;

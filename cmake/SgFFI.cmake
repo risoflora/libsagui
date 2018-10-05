@@ -54,6 +54,13 @@ set(FFI_OPTIONS
         --enable-static=yes
         --enable-shared=no)
 
+if (MINGW)
+    set(FFI_OPTIONS ${FFI_OPTIONS} --quiet)
+    set(_log_configure OFF)
+else ()
+    set(_log_configure ON)
+endif ()
+
 ExternalProject_Add(${FFI_FULL_NAME}
         URL ${FFI_URL} ${FFI_URL_MIRROR}
         URL_HASH SHA256=${FFI_SHA256}
@@ -66,7 +73,7 @@ ExternalProject_Add(${FFI_FULL_NAME}
         BINARY_DIR ${CMAKE_BINARY_DIR}/${FFI_FULL_NAME}
         INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
         LOG_DOWNLOAD ON
-        LOG_CONFIGURE ON
+        LOG_CONFIGURE ${_log_configure}
         LOG_BUILD ON
         LOG_INSTALL ON)
 
