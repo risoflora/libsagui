@@ -76,7 +76,7 @@ endif ()
 
 if (SG_FFI_SUPPORT)
     set(_ffi "Yes")
-    if (SG_FFI_LEGACY)
+    if (SG_USE_LEGACY_FFI)
         set(_ffi "Yes (legacy)")
     endif ()
 else ()

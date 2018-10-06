@@ -10,7 +10,8 @@
 #
 #   FFI_INCLUDE_DIR - Directory of includes.
 #   FFI_ARCHIVE_LIB - AR archive library.
-#   FFI_LEGACY - Use FFI version 3.2.1.
+#
+#   SG_USE_LEGACY_FFI - Use legacy FFI version 3.2.1.
 #
 
 #                         _
@@ -46,23 +47,23 @@ endif ()
 set(__SG_FFI_INCLUDED ON)
 
 if (WIN32 AND (CMAKE_SIZEOF_VOID_P EQUAL 4))
-    set(_ffi_legacy ON)
+    set(_legacy_ffi ON)
 else ()
-    set(_ffi_legacy OFF)
+    set(_legacy_ffi OFF)
 endif ()
 
-option(SG_FFI_LEGACY "Use legacy FFI version 3.2.1" ${_ffi_legacy})
+option(SG_USE_LEGACY_FFI "Use legacy FFI version 3.2.1" ${_legacy_ffi})
 
-unset(_ffi_legacy)
+unset(_legacy_ffi)
 
 set(FFI_NAME "libffi")
-if (FFI_LEGACY)
+if (SG_USE_LEGACY_FFI)
     set(FFI_VER "3.2.1")
 else ()
     set(FFI_VER "3.3-rc0")
 endif ()
 set(FFI_FULL_NAME "${FFI_NAME}-${FFI_VER}")
-if (FFI_LEGACY)
+if (SG_USE_LEGACY_FFI)
     set(FFI_URL "https://sourceware.org/ftp/libffi/${FFI_FULL_NAME}.tar.gz")
     set(FFI_URL_MIRROR "ftp://sourceware.org/pub/libffi/${FFI_FULL_NAME}.tar.gz")
     set(FFI_SHA256 "d06ebb8e1d9a22d19e38d63fdb83954253f39bedc5d46232a05645685722ca37")
