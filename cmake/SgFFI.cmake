@@ -75,8 +75,14 @@ endif ()
 
 set(FFI_OPTIONS
         --enable-static=yes
-        --enable-shared=no
-        --disable-multi-os-directory)
+        --enable-shared=no)
+
+if (SG_USE_LEGACY_FFI)
+    set(_bin_dir ${CMAKE_BINARY_DIR}/${FFI_FULL_NAME})
+elseif ()
+    set(FFI_OPTIONS ${FFI_OPTIONS}
+            --disable-multi-os-directory)
+endif ()
 
 if (MINGW)
     set(FFI_OPTIONS ${FFI_OPTIONS} --quiet)
@@ -94,6 +100,7 @@ ExternalProject_Add(${FFI_FULL_NAME}
         SOURCE_DIR ${CMAKE_SOURCE_DIR}/lib/${FFI_FULL_NAME}
         CONFIGURE_COMMAND <SOURCE_DIR>/configure --host=${CMAKE_C_MACHINE} --prefix=<INSTALL_DIR> ${FFI_OPTIONS}
         BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+        BINARY_DIR ${_bin_dir}
         INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
         LOG_DOWNLOAD ON
         LOG_CONFIGURE ${_log_configure}
