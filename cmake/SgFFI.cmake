@@ -10,6 +10,7 @@
 #
 #   FFI_INCLUDE_DIR - Directory of includes.
 #   FFI_ARCHIVE_LIB - AR archive library.
+#   FFI_LEGACY - Use FFI version 3.2.1.
 #
 
 #                         _
@@ -44,12 +45,33 @@ if (__SG_FFI_INCLUDED)
 endif ()
 set(__SG_FFI_INCLUDED ON)
 
+if (WIN32 AND (CMAKE_SIZEOF_VOID_P EQUAL 4))
+    set(_ffi_legacy ON)
+else ()
+    set(_ffi_legacy OFF)
+endif ()
+
+option(SG_FFI_LEGACY "Use legacy FFI version 3.2.1" ${_ffi_legacy})
+
+unset(_ffi_legacy)
+
 set(FFI_NAME "libffi")
-set(FFI_VER "3.3-rc0")
+if (FFI_LEGACY)
+    set(FFI_VER "3.2.1")
+else ()
+    set(FFI_VER "3.3-rc0")
+endif ()
 set(FFI_FULL_NAME "${FFI_NAME}-${FFI_VER}")
-set(FFI_URL "https://github.com/libffi/libffi/releases/download/v3.3-rc0/${FFI_FULL_NAME}.tar.gz")
-set(FFI_URL_MIRROR "https://github.com/libffi/libffi/releases/download/v3.3-rc0/${FFI_FULL_NAME}.tar.gz")
-set(FFI_SHA256 "403d67aabf1c05157855ea2b1d9950263fb6316536c8c333f5b9ab1eb2f20ecf")
+if (FFI_LEGACY)
+    set(FFI_URL "https://sourceware.org/ftp/libffi/${FFI_FULL_NAME}.tar.gz")
+    set(FFI_URL_MIRROR "ftp://sourceware.org/pub/libffi/${FFI_FULL_NAME}.tar.gz")
+    set(FFI_SHA256 "d06ebb8e1d9a22d19e38d63fdb83954253f39bedc5d46232a05645685722ca37")
+else ()
+    set(FFI_URL "https://github.com/libffi/libffi/releases/download/v3.3-rc0/${FFI_FULL_NAME}.tar.gz")
+    set(FFI_URL_MIRROR "https://github.com/libffi/libffi/releases/download/v3.3-rc0/${FFI_FULL_NAME}.tar.gz")
+    set(FFI_SHA256 "403d67aabf1c05157855ea2b1d9950263fb6316536c8c333f5b9ab1eb2f20ecf")
+endif ()
+
 set(FFI_OPTIONS
         --enable-static=yes
         --enable-shared=no
