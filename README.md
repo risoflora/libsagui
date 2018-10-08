@@ -42,7 +42,7 @@ The documentation has been written in [Doxygen](https://www.stack.nl/~dimitri/do
 
 # Downloading
 
-All stable releases are available for download at the [releases page](https://github.com/risoflora/libsagui/releases). For Windows, the packages `libsagui-N.N.N-dll.zip` (and their respective GPG signature) contains the compiled DLLs for x86 and x86_64. For other systems, the packages `Source code (tar.gz|zip)` contains the library source.
+All stable releases are available for download at the [releases page](https://github.com/risoflora/libsagui/releases). For Windows, the packages `libsagui-N.N.N-dll.zip` (and their respective GPG signature) contains the compiled DLLs for 32 and 64 bits. For other systems, the packages `Source code (tar.gz|zip)` contains the library source.
 
 # Building/installing
 
