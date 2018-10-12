@@ -209,26 +209,6 @@ SG_EXTERN char *sg_tmpdir(void);
 
 /** \} */
 
-#ifdef SG_FFI_SUPPORT
-
-/* experimental */
-struct sg_ffi;
-
-/* experimental */
-typedef void (*sg_ffi_fn)(void);
-
-/* experimental */
-SG_EXTERN struct sg_ffi *sg_ffi_new(const char *opts)
-__SG_MALLOC;
-
-/* experimental */
-SG_EXTERN void sg_ffi_free(struct sg_ffi *ffi);
-
-/* experimental */
-SG_EXTERN int sg_ffi_call(struct sg_ffi *ffi, sg_ffi_fn fn, void **args, void *ret);
-
-#endif
-
 /**
  * \ingroup sg_api
  * \defgroup sg_str String

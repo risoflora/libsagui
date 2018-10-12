@@ -61,10 +61,6 @@ list(APPEND SG_C_SOURCE
         ${SG_SOURCE_DIR}/sg_httpreq.c
         ${SG_SOURCE_DIR}/sg_httpres.c
         ${SG_SOURCE_DIR}/sg_httpsrv.c)
-if (SG_FFI_SUPPORT)
-    list(APPEND SG_C_SOURCE
-            ${SG_SOURCE_DIR}/sg_ffi.c)
-endif ()
 if (SG_PATH_ROUTING)
     list(APPEND SG_C_SOURCE
             ${SG_SOURCE_DIR}/sg_entrypoint.c
@@ -93,10 +89,6 @@ if (UNIX)
     endif ()
 elseif (WIN32)
     list(APPEND _libs ws2_32)
-endif ()
-if (SG_FFI_SUPPORT)
-    add_dependencies(sagui ${FFI_FULL_NAME})
-    list(APPEND _libs ${FFI_ARCHIVE_LIB})
 endif ()
 if (SG_HTTPS_SUPPORT AND GNUTLS_FOUND)
     list(APPEND _libs ${GNUTLS_LIBRARIES})

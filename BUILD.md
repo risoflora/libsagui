@@ -28,7 +28,6 @@ There are a few options of the Sagui building, they are:
 -DSG_BUILD_<TEST>_TESTING=<ON|OFF>
 -DSG_HTTPS_SUPPORT=<ON|OFF>
 -DSG_PATH_ROUTING=<ON|OFF>
--DSG_USE_LEGACY_FFI=<ON/OFF>
 ```
 
 and many specific variables, like `SG_BUILD_HTML`, `SG_BUILD_PDF`, `SG_LIBSAGUI_RC`, `PCRE2_INCLUDE_DIR`, `PCRE2_JIT_SUPPORT` and so on. Please take a look at the `/cmake` directory for more information.
