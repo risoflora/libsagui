@@ -60,7 +60,8 @@ if (SG_BUILD_EXAMPLES)
             httpcookie
             httpsrv
             httpuplds
-            httpsrv_benchmark)
+            httpsrv_benchmark
+            httpreq_payload)
     if (SG_HTTPS_SUPPORT AND GNUTLS_FOUND)
         set(SG_EXAMPLES_CERTS_DIR "${SG_EXAMPLES_SOURCE_DIR}/certs")
         add_definitions(-DSG_EXAMPLES_CERTS_DIR="${SG_EXAMPLES_CERTS_DIR}")
