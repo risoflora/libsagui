@@ -80,7 +80,7 @@ static void process_uploads(struct sg_httpreq *req, struct sg_httpres *res) {
         if ((errnum = sg_httpupld_save(upld, true)) == 0)
             sg_str_printf(body, "<li><a href=\"?file=%s\">%s</a></li>", name, name);
         else {
-            sg_strerror(-errnum, errmsg, sizeof(errmsg));
+            sg_strerror(errnum, errmsg, sizeof(errmsg));
             sg_str_printf(body, "<li><font color='red'>%s - failed - %s</font></li>", name, errmsg);
         }
         sg_httpuplds_next(&upld);
