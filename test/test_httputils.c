@@ -45,7 +45,9 @@ static void test__httpcon_iter(void) {
 
 static void test__httpheaders_iter(void) {
     struct sg_strmap *header = sg_alloc(sizeof(struct sg_strmap));
-    struct MHD_Response *res = sg_alloc(1);
+    struct MHD_Response *res = sg_alloc(64);
+    header->name = "";
+    header->val = "";
     ASSERT(sg__httpheaders_iter(NULL, header) == 0);
     ASSERT(sg__httpheaders_iter(res, header) == 0);
     sg_free(header);
