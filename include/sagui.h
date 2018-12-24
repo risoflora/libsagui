@@ -854,8 +854,9 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t si
 /**
  * Sends a file to the client.
  * \param[in] res Response handle.
- * \param[in] block_size Preferred block size for file loading.
+ * \param[in] size Size of the file to be sent.
  * \param[in] max_size Maximum allowed file size.
+ * \param[in] offset Offset to start reading from in the file to be sent.
  * \param[in] filename Path of the file to be sent.
  * \param[in] rendered If `true` the file is rendered, otherwise downloaded.
  * \param[in] status HTTP status code.
@@ -867,8 +868,8 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t si
  * \retval EFBIG - File too large.
  * \warning It exits the application if called when no memory space is available.
  */
-SG_EXTERN int sg_httpres_sendfile(struct sg_httpres *res, size_t block_size, uint64_t max_size, const char *filename,
-                                  bool rendered, unsigned int status);
+SG_EXTERN int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size, uint64_t offset,
+                                  const char *filename, bool rendered, unsigned int status);
 
 /**
  * Sends a stream to the client.

@@ -30,6 +30,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <sys/stat.h>
 #include "sg_macros.h"
 #include "microhttpd.h"
@@ -38,18 +39,6 @@
 #include "sg_strmap.h"
 #include "sg_httputils.h"
 #include "sg_httpres.h"
-
-static ssize_t sg__httpfileread_cb(void *handle, __SG_UNUSED uint64_t offset, char *buf, size_t size) {
-    return
-#ifdef __ANDROID__
-        (ssize_t)
-#endif
-            fread(buf, 1, size, handle);
-}
-
-static void sg__httpfilefree_cb(void *handle) {
-    fclose(handle);
-}
 
 struct sg_httpres *sg__httpres_new(struct MHD_Connection *con) {
     struct sg_httpres *res;
@@ -109,35 +98,20 @@ int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t size, const 
     return 0;
 }
 
-int sg_httpres_sendfile(struct sg_httpres *res, size_t block_size, uint64_t max_size, const char *filename,
-                        bool rendered, unsigned int status) {
-    FILE *file;
-    struct stat64 sbuf;
-    char *absolute_path, *cd_header;
+SG_EXTERN int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size, uint64_t offset,
+                                  const char *filename, bool rendered, unsigned int status) {
+    struct stat sbuf;
+    char *cd_header;
     const char *cd_type, *cd_basename;
     size_t fn_size;
     int fd, errnum = 0;
-    if (!res || block_size < 1 || ((int64_t) max_size < 0) || !filename || (status < 100) || (status > 599))
+    if (!res || (size <= 0) || ((int64_t) max_size < 0) || ((int64_t) offset < 0) || !filename ||
+        (status < 100) || (status > 599))
         return EINVAL;
     if (res->handle)
         return EALREADY;
-    if (!(absolute_path = realpath(filename, NULL)))
-        return errno;
-#ifdef _WIN32
-    errnum = fopen_s(&file, absolute_path, "rb");
-    if (errnum)
-        goto fail;
-#else
-    if (!(file = fopen(absolute_path, "rb"))) {
-        errnum = errno;
-        goto fail;
-    }
-#endif
-    if ((fd = fileno(file)) == -1) {
-        errnum = errno;
-        goto fail;
-    }
-    if (fstat64(fd, &sbuf)) {
+    fd = open(filename, O_RDONLY);
+    if ((fd == -1) || fstat(fd, &sbuf)) {
         errnum = errno;
         goto fail;
     }
@@ -155,7 +129,7 @@ int sg_httpres_sendfile(struct sg_httpres *res, size_t block_size, uint64_t max_
     }
 #define SG_FNFMT "%s; filename=\"%s\""
     cd_type = rendered ? "inline" : "attachment";
-    cd_basename = basename(absolute_path);
+    cd_basename = basename(filename);
     fn_size = (size_t) snprintf(NULL, 0, SG_FNFMT, cd_type, cd_basename) + 1;
     if (!(cd_header = sg__malloc(fn_size))) {
         errnum = ENOMEM;
@@ -165,21 +139,18 @@ int sg_httpres_sendfile(struct sg_httpres *res, size_t block_size, uint64_t max_
 #undef SG_FNFMT
     sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_DISPOSITION, cd_header);
     sg__free(cd_header);
-    if (!(res->handle = MHD_create_response_from_callback((uint64_t) sbuf.st_size, block_size, sg__httpfileread_cb,
-                                                          file, sg__httpfilefree_cb))) {
+    if (!(res->handle = MHD_create_response_from_fd_at_offset64(size, fd, offset))) {
         errnum = ENOMEM;
         goto fail;
     }
-    sg__free(absolute_path);
     res->status = status;
     return 0;
 fail:
-    sg__free(absolute_path);
-    if (file) {
+    if (fd != -1) {
         if (errnum == 0)
-            errnum = fclose(file);
+            errnum = close(fd);
         else
-            fclose(file);
+            close(fd);
     }
     if (errnum == ENOMEM)
         oom();
