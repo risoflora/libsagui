@@ -854,8 +854,8 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t si
 /**
  * Sends a file to the client.
  * \param[in] res Response handle.
- * \param[in] size Size of the file to be sent.
- * \param[in] max_size Maximum allowed file size.
+ * \param[in] size Size of the file to be sent. Use zero to calculate automatically.
+ * \param[in] max_size Maximum allowed file size. Use zero for no limit.
  * \param[in] offset Offset to start reading from in the file to be sent.
  * \param[in] filename Path of the file to be sent.
  * \param[in] rendered If `true` the file is rendered, otherwise downloaded.

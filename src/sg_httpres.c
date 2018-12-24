@@ -105,7 +105,7 @@ SG_EXTERN int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_
     const char *cd_type, *cd_basename;
     size_t fn_size;
     int fd, errnum = 0;
-    if (!res || (size <= 0) || ((int64_t) max_size < 0) || ((int64_t) offset < 0) || !filename ||
+    if (!res || ((int64_t) size < 0) || ((int64_t) max_size < 0) || ((int64_t) offset < 0) || !filename ||
         (status < 100) || (status > 599))
         return EINVAL;
     if (res->handle)
@@ -139,6 +139,8 @@ SG_EXTERN int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_
 #undef SG_FNFMT
     sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_DISPOSITION, cd_header);
     sg__free(cd_header);
+    if (size == 0)
+        size = (uint64_t) sbuf.st_size;
     if (!(res->handle = MHD_create_response_from_fd_at_offset64(size, fd, offset))) {
         errnum = ENOMEM;
         goto fail;

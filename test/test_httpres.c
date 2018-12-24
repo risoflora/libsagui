@@ -151,7 +151,7 @@ static void test_httpres_sendfile(struct sg_httpres *res) {
     uint64_t max_size = 10, offset = 0;
 
     ASSERT(sg_httpres_sendfile(NULL, size, max_size, offset, PATH, false, 200) == EINVAL);
-    ASSERT(sg_httpres_sendfile(res, 0, max_size, offset, PATH, false, 200) == EINVAL);
+    ASSERT(sg_httpres_sendfile(res, (uint64_t) -1, max_size, offset, PATH, false, 200) == EINVAL);
     ASSERT(sg_httpres_sendfile(res, size, (uint64_t) -1, offset, PATH, false, 200) == EINVAL);
     ASSERT(sg_httpres_sendfile(res, size, max_size, (uint64_t) -1, PATH, false, 200) == EINVAL);
     ASSERT(sg_httpres_sendfile(res, size, max_size, offset, NULL, false, 200) == EINVAL);
