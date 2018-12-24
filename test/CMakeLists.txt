@@ -80,6 +80,7 @@ if (BUILD_TESTING)
             httpres
             httpsrv)
     if (_curl_found)
+        add_definitions(-DCURL_STATICLIB=1)
         list(APPEND SG_TESTS httpsrv_curl)
         if (SG_HTTPS_SUPPORT AND GNUTLS_FOUND)
             list(APPEND SG_TESTS httpsrv_tls_curl)
