@@ -852,6 +852,36 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t si
                                     unsigned int status);
 
 /**
+ * Offer a file as download.
+ * \param[in] res Response handle.
+ * \param[in] filename Path of the file to be sent.
+ * \param[in] status HTTP status code.
+ * \retval 0 - Success.
+ * \retval EINVAL - Invalid argument.
+ * \retval EALREADY - Operation already in progress.
+ * \retval EISDIR - Is a directory.
+ * \retval EBADF - Bad file number.
+ * \warning It exits the application if called when no memory space is available.
+ */
+#define sg_httpres_download(res, filename, status) \
+    sg_httpres_sendfile((res), 0, 0, 0, (filename), false, (status))
+
+/**
+ * Sends a file to be rendered.
+ * \param[in] res Response handle.
+ * \param[in] filename Path of the file to be sent.
+ * \param[in] status HTTP status code.
+ * \retval 0 - Success.
+ * \retval EINVAL - Invalid argument.
+ * \retval EALREADY - Operation already in progress.
+ * \retval EISDIR - Is a directory.
+ * \retval EBADF - Bad file number.
+ * \warning It exits the application if called when no memory space is available.
+ */
+#define sg_httpres_render(res, filename, status) \
+    sg_httpres_sendfile((res), 0, 0, 0, (filename), true, (status))
+
+/**
  * Sends a file to the client.
  * \param[in] res Response handle.
  * \param[in] size Size of the file to be sent. Use zero to calculate automatically.

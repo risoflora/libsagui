@@ -140,6 +140,96 @@ static void test_httpres_sendbinary(struct sg_httpres *res) {
     res->handle = NULL;
 }
 
+static void test_httpres_download(struct sg_httpres *res) {
+#define FILENAME "foo.txt"
+#define PATH TEST_HTTPRES_BASE_PATH FILENAME
+    const size_t len = 3;
+    char str[4];
+    FILE *file;
+    char *dir;
+
+    ASSERT(sg_httpres_download(NULL, PATH, 200) == EINVAL);
+    ASSERT(sg_httpres_download(res, NULL, 200) == EINVAL);
+    ASSERT(sg_httpres_download(res, PATH, 99) == EINVAL);
+    ASSERT(sg_httpres_download(res, PATH, 600) == EINVAL);
+
+#ifdef _WIN32
+    ASSERT(sg_httpres_download(res, "", 200) == EACCES);
+#else
+    ASSERT(sg_httpres_download(res, "", 200) == ENOENT);
+#endif
+    dir = sg_tmpdir();
+#ifdef _WIN32
+    ASSERT(sg_httpres_download(res, dir, 200) == EACCES);
+#else
+    ASSERT(sg_httpres_download(res, dir, 200) == EISDIR);
+#endif
+    sg_free(dir);
+
+    strcpy(str, "foo");
+    unlink(PATH);
+    ASSERT((file = fopen(PATH, "w")));
+    ASSERT(fwrite(str, 1, len, file) == len);
+    ASSERT(fclose(file) == 0);
+    ASSERT(sg_httpres_download(res, PATH, 200) == 0);
+    ASSERT(strcmp(sg_strmap_get(*sg_httpres_headers(res), MHD_HTTP_HEADER_CONTENT_DISPOSITION),
+                  "attachment; filename=\"" FILENAME "\"") == 0);
+    ASSERT(sg_httpres_download(res, PATH, 200) == EALREADY);
+    sg_free(res->handle);
+    res->handle = NULL;
+    ASSERT(sg_httpres_download(res, PATH, 201) == 0);
+    ASSERT(res->status == 201);
+#undef PATH
+#undef FILENAME
+    sg_free(res->handle);
+    res->handle = NULL;
+}
+
+static void test_httpres_render(struct sg_httpres *res) {
+#define FILENAME "foo.txt"
+#define PATH TEST_HTTPRES_BASE_PATH FILENAME
+    const size_t len = 3;
+    char str[4];
+    FILE *file;
+    char *dir;
+
+    ASSERT(sg_httpres_render(NULL, PATH, 200) == EINVAL);
+    ASSERT(sg_httpres_render(res, NULL, 200) == EINVAL);
+    ASSERT(sg_httpres_render(res, PATH, 99) == EINVAL);
+    ASSERT(sg_httpres_render(res, PATH, 600) == EINVAL);
+
+#ifdef _WIN32
+    ASSERT(sg_httpres_render(res, "", 200) == EACCES);
+#else
+    ASSERT(sg_httpres_render(res, "", 200) == ENOENT);
+#endif
+    dir = sg_tmpdir();
+#ifdef _WIN32
+    ASSERT(sg_httpres_render(res, dir, 200) == EACCES);
+#else
+    ASSERT(sg_httpres_render(res, dir, 200) == EISDIR);
+#endif
+    sg_free(dir);
+
+    strcpy(str, "foo");
+    unlink(PATH);
+    ASSERT((file = fopen(PATH, "w")));
+    ASSERT(fwrite(str, 1, len, file) == len);
+    ASSERT(fclose(file) == 0);
+    ASSERT(sg_httpres_render(res, PATH, 200) == 0);
+    ASSERT(strcmp(sg_strmap_get(*sg_httpres_headers(res), MHD_HTTP_HEADER_CONTENT_DISPOSITION),
+                  "inline; filename=\"" FILENAME "\"") == 0);
+    ASSERT(sg_httpres_render(res, PATH, 200) == EALREADY);
+    sg_free(res->handle);
+    res->handle = NULL;
+    ASSERT(sg_httpres_render(res, PATH, 201) == 0);
+    ASSERT(res->status == 201);
+#undef PATH
+#undef FILENAME
+    sg_free(res->handle);
+    res->handle = NULL;
+}
+
 static void test_httpres_sendfile(struct sg_httpres *res) {
 #define FILENAME "foo.txt"
 #define PATH TEST_HTTPRES_BASE_PATH FILENAME
@@ -261,6 +351,8 @@ int main(void) {
     test_httpres_headers(res);
     test_httpres_set_cookie(res);
     test_httpres_sendbinary(res);
+    test_httpres_download(res);
+    test_httpres_render(res);
     test_httpres_sendfile(res);
     test_httpres_sendstream(res);
     test_httpres_clear(res);

@@ -103,7 +103,7 @@ static void req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_http
     else {
         if ((qs = sg_httpreq_params(req)) && (file = sg_strmap_get(*qs, "file"))) {
             sprintf(path, "%s%c%s", sg_tmpdir(), PATH_SEP, file);
-            sg_httpres_sendfile(res, 0, 0, 0, path, false, 200);
+            sg_httpres_download(res, path, 200);
         } else
             sg_httpres_send(res, PAGE_FORM, CONTENT_TYPE, 200);
     }
