@@ -63,11 +63,10 @@ int sg__httpres_dispatch(struct sg_httpres *res) {
 }
 
 struct sg_strmap **sg_httpres_headers(struct sg_httpres *res) {
-    if (!res) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return &res->headers;
+    if (res)
+        return &res->headers;
+    errno = EINVAL;
+    return NULL;
 }
 
 int sg_httpres_set_cookie(struct sg_httpres *res, const char *name, const char *val) {
