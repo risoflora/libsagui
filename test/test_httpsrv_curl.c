@@ -233,7 +233,7 @@ int main(void) {
 
     curl_global_init(CURL_GLOBAL_ALL);
 
-    ASSERT(srv = sg_httpsrv_new2(srv_auth_cb, NULL, srv_req_cb, NULL, srv_err_cb, NULL));
+    ASSERT(srv = sg_httpsrv_new2(srv_auth_cb, srv_req_cb, srv_err_cb, NULL));
     ASSERT(curl = curl_easy_init());
     ASSERT(res = sg_str_new());
 

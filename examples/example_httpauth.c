@@ -61,7 +61,7 @@ static void req_cb(__SG_UNUSED void *cls, __SG_UNUSED struct sg_httpreq *req, st
 }
 
 int main(void) {
-    struct sg_httpsrv *srv = sg_httpsrv_new2(auth_cb, NULL, req_cb, NULL, err_cb, NULL);
+    struct sg_httpsrv *srv = sg_httpsrv_new2(auth_cb, req_cb, err_cb, NULL);
     if (!sg_httpsrv_listen(srv, 0 /* 0 = port chosen randomly */, false)) {
         sg_httpsrv_free(srv);
         return EXIT_FAILURE;

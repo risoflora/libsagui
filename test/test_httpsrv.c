@@ -187,8 +187,7 @@ static void test__httpsrv_oel(const char *fmt, ...) {
     struct sg_httpsrv *srv;
     char err[256];
     va_list ap;
-    ASSERT(srv = sg_httpsrv_new2(dummy_httpreq_httpauth_cb, NULL, dummy_httpreq_cb, NULL,
-                                 dummy_httpreq_err_cpy_cb, err));
+    ASSERT(srv = sg_httpsrv_new2(dummy_httpreq_httpauth_cb, dummy_httpreq_cb, dummy_httpreq_err_cpy_cb, err));
     va_start(ap, fmt);
     memset(err, 0, sizeof(err));
     sg__httpsrv_oel(srv, fmt, ap);
@@ -240,26 +239,23 @@ static void test_httpsrv_new2(void) {
     char *tmp;
 
     errno = 0;
-    ASSERT(!sg_httpsrv_new2(dummy_httpreq_httpauth_cb, &dummy, NULL, &dummy, dummy_httpreq_err_cb, &dummy));
+    ASSERT(!sg_httpsrv_new2(dummy_httpreq_httpauth_cb, NULL, dummy_httpreq_err_cb, &dummy));
     ASSERT(errno == EINVAL);
     errno = 0;
-    ASSERT(!sg_httpsrv_new2(dummy_httpreq_httpauth_cb, &dummy, dummy_httpreq_cb, &dummy, NULL, &dummy));
+    ASSERT(!sg_httpsrv_new2(dummy_httpreq_httpauth_cb, dummy_httpreq_cb, NULL, &dummy));
     ASSERT(errno == EINVAL);
 
-    ASSERT(srv = sg_httpsrv_new2(dummy_httpreq_httpauth_cb, &dummy, dummy_httpreq_cb, &dummy,
-                                 dummy_httpreq_err_cb, &dummy));
+    ASSERT(srv = sg_httpsrv_new2(dummy_httpreq_httpauth_cb, dummy_httpreq_cb, dummy_httpreq_err_cb, &dummy));
     ASSERT(srv->auth_cb == dummy_httpreq_httpauth_cb);
-    ASSERT(srv->auth_cls == &dummy);
+    ASSERT(srv->req_cb == dummy_httpreq_cb);
+    ASSERT(srv->err_cb == dummy_httpreq_err_cb);
+    ASSERT(srv->cls == &dummy);
     ASSERT(srv->upld_cb == sg__httpupld_cb);
     ASSERT(srv->upld_cls == srv);
     ASSERT(srv->upld_write_cb == sg__httpupld_write_cb);
     ASSERT(srv->upld_free_cb == sg__httpupld_free_cb);
     ASSERT(srv->upld_save_cb == sg__httpupld_save_cb);
     ASSERT(srv->upld_save_as_cb == sg__httpupld_save_as_cb);
-    ASSERT(srv->req_cb == dummy_httpreq_cb);
-    ASSERT(srv->req_cls == &dummy);
-    ASSERT(srv->err_cb == dummy_httpreq_err_cb);
-    ASSERT(srv->err_cls == &dummy);
     tmp = sg_tmpdir();
     ASSERT(strcmp(srv->uplds_dir, tmp) == 0);
     sg_free(tmp);
@@ -356,7 +352,7 @@ static void test_httpsrv_listen(struct sg_httpsrv *srv) {
     ASSERT(MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_FLAGS)->flags & MHD_USE_AUTO_INTERNAL_THREAD);
     ASSERT(MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_FLAGS)->flags & MHD_USE_THREAD_PER_CONNECTION);
 #ifdef __linux__
-    dummy_srv = sg_httpsrv_new2(NULL, NULL, dummy_httpreq_cb, NULL, dummy_httpreq_err_cb, NULL);
+    dummy_srv = sg_httpsrv_new2(NULL, dummy_httpreq_cb, dummy_httpreq_err_cb, NULL);
     errno = 0;
     ASSERT(!sg_httpsrv_listen(dummy_srv, TEST_HTTPSRV_PORT, true));
     ASSERT(errno == EADDRINUSE);
@@ -434,7 +430,7 @@ static void test_httpsrv_tls_listen(struct sg_httpsrv *srv) {
     ASSERT(MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_FLAGS)->flags & MHD_USE_THREAD_PER_CONNECTION);
     ASSERT(MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_FLAGS)->flags & MHD_USE_TLS);
 #ifdef __linux__
-    dummy_srv = sg_httpsrv_new2(NULL, NULL, dummy_httpreq_cb, NULL, dummy_httpreq_err_cb, NULL);
+    dummy_srv = sg_httpsrv_new2(NULL, dummy_httpreq_cb, dummy_httpreq_err_cb, NULL);
     errno = 0;
     ASSERT(!sg_httpsrv_tls_listen(dummy_srv, private_key, certificate, TEST_HTTPSRV_PORT, true));
     ASSERT(errno == EADDRINUSE);

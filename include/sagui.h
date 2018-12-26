@@ -930,16 +930,13 @@ SG_EXTERN int sg_httpres_clear(struct sg_httpres *res);
 /**
  * Creates a new HTTP server handle.
  * \param[in] auth_cb Callback to grant/deny user access to the server resources.
- * \param[in] auth_cls User-defined closure for \pr{auth_cb}.
  * \param[in] req_cb Callback to handle requests and responses.
- * \param[in] req_cls User-defined closure for \pr{req_cb}.
  * \param[in] err_cb Callback to handle server errors.
- * \param[in] err_cls User-defined closure for \pr{err_cb}.
+ * \param[in] cls User-defined closure.
  * \return New HTTP server handle.
  * \retval NULL If the \pr{req_cb} or \pr{err_cb} is null and sets the `errno` to `EINVAL`.
  */
-SG_EXTERN struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb, void *auth_cls, sg_httpreq_cb req_cb,
-                                             void *req_cls, sg_err_cb err_cb, void *err_cls)
+SG_EXTERN struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb, sg_httpreq_cb req_cb, sg_err_cb err_cb, void *cls)
 __SG_MALLOC;
 
 /**

@@ -67,7 +67,7 @@ static void sg__httpuplds_err(struct sg_httpsrv *srv, const char *fmt, ...) {
     va_start(ap, fmt);
     vsnprintf(err, sizeof(err), fmt, ap);
     va_end(ap);
-    srv->err_cb(srv->err_cls, err);
+    srv->err_cb(srv->cls, err);
 }
 
 static int sg__httpuplds_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind, const char *key, const char *filename,
@@ -107,7 +107,7 @@ static int sg__httpuplds_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind, co
             if (holder->srv->payld_limit > 0) {
                 holder->req->total_fields_size += size;
                 if (holder->req->total_fields_size > holder->srv->payld_limit) {
-                    holder->srv->err_cb(holder->srv->err_cls, _("Payload too large.\n"));
+                    holder->srv->err_cb(holder->srv->cls, _("Payload too large.\n"));
                     return MHD_NO;
                 }
             }
@@ -133,7 +133,7 @@ bool sg__httpuplds_process(struct sg_httpsrv *srv, struct sg_httpreq *req, struc
             if ((srv->payld_limit > 0) && (utstring_len(req->payload->buf) > srv->payld_limit)) {
                 *ret = MHD_NO;
                 utstring_clear(req->payload->buf);
-                srv->err_cb(srv->err_cls, _("Payload too large.\n"));
+                srv->err_cb(srv->cls, _("Payload too large.\n"));
                 return true;
             }
         }

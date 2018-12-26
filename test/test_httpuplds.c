@@ -95,7 +95,7 @@ static size_t empty_httpupld_write_cb(void *handle, uint64_t offset, const char 
 
 static void test__httpuplds_add(void) {
     char err[256];
-    struct sg_httpsrv *srv = sg_httpsrv_new2(NULL, NULL, dummy_httpreq_cb, NULL, dummy_err_cb, err);
+    struct sg_httpsrv *srv = sg_httpsrv_new2(NULL, dummy_httpreq_cb, dummy_err_cb, err);
     struct sg_httpreq *req = sg__httpreq_new(NULL, "", "", "");
     ASSERT(sg_httpuplds_count(sg_httpreq_uploads(req)) == 0);
     sg__httpuplds_add(srv, req, "abc", "def", "ghi", "jkl");
@@ -115,7 +115,7 @@ static void test__httpuplds_free(void) {
 
 static void test__httpuplds_err(void) {
     char err[256], str[256];
-    struct sg_httpsrv *srv = sg_httpsrv_new2(NULL, NULL, dummy_httpreq_cb, NULL, dummy_err_cb, err);
+    struct sg_httpsrv *srv = sg_httpsrv_new2(NULL, dummy_httpreq_cb, dummy_err_cb, err);
     memset(err, 0, sizeof(err));
     sg__httpuplds_err(srv, "%s%d", "abc", 123);
     memset(str, 0, sizeof(str));
@@ -128,7 +128,7 @@ static void test__httpuplds_iter(void) {
     const char *filename = "foo.txt";
     const size_t len = 3;
     char err[256], str[256];
-    struct sg_httpsrv *srv = sg_httpsrv_new2(NULL, NULL, dummy_httpreq_cb, NULL, dummy_err_cb, err);
+    struct sg_httpsrv *srv = sg_httpsrv_new2(NULL, dummy_httpreq_cb, dummy_err_cb, err);
     struct sg_httpreq *req = sg__httpreq_new(NULL, "", "", "");
     struct sg__httpupld_holder holder = {srv, req};
     struct sg_strmap **fields;
@@ -188,7 +188,7 @@ static void test__httpuplds_process(void) {
     const size_t len = 3;
     char err[256], str[256];
     struct MHD_Connection *con = sg_alloc(64);
-    struct sg_httpsrv *srv = sg_httpsrv_new2(NULL, NULL, dummy_httpreq_cb, NULL, dummy_err_cb, err);
+    struct sg_httpsrv *srv = sg_httpsrv_new2(NULL, dummy_httpreq_cb, dummy_err_cb, err);
     struct sg_httpreq *req = sg__httpreq_new(NULL, "", "", "");
     int ret = 0;
     size_t size = 0;
@@ -254,7 +254,7 @@ static void test__httpupld_cb(void) {
     struct sg_httpsrv *srv;
     char *dir, *dest_path;
     memset(err, 0, sizeof(err));
-    srv = sg_httpsrv_new2(NULL, NULL, dummy_httpreq_cb, NULL, dummy_err_cb, err);
+    srv = sg_httpsrv_new2(NULL, dummy_httpreq_cb, dummy_err_cb, err);
 
     ASSERT(sg__httpupld_cb(srv, &handle, "", "", "", "", "") == ENOENT);
     ASSERT(!handle);
@@ -337,7 +337,7 @@ static void test__httpupld_free_cb(void) {
     struct sg_httpsrv *saved_srv;
     struct sg__httpupld *handle = sg_alloc(sizeof(struct sg__httpupld));
     memset(err, 0, sizeof(err));
-    handle->srv = sg_httpsrv_new2(NULL, NULL, dummy_httpreq_cb, NULL, dummy_err_cb, err);
+    handle->srv = sg_httpsrv_new2(NULL, dummy_httpreq_cb, dummy_err_cb, err);
     handle->path = sg__strdup(path);
     handle->dest_path = NULL;
 

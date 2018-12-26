@@ -42,10 +42,8 @@ struct sg_httpsrv {
     sg_save_as_cb upld_save_as_cb;
     sg_httpreq_cb req_cb;
     sg_err_cb err_cb;
-    void *auth_cls;
     void *upld_cls;
-    void *req_cls;
-    void *err_cls;
+    void *cls;
     char *uplds_dir;
     size_t post_buf_size;
     size_t payld_limit;

@@ -40,7 +40,7 @@ static void sg__httpsrv_oel(void *cls, const char *fmt, va_list ap) {
     struct sg_httpsrv *srv = cls;
     char err[SG_ERR_SIZE];
     vsnprintf(err, sizeof(err), fmt, ap);
-    srv->err_cb(srv->err_cls, err);
+    srv->err_cb(srv->cls, err);
 }
 
 static int sg__httpsrv_ahc(void *cls, struct MHD_Connection *con, const char *url, const char *method,
@@ -50,7 +50,7 @@ static int sg__httpsrv_ahc(void *cls, struct MHD_Connection *con, const char *ur
     if (!req) {
         *con_cls = (req = sg__httpreq_new(con, version, method, url));
         if (srv->auth_cb) {
-            req->res->ret = srv->auth_cb(srv->auth_cls, req->auth, req, req->res);
+            req->res->ret = srv->auth_cb(srv->cls, req->auth, req, req->res);
             if (!sg__httpauth_dispatch(req->auth))
                 return req->res->ret;
         }
@@ -59,7 +59,7 @@ static int sg__httpsrv_ahc(void *cls, struct MHD_Connection *con, const char *ur
     if (!req->auth->canceled) {
         if (sg__httpuplds_process(srv, req, con, upld_data, upld_data_size, &req->res->ret))
             return req->res->ret;
-        srv->req_cb(srv->req_cls, req, req->res);
+        srv->req_cb(srv->cls, req, req->res);
     }
     return sg__httpres_dispatch(req->res);
 }
@@ -73,8 +73,8 @@ static void sg__httpsrv_rcc(void *cls, __SG_UNUSED struct MHD_Connection *con, v
     *con_cls = NULL;
 }
 
-static void sg__httpsrv_addopt(struct MHD_OptionItem ops[8], unsigned char *pos,
-                               enum MHD_OPTION opt, intptr_t val, void *ptr) {
+static void sg__httpsrv_addopt(struct MHD_OptionItem ops[8], unsigned char *pos, enum MHD_OPTION opt, intptr_t val,
+                               void *ptr) {
     ops[*pos].option = opt;
     ops[*pos].value = val;
     ops[*pos].ptr_value = ptr;
@@ -118,8 +118,7 @@ static bool sg__httpsrv_listen(struct sg_httpsrv *srv, const char *key, const ch
                                            MHD_OPTION_END));
 }
 
-struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb, void *auth_cls, sg_httpreq_cb req_cb, void *req_cls,
-                                   sg_err_cb err_cb, void *err_cls) {
+struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb, sg_httpreq_cb req_cb, sg_err_cb err_cb, void *cls) {
     struct sg_httpsrv *srv;
     if (!req_cb || !err_cb) {
         errno = EINVAL;
@@ -127,17 +126,15 @@ struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb, void *auth_cls, sg_ht
     }
     sg__new(srv);
     srv->auth_cb = auth_cb;
-    srv->auth_cls = auth_cls;
+    srv->req_cb = req_cb;
+    srv->err_cb = err_cb;
+    srv->cls = cls;
     srv->upld_cb = sg__httpupld_cb;
     srv->upld_cls = srv;
     srv->upld_write_cb = sg__httpupld_write_cb;
     srv->upld_free_cb = sg__httpupld_free_cb;
     srv->upld_save_cb = sg__httpupld_save_cb;
     srv->upld_save_as_cb = sg__httpupld_save_as_cb;
-    srv->req_cb = req_cb;
-    srv->req_cls = req_cls;
-    srv->err_cb = err_cb;
-    srv->err_cls = err_cls;
     srv->uplds_dir = sg_tmpdir();
 #ifdef __arm__
     srv->post_buf_size = 1024; /* ~1 Kb */
@@ -152,7 +149,7 @@ struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb, void *auth_cls, sg_ht
 }
 
 struct sg_httpsrv *sg_httpsrv_new(sg_httpreq_cb cb, void *cls) {
-    return sg_httpsrv_new2(NULL, NULL, cb, cls, sg__err_cb, NULL);
+    return sg_httpsrv_new2(NULL, cb, sg__err_cb, cls);
 }
 
 void sg_httpsrv_free(struct sg_httpsrv *srv) {
