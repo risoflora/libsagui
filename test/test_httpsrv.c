@@ -158,7 +158,7 @@ static int dummy_httpupld_cb(void *cls, void **handle, const char *dir, const ch
     return 0;
 }
 
-static size_t dummy_httpupld_write_cb(void *handle, uint64_t offset, const char *buf, size_t size) {
+static ssize_t dummy_httpupld_write_cb(void *handle, uint64_t offset, const char *buf, size_t size) {
     (void) handle;
     (void) offset;
     (void) buf;

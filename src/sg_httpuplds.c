@@ -84,7 +84,7 @@ static int sg__httpuplds_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind, co
                                          key, filename, content_type, transfer_encoding) != 0)
                     return MHD_NO;
             }
-            if (holder->srv->upld_write_cb(holder->req->curr_upld->handle, off, data, size) == (size_t) -1)
+            if (holder->srv->upld_write_cb(holder->req->curr_upld->handle, off, data, size) == -1)
                 return MHD_NO;
             holder->req->curr_upld->size += size;
             if (holder->srv->uplds_limit > 0) {
@@ -154,135 +154,77 @@ void sg__httpuplds_cleanup(struct sg_httpsrv *srv, struct sg_httpreq *req) {
 
 int sg__httpupld_cb(void *cls, void **handle, const char *dir, __SG_UNUSED const char *field, const char *name,
                     __SG_UNUSED const char *mime, __SG_UNUSED const char *encoding) {
+    char err[SG_ERR_SIZE >> 2];
     struct sg__httpupld *h;
     struct stat sbuf;
-    char err[SG_ERR_SIZE >> 2];
-    int fd, errnum;
+    int errnum;
     sg__new(h);
-    *handle = h;
+    h->fd = -1;
     h->srv = cls;
-    if (stat(dir, &sbuf) != 0) {
-        errnum = errno;
-        sg__httpuplds_err(cls, _("Cannot find directory \"%s\": %s.\n"), dir, sg_strerror(errnum, err, sizeof(err)));
-        goto fail;
+    if (stat(dir, &sbuf)) {
+        sg__httpuplds_err(cls, _("Cannot find uploads directory \"%s\": %s.\n"), dir,
+                          sg_strerror(errno, err, sizeof(err)));
+        return ENOENT;
     }
     if (!S_ISDIR(sbuf.st_mode)) {
-        errnum = ENOTDIR;
-        sg__httpuplds_err(cls, _("Cannot access directory \"%s\": %s.\n"), dir,
-                          sg_strerror(errnum, err, sizeof(err)));
-        goto fail;
+        sg__httpuplds_err(cls, _("Cannot access uploads directory \"%s\": %s.\n"), dir,
+                          sg_strerror(ENOTDIR, err, sizeof(err)));
+        return ENOTDIR;
     }
-    if (!(h->path = sg__strjoin(PATH_SEP, dir, "sg_upld_tmp_XXXXXX"))) {
-        errnum = ENOMEM;
-        goto fail;
-    }
-    if (!(h->dest_path = sg__strjoin(PATH_SEP, dir, name))) {
-        errnum = ENOMEM;
-        goto fail;
-    }
-    fd = mkstemp(h->path);
-    if (fd == -1) {
-        errnum = errno;
-        sg__httpuplds_err(cls, _("Cannot create temporary file in \"%s\": %s.\n"), dir,
-                          sg_strerror(errnum, err, sizeof(err)));
-        goto fail;
-    }
-    h->file = fdopen(fd, "wb");
-    if (!h->file) {
-        errnum = errno;
-        close(fd);
-        unlink(h->path);
-        sg__httpuplds_err(cls, _("Cannot open temporary file \"%s\": %s.\n"), h->path,
-                          sg_strerror(errnum, err, sizeof(err)));
-        goto fail;
-    }
-    return 0;
-fail:
-    sg__free(h->path);
-    sg__free(h->dest_path);
-    sg__free(h);
-    *handle = NULL;
-    if (errnum == ENOMEM)
+    if (!(h->path = sg__strjoin(PATH_SEP, dir, "sg_upld_tmp_XXXXXX")) ||
+        !(h->dest = sg__strjoin(PATH_SEP, dir, name)))
         oom();
-    return errnum;
+    if ((h->fd = mkstemp(h->path)) == -1) {
+        errnum = errno;
+        sg__httpuplds_err(cls, _("Cannot create temporary upload file in \"%s\": %s.\n"), dir,
+                          sg_strerror(errnum, err, sizeof(err)));
+        return errnum;
+    }
+    *handle = h;
+    return 0;
 }
 
-size_t sg__httpupld_write_cb(void *handle, __SG_UNUSED uint64_t offset, const char *buf, size_t size) {
-    struct sg__httpupld *h = handle;
-    size_t written = fwrite(buf, 1, size, h->file);
-    if (written != size) {
-        fclose(h->file);
-        h->file = NULL;
-        unlink(h->path);
-        sg__httpuplds_err(h->srv, _("Cannot write temporary file \"%s\".\n"), h->path);
-        return (size_t) -1;
-    }
-    return written;
+ssize_t sg__httpupld_write_cb(void *handle, __SG_UNUSED uint64_t offset, const char *buf, size_t size) {
+    return write(((struct sg__httpupld *) handle)->fd, buf, size);
 }
 
 void sg__httpupld_free_cb(void *handle) {
     struct sg__httpupld *h;
-    char err[SG_ERR_SIZE >> 2];
     if (!(h = handle))
         return;
-    if (!h->file)
-        goto done;
-    if (fclose(h->file) == 0) {
-        if (unlink(h->path) != 0) {
-            sg__httpuplds_err(h->srv, _("Cannot remove temporary file \"%s\": %s.\n"), h->path,
-                              sg_strerror(errno, err, sizeof(err)));
-        }
-        goto done;
-    } else
-        sg__httpuplds_err(h->srv, _("Cannot close temporary file \"%s\": %s.\n"), h->path,
-                          sg_strerror(errno, err, sizeof(err)));
-done:
+    if (h->fd != -1)
+        close(h->fd);
+    h->fd = -1;
+    unlink(h->path);
     sg__free(h->path);
-    sg__free(h->dest_path);
+    sg__free(h->dest);
     sg__free(h);
 }
 
 int sg__httpupld_save_cb(void *handle, bool overwritten) {
     struct sg__httpupld *h = handle;
-    return h ? sg__httpupld_save_as_cb(h, h->dest_path, overwritten) : EINVAL;
+    return h ? sg__httpupld_save_as_cb(h, h->dest, overwritten) : EINVAL;
 }
 
 int sg__httpupld_save_as_cb(void *handle, const char *path, bool overwritten) {
-    struct sg__httpupld *h;
+    struct sg__httpupld *h = handle;
     struct stat sbuf;
-    int errnum;
-    if (!handle)
+    if (!handle || !path || (h->fd < 0))
         return EINVAL;
-    h = handle;
-    if (!h->file)
-        return EINVAL;
-    if ((errnum = fclose(h->file)) != 0)
-        return -errnum;
-    h->file = NULL;
-    if (!path) {
-        errnum = EINVAL;
-        goto fail;
-    }
-    if ((stat(path, &sbuf) == 0) && S_ISDIR(sbuf.st_mode)) {
-        errnum = EISDIR;
-        goto fail;
-    }
-    if (access(path, F_OK) == 0) {
+    if (close(h->fd))
+        return errno;
+    h->fd = -1;
+    if ((stat(path, &sbuf) >= 0) && S_ISDIR(sbuf.st_mode))
+        return EISDIR;
+    if (!access(path, F_OK)) {
         if (overwritten)
             unlink(path);
-        else {
-            errnum = EEXIST;
-            goto fail;
-        }
+        else
+            return EEXIST;
     }
-    if (sg__rename(h->path, path) != 0) {
-        errnum = errno;
-        goto fail;
-    }
+    if (sg__rename(h->path, path))
+        return errno;
     return 0;
-fail:
-    unlink(h->path);
-    return errnum;
 }
 
 int sg_httpuplds_iter(struct sg_httpupld *uplds, sg_httpuplds_iter_cb cb, void *cls) {
@@ -299,10 +241,11 @@ int sg_httpuplds_iter(struct sg_httpupld *uplds, sg_httpuplds_iter_cb cb, void *
 }
 
 int sg_httpuplds_next(struct sg_httpupld **upld) {
-    if (!upld)
-        return EINVAL;
-    *upld = (*upld) ? (*upld)->next : NULL;
-    return 0;
+    if (upld) {
+        *upld = (*upld) ? (*upld)->next : NULL;
+        return 0;
+    }
+    return EINVAL;
 }
 
 unsigned int sg_httpuplds_count(struct sg_httpupld *uplds) {
@@ -314,69 +257,62 @@ unsigned int sg_httpuplds_count(struct sg_httpupld *uplds) {
 }
 
 void *sg_httpupld_handle(struct sg_httpupld *upld) {
-    if (!upld) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return upld->handle;
+    if (upld)
+        return upld->handle;
+    errno = EINVAL;
+    return NULL;
 }
 
 const char *sg_httpupld_dir(struct sg_httpupld *upld) {
-    if (!upld) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return upld->dir;
+    if (upld)
+        return upld->dir;
+    errno = EINVAL;
+    return NULL;
 }
 
 const char *sg_httpupld_field(struct sg_httpupld *upld) {
-    if (!upld) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return upld->field;
+    if (upld)
+        return upld->field;
+    errno = EINVAL;
+    return NULL;
 }
 
 const char *sg_httpupld_name(struct sg_httpupld *upld) {
-    if (!upld) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return upld->name;
+    if (upld)
+        return upld->name;
+    errno = EINVAL;
+    return NULL;
 }
 
 const char *sg_httpupld_mime(struct sg_httpupld *upld) {
-    if (!upld) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return upld->mime;
+    if (upld)
+        return upld->mime;
+    errno = EINVAL;
+    return NULL;
 }
 
 const char *sg_httpupld_encoding(struct sg_httpupld *upld) {
-    if (!upld) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return upld->encoding;
+    if (upld)
+        return upld->encoding;
+    errno = EINVAL;
+    return NULL;
 }
 
 uint64_t sg_httpupld_size(struct sg_httpupld *upld) {
-    if (!upld) {
-        errno = EINVAL;
-        return 0;
-    }
-    return upld->size;
+    if (upld)
+        return upld->size;
+    errno = EINVAL;
+    return 0;
 }
 
 int sg_httpupld_save(struct sg_httpupld *upld, bool overwritten) {
-    if (!upld)
-        return EINVAL;
-    return upld->save_cb(upld->handle, overwritten);
+    if (upld)
+        return upld->save_cb(upld->handle, overwritten);
+    return EINVAL;
 }
 
 int sg_httpupld_save_as(struct sg_httpupld *upld, const char *path, bool overwritten) {
-    if (!upld || !path)
-        return EINVAL;
-    return upld->save_as_cb(upld->handle, path, overwritten);
+    if (upld && path)
+        return upld->save_as_cb(upld->handle, path, overwritten);
+    return EINVAL;
 }

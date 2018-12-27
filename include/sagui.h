@@ -102,7 +102,7 @@ typedef void (*sg_err_cb)(void *cls, const char *err);
  * \param[out] size Size of the current buffer to be written.
  * \return Total written buffer.
  */
-typedef size_t (*sg_write_cb)(void *handle, uint64_t offset, const char *buf, size_t size);
+typedef ssize_t (*sg_write_cb)(void *handle, uint64_t offset, const char *buf, size_t size);
 
 /**
  * Callback signature used by functions that read streams.
@@ -146,7 +146,7 @@ typedef int (*sg_save_as_cb)(void *handle, const char *path, bool overwritten);
 SG_EXTERN unsigned int sg_version(void);
 
 /**
- * Returns the library version number as string.
+ * Returns the library version number as string in the format N.N.N.
  * \return Library version packed into a null-terminated string.
  */
 SG_EXTERN const char *sg_version_str(void);
@@ -204,6 +204,7 @@ SG_EXTERN char *sg_extract_entrypoint(const char *path);
  * Returns the system temporary directory.
  * \return Temporary directory as null-terminated string.
  * \retval NULL If no memory space is available.
+ * \warning The caller must free the returned value.
  */
 SG_EXTERN char *sg_tmpdir(void);
 
@@ -1075,7 +1076,7 @@ SG_EXTERN size_t sg_httpsrv_post_buf_size(struct sg_httpsrv *srv);
 /**
  * Sets a limit to the total payload.
  * \param[in] srv Server handle.
- * \param[in] limit Payload total limit.
+ * \param[in] limit Payload total limit. Use zero for no limit.
  * \retval 0 - Success.
  * \retval EINVAL - Invalid argument.
  */
@@ -1092,7 +1093,7 @@ SG_EXTERN size_t sg_httpsrv_payld_limit(struct sg_httpsrv *srv);
 /**
  * Sets a limit to the total uploads.
  * \param[in] srv Server handle.
- * \param[in] limit Uploads total limit.
+ * \param[in] limit Uploads total limit. Use zero for no limit.
  * \retval 0 - Success.
  * \retval EINVAL - Invalid argument.
  */
@@ -1109,7 +1110,7 @@ SG_EXTERN uint64_t sg_httpsrv_uplds_limit(struct sg_httpsrv *srv);
 /**
  * Sets the size for the thread pool.
  * \param[in] srv Server handle.
- * \param[in] size Thread pool size.
+ * \param[in] size Thread pool size. Size greater than 1 enables the thread pooling.
  * \retval 0 - Success.
  * \retval EINVAL - Invalid argument.
  */
@@ -1126,7 +1127,7 @@ SG_EXTERN unsigned int sg_httpsrv_thr_pool_size(struct sg_httpsrv *srv);
 /**
  * Sets the inactivity time to a client get time out.
  * \param[in] srv Server handle.
- * \param[in] timeout Timeout (in seconds).
+ * \param[in] timeout Timeout (in seconds). Use zero for infinity timeout.
  * \retval 0 - Success.
  * \retval EINVAL - Invalid argument.
  */
@@ -1143,7 +1144,7 @@ SG_EXTERN unsigned int sg_httpsrv_con_timeout(struct sg_httpsrv *srv);
 /**
  * Sets the limit of concurrent connections.
  * \param[in] srv Server handle.
- * \param[in] limit Concurrent connections limit.
+ * \param[in] limit Concurrent connections limit. Use zero for no limit.
  * \retval 0 - Success.
  * \retval EINVAL - Invalid argument.
  */

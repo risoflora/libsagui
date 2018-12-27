@@ -50,9 +50,9 @@ struct sg_httpupld {
 
 struct sg__httpupld {
     struct sg_httpsrv *srv;
-    FILE *file;
+    int fd;
     char *path;
-    char *dest_path;
+    char *dest;
 };
 
 struct sg__httpupld_holder {
@@ -68,7 +68,7 @@ SG__EXTERN void sg__httpuplds_cleanup(struct sg_httpsrv *srv, struct sg_httpreq 
 SG__EXTERN int sg__httpupld_cb(void *cls, void **handle, const char *dir, const char *field, const char *name,
                                const char *mime, const char *encoding);
 
-SG__EXTERN size_t sg__httpupld_write_cb(void *handle, uint64_t offset, const char *buf, size_t size);
+SG__EXTERN ssize_t sg__httpupld_write_cb(void *handle, uint64_t offset, const char *buf, size_t size);
 
 SG__EXTERN void sg__httpupld_free_cb(void *handle);
 

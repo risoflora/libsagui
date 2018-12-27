@@ -30,6 +30,7 @@
 #include "sg_assert.h"
 
 #include <string.h>
+#include <fcntl.h>
 #include <sagui.h>
 #include "sg_utils.h"
 #include "sg_httpuplds.c"
@@ -85,12 +86,12 @@ static int empty_httpupld_cb(void *cls, void **handle, const char *dir, const ch
     return -1;
 }
 
-static size_t empty_httpupld_write_cb(void *handle, uint64_t offset, const char *buf, size_t size) {
+static ssize_t empty_httpupld_write_cb(void *handle, uint64_t offset, const char *buf, size_t size) {
     (void) handle;
     (void) offset;
     (void) buf;
     (void) size;
-    return (size_t) -1;
+    return -1;
 }
 
 static void test__httpuplds_add(void) {
@@ -246,25 +247,25 @@ static void test__httpuplds_cleanup(void) {
 
 static void test__httpupld_cb(void) {
     const char *dummy_path = TEST_HTTPUPLDS_BASE_PATH "foo.txt", *filename = "foo.txt";
-    const size_t len = 3;
+    const ssize_t len = 3;
     char err[256], str[256];
-    void *handle;
+    void *handle = NULL;
     struct sg__httpupld *h;
-    FILE *file;
     struct sg_httpsrv *srv;
     char *dir, *dest_path;
+    int fd;
     memset(err, 0, sizeof(err));
     srv = sg_httpsrv_new2(NULL, dummy_httpreq_cb, dummy_err_cb, err);
 
     ASSERT(sg__httpupld_cb(srv, &handle, "", "", "", "", "") == ENOENT);
     ASSERT(!handle);
-    snprintf(str, sizeof(str), _("Cannot find directory \"%s\": %s.\n"), "", strerror(ENOENT));
+    snprintf(str, sizeof(str), _("Cannot find uploads directory \"%s\": %s.\n"), "", strerror(ENOENT));
     ASSERT(strcmp(err, str) == 0);
 
     unlink(dummy_path);
-    file = fopen(dummy_path, "w");
-    ASSERT(file);
-    ASSERT(fclose(file) == 0);
+    fd = open(dummy_path, O_RDWR | O_CREAT | O_TRUNC, 438);
+    ASSERT(fd > -1);
+    ASSERT(close(fd) == 0);
     ASSERT(access(dummy_path, F_OK) == 0);
 
     memset(err, 0, sizeof(err));
@@ -272,14 +273,14 @@ static void test__httpupld_cb(void) {
     unlink(dummy_path);
     ASSERT(!handle);
     memset(str, 0, sizeof(str));
-    snprintf(str, sizeof(str), _("Cannot access directory \"%s\": %s.\n"), dummy_path, strerror(ENOTDIR));
+    snprintf(str, sizeof(str), _("Cannot access uploads directory \"%s\": %s.\n"), dummy_path, strerror(ENOTDIR));
     ASSERT(strcmp(err, str) == 0);
 #if defined(__linux__) && !defined(__ANDROID__)
     memset(err, 0, sizeof(err));
     ASSERT(sg__httpupld_cb(srv, &handle, "/", "", "", "", "") == EACCES);
     ASSERT(!handle);
     memset(str, 0, sizeof(str));
-    snprintf(str, sizeof(str), _("Cannot create temporary file in \"%s\": %s.\n"), "/", strerror(EACCES));
+    snprintf(str, sizeof(str), _("Cannot create temporary upload file in \"%s\": %s.\n"), "/", strerror(EACCES));
     ASSERT(strcmp(err, str) == 0);
 #endif
 
@@ -296,19 +297,19 @@ static void test__httpupld_cb(void) {
     ASSERT(sg__httpupld_save_cb(handle, true) == 0);
     sg__httpupld_free_cb(handle);
     ASSERT(access(dest_path, F_OK) == 0);
-    file = fopen(dest_path, "r");
+    fd = open(dest_path, O_RDONLY);
     sg_free(dest_path);
-    ASSERT(file);
+    ASSERT(fd > -1);
     memset(str, 0, sizeof(str));
-    ASSERT(fread(str, 1, len, file) == len);
-    ASSERT(fclose(file) == 0);
+    ASSERT(read(fd, str, len) == len);
+    ASSERT(close(fd) == 0);
     ASSERT(strcmp(str, "foo") == 0);
 
     sg_httpsrv_free(srv);
 }
 
 static void test__httpupld_write_cb(void) {
-    const size_t len = 3;
+    const ssize_t len = 3;
     char str[4];
     struct sg__httpupld *handle = sg_alloc(sizeof(struct sg__httpupld));
     handle->path = TEST_HTTPUPLDS_BASE_PATH "foo.txt";
@@ -316,16 +317,16 @@ static void test__httpupld_write_cb(void) {
     unlink(handle->path);
 
     ASSERT(access(handle->path, F_OK) == -1);
-    handle->file = fopen(handle->path, "w");
-    ASSERT(handle->file);
+    handle->fd = open(handle->path, O_RDWR | O_CREAT | O_TRUNC, 438);
+    ASSERT(handle->fd > -1);
     ASSERT(sg__httpupld_write_cb(handle, 0, "foo", len - 1) == (len - 1));
-    ASSERT(fclose(handle->file) == 0);
+    ASSERT(close(handle->fd) == 0);
     ASSERT(access(handle->path, F_OK) == 0);
-    handle->file = fopen(handle->path, "r");
-    ASSERT(handle->file);
+    handle->fd = open(handle->path, O_RDONLY);
+    ASSERT(handle->fd);
     memset(str, 0, sizeof(str));
-    ASSERT(fread(str, 1, len, handle->file) == (len - 1));
-    ASSERT(fclose(handle->file) == 0);
+    ASSERT(read(handle->fd, str, len) == (len - 1));
+    ASSERT(close(handle->fd) == 0);
     ASSERT(strcmp(str, "fo") == 0);
 
     sg_free(handle);
@@ -333,143 +334,140 @@ static void test__httpupld_write_cb(void) {
 
 static void test__httpupld_free_cb(void) {
     const char *path = TEST_HTTPUPLDS_BASE_PATH "foo.txt";
-    char err[256], str[256];
+    char err[256];
     struct sg_httpsrv *saved_srv;
     struct sg__httpupld *handle = sg_alloc(sizeof(struct sg__httpupld));
     memset(err, 0, sizeof(err));
     handle->srv = sg_httpsrv_new2(NULL, dummy_httpreq_cb, dummy_err_cb, err);
     handle->path = sg__strdup(path);
-    handle->dest_path = NULL;
+    handle->dest = NULL;
 
     unlink(handle->path);
 
-    handle->file = fopen(handle->path, "w");
-    ASSERT(handle->file);
+    handle->fd = open(handle->path, O_RDWR | O_CREAT | O_TRUNC, 438);
+
+    ASSERT(handle->fd > -1);
 #ifdef _WIN32
-    ASSERT(fclose(handle->file) == 0);
+    ASSERT(close(handle->fd) == 0);
 #endif
     ASSERT(unlink(handle->path) == 0);
     ASSERT(strcmp(err, "") == 0);
     saved_srv = handle->srv;
     sg__httpupld_free_cb(handle);
     sg_httpsrv_free(saved_srv);
-#ifdef _WIN32
-    snprintf(str, sizeof(str), _("Cannot close temporary file \"%s\": %s.\n"), path, strerror(ENOENT));
-#else
-    snprintf(str, sizeof(str), _("Cannot remove temporary file \"%s\": %s.\n"), path, strerror(ENOENT));
-#endif
-    ASSERT(strcmp(err, str) == 0);
+    ASSERT(handle->fd == -1);
 }
 
 static void test__httpupld_save_cb(void) {
-    const size_t len = 3;
+    const ssize_t len = 3;
     char str[4];
     struct sg__httpupld *handle = sg_alloc(sizeof(struct sg__httpupld));
     handle->path = TEST_HTTPUPLDS_BASE_PATH "foo.txt";
-    handle->dest_path = TEST_HTTPUPLDS_BASE_PATH "bar.txt";
+    handle->dest = TEST_HTTPUPLDS_BASE_PATH "bar.txt";
 
-    unlink(handle->dest_path);
+    unlink(handle->dest);
     unlink(handle->path);
 
     ASSERT(sg__httpupld_save_cb(NULL, false) == EINVAL);
 
-    handle->file = fopen(handle->path, "w");
-    ASSERT(handle->file);
-    ASSERT(fwrite("foo", 1, len, handle->file) == len);
-    ASSERT(access(handle->dest_path, F_OK) == -1);
+    handle->fd = open(handle->path, O_RDWR | O_CREAT | O_TRUNC, 438);
+    ASSERT(handle->fd > -1);
+    ASSERT(write(handle->fd, "foo", len) == len);
+    ASSERT(access(handle->dest, F_OK) == -1);
     ASSERT(sg__httpupld_save_cb(handle, true) == 0);
-    ASSERT(access(handle->dest_path, F_OK) == 0);
-    handle->file = fopen(handle->dest_path, "r");
-    ASSERT(handle->file);
+    ASSERT(access(handle->dest, F_OK) == 0);
+    handle->fd = open(handle->dest, O_RDONLY);
+    ASSERT(handle->fd > -1);
     memset(str, 0, sizeof(str));
-    ASSERT(fread(str, 1, len, handle->file) == len);
-    ASSERT(fclose(handle->file) == 0);
+    ASSERT(read(handle->fd, str, len) == len);
+    ASSERT(close(handle->fd) == 0);
     ASSERT(strcmp(str, "foo") == 0);
 
     sg_free(handle);
 }
 
 static void test__httpupld_save_as_cb(void) {
-    const size_t len = 3;
+    const ssize_t len = 3;
     const char *bar_path = TEST_HTTPUPLDS_BASE_PATH "bar.txt";
     char str[4];
     char *dir;
     struct sg__httpupld *handle = sg_alloc(sizeof(struct sg__httpupld));
     handle->path = TEST_HTTPUPLDS_BASE_PATH "foo.txt";
+    handle->fd = -1;
 
     unlink(bar_path);
     unlink(handle->path);
 
     ASSERT(sg__httpupld_save_as_cb(NULL, "foo", false) == EINVAL);
     ASSERT(sg__httpupld_save_as_cb(handle, "foo", false) == EINVAL);
-    handle->file = fopen(handle->path, "w");
-    ASSERT(handle->file);
-    ASSERT(fwrite("foo", 1, len, handle->file) == len);
+    handle->fd = open(handle->path, O_RDWR | O_CREAT | O_TRUNC, 438);
+    ASSERT(handle->fd > -1);
+    ASSERT(write(handle->fd, "foo", len) == len);
     ASSERT(sg__httpupld_save_as_cb(handle, NULL, false) == EINVAL);
 
-    handle->file = fopen(bar_path, "w");
-    ASSERT(handle->file);
-    ASSERT(fwrite("bar", 1, len, handle->file) == len);
-    ASSERT(fclose(handle->file) == 0);
+    handle->fd = open(bar_path, O_RDWR | O_CREAT | O_TRUNC, 438);
+    ASSERT(handle->fd > -1);
+    ASSERT(write(handle->fd, "bar", len) == len);
+    ASSERT(close(handle->fd) == 0);
     ASSERT(access(bar_path, F_OK) == 0);
-    handle->file = fopen(bar_path, "r");
-    ASSERT(handle->file);
+    handle->fd = open(bar_path, O_RDONLY);
+    ASSERT(handle->fd > -1);
     memset(str, 0, sizeof(str));
-    ASSERT(fread(str, 1, len, handle->file) == len);
-    ASSERT(fclose(handle->file) == 0);
+    ASSERT(read(handle->fd, str, len) == len);
+    ASSERT(close(handle->fd) == 0);
     ASSERT(strcmp(str, "bar") == 0);
 
-    handle->file = fopen(handle->path, "w");
-    ASSERT(handle->file);
-    ASSERT(fwrite("foo", 1, len, handle->file) == len);
+    handle->fd = open(handle->path, O_RDWR | O_CREAT | O_TRUNC, 438);
+    ASSERT(handle->fd > -1);
+    ASSERT(write(handle->fd, "foo", len) == len);
 
     ASSERT(sg__httpupld_save_as_cb(handle, bar_path, false) == EEXIST);
     ASSERT(access(bar_path, F_OK) == 0);
-    handle->file = fopen(bar_path, "r");
-    ASSERT(handle->file);
+    handle->fd = open(bar_path, O_RDONLY);
+    ASSERT(handle->fd > -1);
     memset(str, 0, sizeof(str));
-    ASSERT(fread(str, 1, len, handle->file) == len);
-    ASSERT(fclose(handle->file) == 0);
+    ASSERT(read(handle->fd, str, len) == len);
+    ASSERT(close(handle->fd) == 0);
     ASSERT(strcmp(str, "bar") == 0);
 
     dir = sg_tmpdir();
     ASSERT(dir);
     ASSERT(access(dir, F_OK) == 0);
-    handle->file = fopen(handle->path, "w");
-    ASSERT(handle->file);
-    ASSERT(fwrite("foo", 1, len, handle->file) == len);
+    handle->fd = open(handle->path, O_RDWR | O_CREAT | O_TRUNC, 438);
+    ASSERT(handle->fd > -1);
+    ASSERT(write(handle->fd, "foo", len) == len);
     ASSERT(sg__httpupld_save_as_cb(handle, dir, false) == EISDIR);
     sg_free(dir);
 
-    handle->file = fopen(handle->path, "w");
-    ASSERT(handle->file);
-    ASSERT(fwrite("foo", 1, len, handle->file) == len);
+    handle->fd = open(handle->path, O_RDWR | O_CREAT | O_TRUNC, 438);
+    ASSERT(handle->fd > -1);
+    ASSERT(write(handle->fd, "foo", len) == len);
     ASSERT(sg__httpupld_save_as_cb(handle, "", false) == ENOENT);
 
-    handle->file = fopen(handle->path, "w");
-    ASSERT(handle->file);
-    ASSERT(fwrite("foo", 1, len, handle->file) == len);
+    handle->fd = open(handle->path, O_RDWR | O_CREAT | O_TRUNC, 438);
+    ASSERT(handle->fd > -1);
+    ASSERT(write(handle->fd, "foo", len) == len);
     ASSERT(sg__httpupld_save_as_cb(handle, bar_path, true) == 0);
     ASSERT(access(bar_path, F_OK) == 0);
-    handle->file = fopen(bar_path, "r");
-    ASSERT(handle->file);
+    handle->fd = open(bar_path, O_RDONLY);
+    ASSERT(handle->fd > -1);
     memset(str, 0, sizeof(str));
-    ASSERT(fread(str, 1, len, handle->file) == len);
-    ASSERT(fclose(handle->file) == 0);
+    ASSERT(read(handle->fd, str, len) == len);
+    ASSERT(close(handle->fd) == 0);
     ASSERT(strcmp(str, "foo") == 0);
 
     unlink(bar_path);
     ASSERT(access(bar_path, F_OK) == -1);
-    handle->file = fopen(handle->path, "w");
-    ASSERT(handle->file);
-    ASSERT(fwrite("foo", 1, len, handle->file) == len);
+    handle->fd = open(handle->path, O_RDWR | O_CREAT | O_TRUNC, 438);
+    ASSERT(handle->fd > -1);
+    ASSERT(write(handle->fd, "foo", len) == len);
     ASSERT(sg__httpupld_save_as_cb(handle, bar_path, false) == 0);
     ASSERT(access(bar_path, F_OK) == 0);
-    handle->file = fopen(bar_path, "r");
-    ASSERT(handle->file);
+    handle->fd = open(bar_path, O_RDONLY);
+    ASSERT(handle->fd > -1);
     memset(str, 0, sizeof(str));
-    ASSERT(fread(str, 1, len, handle->file) == len);
-    ASSERT(fclose(handle->file) == 0);
+    ASSERT(read(handle->fd, str, len) == len);
+    ASSERT(close(handle->fd) == 0);
     ASSERT(strcmp(str, "foo") == 0);
 
     sg_free(handle);
