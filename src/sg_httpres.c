@@ -147,12 +147,8 @@ SG_EXTERN int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_
     res->status = status;
     return 0;
 fail:
-    if (fd != -1) {
-        if (errnum == 0)
-            errnum = close(fd);
-        else
-            close(fd);
-    }
+    if ((fd != -1) && close(fd) && (errnum == 0))
+        errnum = errno;
     if (errnum == ENOMEM)
         oom();
     return errnum;
