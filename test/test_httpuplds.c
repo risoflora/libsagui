@@ -43,6 +43,14 @@
 #endif
 #endif
 
+#ifndef TEST_HTTPUPLDS_OPEN_MODE
+#define TEST_HTTPUPLDS_OPEN_MODE S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH
+#endif
+
+#ifndef TEST_HTTPUPLDS_OPEN_WFLAGS
+#define TEST_HTTPUPLDS_OPEN_WFLAGS O_RDWR | O_CREAT | O_TRUNC
+#endif
+
 static int dummy_httpuplds_save_cb(void *handle, bool overwritten) {
     (void) handle;
     (void) overwritten;
@@ -263,7 +271,7 @@ static void test__httpupld_cb(void) {
     ASSERT(strcmp(err, str) == 0);
 
     unlink(dummy_path);
-    fd = open(dummy_path, O_RDWR | O_CREAT | O_TRUNC, 438);
+    fd = open(dummy_path, TEST_HTTPUPLDS_OPEN_WFLAGS, TEST_HTTPUPLDS_OPEN_MODE);
     ASSERT(fd > -1);
     ASSERT(close(fd) == 0);
     ASSERT(access(dummy_path, F_OK) == 0);
@@ -317,7 +325,7 @@ static void test__httpupld_write_cb(void) {
     unlink(handle->path);
 
     ASSERT(access(handle->path, F_OK) == -1);
-    handle->fd = open(handle->path, O_RDWR | O_CREAT | O_TRUNC, 438);
+    handle->fd = open(handle->path, TEST_HTTPUPLDS_OPEN_WFLAGS, TEST_HTTPUPLDS_OPEN_MODE);
     ASSERT(handle->fd > -1);
     ASSERT(sg__httpupld_write_cb(handle, 0, "foo", len - 1) == (len - 1));
     ASSERT(close(handle->fd) == 0);
@@ -344,7 +352,7 @@ static void test__httpupld_free_cb(void) {
 
     unlink(handle->path);
 
-    handle->fd = open(handle->path, O_RDWR | O_CREAT | O_TRUNC, 438);
+    handle->fd = open(handle->path, TEST_HTTPUPLDS_OPEN_WFLAGS, TEST_HTTPUPLDS_OPEN_MODE);
 
     ASSERT(handle->fd > -1);
 #ifdef _WIN32
@@ -370,7 +378,7 @@ static void test__httpupld_save_cb(void) {
 
     ASSERT(sg__httpupld_save_cb(NULL, false) == EINVAL);
 
-    handle->fd = open(handle->path, O_RDWR | O_CREAT | O_TRUNC, 438);
+    handle->fd = open(handle->path, TEST_HTTPUPLDS_OPEN_WFLAGS, TEST_HTTPUPLDS_OPEN_MODE);
     ASSERT(handle->fd > -1);
     ASSERT(write(handle->fd, "foo", len) == len);
     ASSERT(access(handle->dest, F_OK) == -1);
@@ -400,12 +408,12 @@ static void test__httpupld_save_as_cb(void) {
 
     ASSERT(sg__httpupld_save_as_cb(NULL, "foo", false) == EINVAL);
     ASSERT(sg__httpupld_save_as_cb(handle, "foo", false) == EINVAL);
-    handle->fd = open(handle->path, O_RDWR | O_CREAT | O_TRUNC, 438);
+    handle->fd = open(handle->path, TEST_HTTPUPLDS_OPEN_WFLAGS, TEST_HTTPUPLDS_OPEN_MODE);
     ASSERT(handle->fd > -1);
     ASSERT(write(handle->fd, "foo", len) == len);
     ASSERT(sg__httpupld_save_as_cb(handle, NULL, false) == EINVAL);
 
-    handle->fd = open(bar_path, O_RDWR | O_CREAT | O_TRUNC, 438);
+    handle->fd = open(bar_path, TEST_HTTPUPLDS_OPEN_WFLAGS, TEST_HTTPUPLDS_OPEN_MODE);
     ASSERT(handle->fd > -1);
     ASSERT(write(handle->fd, "bar", len) == len);
     ASSERT(close(handle->fd) == 0);
@@ -417,7 +425,7 @@ static void test__httpupld_save_as_cb(void) {
     ASSERT(close(handle->fd) == 0);
     ASSERT(strcmp(str, "bar") == 0);
 
-    handle->fd = open(handle->path, O_RDWR | O_CREAT | O_TRUNC, 438);
+    handle->fd = open(handle->path, TEST_HTTPUPLDS_OPEN_WFLAGS, TEST_HTTPUPLDS_OPEN_MODE);
     ASSERT(handle->fd > -1);
     ASSERT(write(handle->fd, "foo", len) == len);
 
@@ -433,18 +441,18 @@ static void test__httpupld_save_as_cb(void) {
     dir = sg_tmpdir();
     ASSERT(dir);
     ASSERT(access(dir, F_OK) == 0);
-    handle->fd = open(handle->path, O_RDWR | O_CREAT | O_TRUNC, 438);
+    handle->fd = open(handle->path, TEST_HTTPUPLDS_OPEN_WFLAGS, TEST_HTTPUPLDS_OPEN_MODE);
     ASSERT(handle->fd > -1);
     ASSERT(write(handle->fd, "foo", len) == len);
     ASSERT(sg__httpupld_save_as_cb(handle, dir, false) == EISDIR);
     sg_free(dir);
 
-    handle->fd = open(handle->path, O_RDWR | O_CREAT | O_TRUNC, 438);
+    handle->fd = open(handle->path, TEST_HTTPUPLDS_OPEN_WFLAGS, TEST_HTTPUPLDS_OPEN_MODE);
     ASSERT(handle->fd > -1);
     ASSERT(write(handle->fd, "foo", len) == len);
     ASSERT(sg__httpupld_save_as_cb(handle, "", false) == ENOENT);
 
-    handle->fd = open(handle->path, O_RDWR | O_CREAT | O_TRUNC, 438);
+    handle->fd = open(handle->path, TEST_HTTPUPLDS_OPEN_WFLAGS, TEST_HTTPUPLDS_OPEN_MODE);
     ASSERT(handle->fd > -1);
     ASSERT(write(handle->fd, "foo", len) == len);
     ASSERT(sg__httpupld_save_as_cb(handle, bar_path, true) == 0);
@@ -458,7 +466,7 @@ static void test__httpupld_save_as_cb(void) {
 
     unlink(bar_path);
     ASSERT(access(bar_path, F_OK) == -1);
-    handle->fd = open(handle->path, O_RDWR | O_CREAT | O_TRUNC, 438);
+    handle->fd = open(handle->path, TEST_HTTPUPLDS_OPEN_WFLAGS, TEST_HTTPUPLDS_OPEN_MODE);
     ASSERT(handle->fd > -1);
     ASSERT(write(handle->fd, "foo", len) == len);
     ASSERT(sg__httpupld_save_as_cb(handle, bar_path, false) == 0);

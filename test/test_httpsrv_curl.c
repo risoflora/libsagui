@@ -190,6 +190,13 @@ static void srv_req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_
         return;
     }
 
+    if (strcmp(sg_httpreq_path(req), "/offset") == 0) {
+        ASSERT(strcmp(sg_httpreq_method(req), "GET") == 0);
+        snprintf(filename, sizeof(filename), "%s", sg_strmap_get(*sg_httpreq_params(req), "filename"));
+        ASSERT(sg_httpres_sendfile(res, 0, 0, 1, filename, false, 200) == 0);
+        return;
+    }
+
     if (strcmp(sg_httpreq_path(req), "/data") == 0) {
         ASSERT(strcmp(sg_httpreq_method(req), "GET") == 0);
         memset(text, 0, sizeof(text));
@@ -386,6 +393,17 @@ int main(void) {
     ASSERT(curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &status) == CURLE_OK);
     ASSERT(status == 200);
     ASSERT(strcmp(sg_str_content(res), "foo") == 0);
+
+    snprintf(url, sizeof(url), "http://localhost:%d/offset?filename=%s", TEST_HTTPSRV_CURL_PORT, filename1);
+    ASSERT(curl_easy_setopt(curl, CURLOPT_URL, url) == CURLE_OK);
+
+    ASSERT(sg_str_clear(res) == 0);
+    ret = curl_easy_perform(curl);
+    CURL_LOG(ret);
+    ASSERT(ret == CURLE_OK);
+    ASSERT(curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &status) == CURLE_OK);
+    ASSERT(status == 200);
+    ASSERT(strcmp(sg_str_content(res), "oo") == 0);
 
     snprintf(url, sizeof(url), "http://localhost:%d/download?filename=%s", TEST_HTTPSRV_CURL_PORT, filename2);
     ASSERT(curl_easy_setopt(curl, CURLOPT_URL, url) == CURLE_OK);
