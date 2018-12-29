@@ -26,6 +26,51 @@ Sagui is a cross-platform C library which helps to develop web servers or framew
 * Fields, parameters, cookies, headers under hash table structure
 * Several callbacks for total library customization 
 
+# Examples
+
+A minimal HTTP server example:
+
+```c
+void req_cb(void *cls, struct sg_httpreq *req, struct sg_httpres *res) {
+    sg_httpres_send(res, "Hello world", "text/plain", 200);
+}
+
+int main() {
+    struct sg_httpsrv *srv = sg_httpsrv_new(req_cb, NULL);
+    sg_httpsrv_listen(srv, 8080, false);
+    printf("Server running at http://localhost:%d\n", sg_httpsrv_port(srv));
+    getchar();
+    sg_httpsrv_free(srv);
+    return 0;
+}
+```
+
+The router support is isolated from the HTTP, so it can be used to route any path structure, for example:
+
+```c
+void home_cb(void *cls, struct sg_route *route) {
+    printf(stdout, "Home\n");
+}
+
+void download_cb(void *cls, struct sg_route *route) {
+    printf(stdout, "Download\n");
+}
+
+int main() {
+    struct sg_router *router;
+    struct sg_route *routes = NULL;
+    sg_routes_add(&routes, "/home", home_cb, NULL);
+    sg_routes_add(&routes, "/download", download_cb, NULL);
+    router = sg_router_new(routes);
+    sg_router_dispatch(router, "/home", NULL);
+    sg_routes_cleanup(&routes);
+    sg_router_free(router);
+    return 0;
+}
+```
+
+There are other examples available in the [`examples/`](https://github.com/risoflora/libsagui/tree/master/examples) directory.
+
 # Versioning
 
 Starting from the version 1.0.0, Sagui follows the [SemVer](https://semver.org) rules regarding API changes with backwards compatibility and stable ABI across major releases.
