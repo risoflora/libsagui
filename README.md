@@ -57,11 +57,10 @@ void download_cb(void *cls, struct sg_route *route) {
 }
 
 int main() {
-    struct sg_router *router;
+    struct sg_router *router = sg_router_new(routes);
     struct sg_route *routes = NULL;
     sg_routes_add(&routes, "/home", home_cb, NULL);
     sg_routes_add(&routes, "/download", download_cb, NULL);
-    router = sg_router_new(routes);
     sg_router_dispatch(router, "/home", NULL);
     sg_routes_cleanup(&routes);
     sg_router_free(router);
