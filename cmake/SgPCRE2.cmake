@@ -4,7 +4,7 @@
 #
 # Build PCRE2.
 #
-# Build PCRE2 from Cordel building.
+# Build PCRE2 from Sagui building.
 #
 # ::
 #
