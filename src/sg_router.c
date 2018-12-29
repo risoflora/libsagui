@@ -34,13 +34,13 @@
 
 struct sg_router *sg_router_new(struct sg_route *routes) {
     struct sg_router *router;
-    if (!routes) {
-        errno = EINVAL;
-        return NULL;
+    if (routes) {
+        sg__new(router);
+        router->routes = routes;
+        return router;
     }
-    sg__new(router);
-    router->routes = routes;
-    return router;
+    errno = EINVAL;
+    return NULL;
 }
 
 void sg_router_free(struct sg_router *router) {

@@ -84,11 +84,10 @@ int sg_httpauth_set_realm(struct sg_httpauth *auth, const char *realm) {
 }
 
 const char *sg_httpauth_realm(struct sg_httpauth *auth) {
-    if (!auth) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return auth->realm;
+    if (auth)
+        return auth->realm;
+    errno = EINVAL;
+    return NULL;
 }
 
 int sg_httpauth_deny(struct sg_httpauth *auth, const char *justification, const char *content_type) {
@@ -109,17 +108,15 @@ int sg_httpauth_cancel(struct sg_httpauth *auth) {
 }
 
 const char *sg_httpauth_usr(struct sg_httpauth *auth) {
-    if (!auth) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return auth->usr;
+    if (auth)
+        return auth->usr;
+    errno = EINVAL;
+    return NULL;
 }
 
 const char *sg_httpauth_pwd(struct sg_httpauth *auth) {
-    if (!auth) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return auth->pwd;
+    if (auth)
+        return auth->pwd;
+    errno = EINVAL;
+    return NULL;
 }

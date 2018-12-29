@@ -96,71 +96,64 @@ struct sg_strmap **sg_httpreq_params(struct sg_httpreq *req) {
 }
 
 struct sg_strmap **sg_httpreq_fields(struct sg_httpreq *req) {
-    if (!req) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return &req->fields;
+    if (req)
+        return &req->fields;
+    errno = EINVAL;
+    return NULL;
 }
 
 const char *sg_httpreq_version(struct sg_httpreq *req) {
-    if (!req) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return req->version;
+    if (req)
+        return req->version;
+    errno = EINVAL;
+    return NULL;
+
 }
 
 const char *sg_httpreq_method(struct sg_httpreq *req) {
-    if (!req) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return req->method;
+    if (req)
+        return req->method;
+    errno = EINVAL;
+    return NULL;
 }
 
 const char *sg_httpreq_path(struct sg_httpreq *req) {
-    if (!req) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return req->path;
+    if (req)
+        return req->path;
+    errno = EINVAL;
+    return NULL;
 }
 
 struct sg_str *sg_httpreq_payload(struct sg_httpreq *req) {
-    if (!req) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return req->payload;
+    if (req)
+        return req->payload;
+    errno = EINVAL;
+    return NULL;
 }
 
 bool sg_httpreq_is_uploading(struct sg_httpreq *req) {
-    if (!req) {
-        errno = EINVAL;
-        return false;
-    }
-    return req->is_uploading;
+    if (req)
+        return req->is_uploading;
+    errno = EINVAL;
+    return false;
 }
 
 struct sg_httpupld *sg_httpreq_uploads(struct sg_httpreq *req) {
-    if (!req) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return req->uplds;
+    if (req)
+        return req->uplds;
+    errno = EINVAL;
+    return NULL;
 }
 
 #ifdef SG_HTTPS_SUPPORT
 
 void *sg_httpreq_tls_session(struct sg_httpreq *req) {
     const union MHD_ConnectionInfo *info;
-    if (!req) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return (info = MHD_get_connection_info(req->con,
-                                           MHD_CONNECTION_INFO_GNUTLS_SESSION, NULL)) ? info->tls_session : NULL;
+    if (req)
+        return (info = MHD_get_connection_info(req->con,
+                                               MHD_CONNECTION_INFO_GNUTLS_SESSION, NULL)) ? info->tls_session : NULL;
+    errno = EINVAL;
+    return NULL;
 }
 
 #endif
@@ -173,9 +166,8 @@ int sg_httpreq_set_user_data(struct sg_httpreq *req, void *data) {
 }
 
 void *sg_httpreq_user_data(struct sg_httpreq *req) {
-    if (!req) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return req->user_data;
+    if (req)
+        return req->user_data;
+    errno = EINVAL;
+    return NULL;
 }

@@ -164,19 +164,17 @@ void sg_httpsrv_free(struct sg_httpsrv *srv) {
 
 bool sg_httpsrv_tls_listen2(struct sg_httpsrv *srv, const char *key, const char *pwd, const char *cert,
                             const char *trust, const char *dhparams, uint16_t port, bool threaded) {
-    if (!key || !cert) {
-        errno = EINVAL;
-        return false;
-    }
-    return sg__httpsrv_listen(srv, key, pwd, cert, trust, dhparams, port, threaded);
+    if (key && cert)
+        return sg__httpsrv_listen(srv, key, pwd, cert, trust, dhparams, port, threaded);
+    errno = EINVAL;
+    return false;
 }
 
 bool sg_httpsrv_tls_listen(struct sg_httpsrv *srv, const char *key, const char *cert, uint16_t port, bool threaded) {
-    if (!key || !cert) {
-        errno = EINVAL;
-        return false;
-    }
-    return sg__httpsrv_listen(srv, key, NULL, cert, NULL, NULL, port, threaded);
+    if (key && cert)
+        return sg__httpsrv_listen(srv, key, NULL, cert, NULL, NULL, port, threaded);
+    errno = EINVAL;
+    return false;
 }
 
 #endif
@@ -196,20 +194,18 @@ int sg_httpsrv_shutdown(struct sg_httpsrv *srv) {
 }
 
 uint16_t sg_httpsrv_port(struct sg_httpsrv *srv) {
-    if (!srv) {
-        errno = EINVAL;
-        return 0;
-    }
-    return srv->handle ? MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_BIND_PORT)->port : (uint16_t) 0;
+    if (srv)
+        return srv->handle ? MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_BIND_PORT)->port : (uint16_t) 0;
+    errno = EINVAL;
+    return 0;
 }
 
 bool sg_httpsrv_is_threaded(struct sg_httpsrv *srv) {
-    if (!srv) {
-        errno = EINVAL;
-        return false;
-    }
-    return srv->handle &&
-           (MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_FLAGS)->flags & MHD_USE_THREAD_PER_CONNECTION);
+    if (srv)
+        return srv->handle &&
+               (MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_FLAGS)->flags & MHD_USE_THREAD_PER_CONNECTION);
+    errno = EINVAL;
+    return false;
 }
 
 int sg_httpsrv_set_upld_cbs(struct sg_httpsrv *srv, sg_httpupld_cb cb, void *cls, sg_write_cb write_cb,
@@ -234,11 +230,10 @@ int sg_httpsrv_set_upld_dir(struct sg_httpsrv *srv, const char *dir) {
 }
 
 const char *sg_httpsrv_upld_dir(struct sg_httpsrv *srv) {
-    if (!srv) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return srv->uplds_dir;
+    if (srv)
+        return srv->uplds_dir;
+    errno = EINVAL;
+    return NULL;
 }
 
 int sg_httpsrv_set_post_buf_size(struct sg_httpsrv *srv, size_t size) {
@@ -249,11 +244,10 @@ int sg_httpsrv_set_post_buf_size(struct sg_httpsrv *srv, size_t size) {
 }
 
 size_t sg_httpsrv_post_buf_size(struct sg_httpsrv *srv) {
-    if (!srv) {
-        errno = EINVAL;
-        return 0;
-    }
-    return srv->post_buf_size;
+    if (srv)
+        return srv->post_buf_size;
+    errno = EINVAL;
+    return 0;
 }
 
 int sg_httpsrv_set_payld_limit(struct sg_httpsrv *srv, size_t limit) {
@@ -264,11 +258,10 @@ int sg_httpsrv_set_payld_limit(struct sg_httpsrv *srv, size_t limit) {
 }
 
 size_t sg_httpsrv_payld_limit(struct sg_httpsrv *srv) {
-    if (!srv) {
-        errno = EINVAL;
-        return 0;
-    }
-    return srv->payld_limit;
+    if (srv)
+        return srv->payld_limit;
+    errno = EINVAL;
+    return 0;
 }
 
 int sg_httpsrv_set_uplds_limit(struct sg_httpsrv *srv, uint64_t limit) {
@@ -279,11 +272,10 @@ int sg_httpsrv_set_uplds_limit(struct sg_httpsrv *srv, uint64_t limit) {
 }
 
 uint64_t sg_httpsrv_uplds_limit(struct sg_httpsrv *srv) {
-    if (!srv) {
-        errno = EINVAL;
-        return 0;
-    }
-    return srv->uplds_limit;
+    if (srv)
+        return srv->uplds_limit;
+    errno = EINVAL;
+    return 0;
 }
 
 int sg_httpsrv_set_thr_pool_size(struct sg_httpsrv *srv, unsigned int size) {
@@ -294,11 +286,10 @@ int sg_httpsrv_set_thr_pool_size(struct sg_httpsrv *srv, unsigned int size) {
 }
 
 unsigned int sg_httpsrv_thr_pool_size(struct sg_httpsrv *srv) {
-    if (!srv) {
-        errno = EINVAL;
-        return 0;
-    }
-    return srv->thr_pool_size;
+    if (srv)
+        return srv->thr_pool_size;
+    errno = EINVAL;
+    return 0;
 }
 
 int sg_httpsrv_set_con_timeout(struct sg_httpsrv *srv, unsigned int timeout) {
@@ -309,11 +300,10 @@ int sg_httpsrv_set_con_timeout(struct sg_httpsrv *srv, unsigned int timeout) {
 }
 
 unsigned int sg_httpsrv_con_timeout(struct sg_httpsrv *srv) {
-    if (!srv) {
-        errno = EINVAL;
-        return 0;
-    }
-    return srv->con_timeout;
+    if (srv)
+        return srv->con_timeout;
+    errno = EINVAL;
+    return 0;
 }
 
 int sg_httpsrv_set_con_limit(struct sg_httpsrv *srv, unsigned int limit) {
@@ -324,9 +314,8 @@ int sg_httpsrv_set_con_limit(struct sg_httpsrv *srv, unsigned int limit) {
 }
 
 unsigned int sg_httpsrv_con_limit(struct sg_httpsrv *srv) {
-    if (!srv) {
-        errno = EINVAL;
-        return 0;
-    }
-    return srv->con_limit;
+    if (srv)
+        return srv->con_limit;
+    errno = EINVAL;
+    return 0;
 }

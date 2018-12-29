@@ -9,27 +9,27 @@ Sagui is a cross-platform C library which helps to develop web servers or framew
 # Features
 
 * **Requests processing through:**
-  * Event-driven - _single-thread + main loop + select_
-  * Threaded - _one thread per request_
-  * Thread pool - _thread pool + select_
+  * Event-driven - _single-thread + main loop + select_.
+  * Threaded - _one thread per request_.
+  * Thread pool - _thread pool + select_.
 * **High-performance path routing that supports:**
-  * Regular expressions using [PCRE2](https://www.pcre.org/current/doc/html/pcre2pattern.html) [syntax](https://www.pcre.org/current/doc/html/pcre2syntax.html)
-  * Just-in-time optimization ([JIT](https://www.pcre.org/current/doc/html/pcre2jit.html))
-  * Binary search in path entry-points
+  * Regular expressions using [PCRE2](https://www.pcre.org/current/doc/html/pcre2pattern.html) [syntax](https://www.pcre.org/current/doc/html/pcre2syntax.html).
+  * Just-in-time optimization ([JIT](https://www.pcre.org/current/doc/html/pcre2jit.html)).
+  * Binary search in path entry-points.
 * **HTTPS support:**
-  * TLS 1.3 under [GnuTLS](https://www.gnutls.org) library
+  * TLS 1.3 under [GnuTLS](https://www.gnutls.org) library.
 * **Basic authentication:**
-  * For standard login using *user name/password*
+  * For standard login using *user name/password*.
 * **Upload/download streaming by:**
-  * Payload - for raw data transferring as JSON, XML and other
-  * File - for large data transferring as videos, images, binaries and so on
+  * Payload - for raw data transferring as JSON, XML and other.
+  * File - for large data transferring as videos, images, binaries and so on.
 * **Dynamic strings:**
-  * Makes it easy strings operations in C
+  * Makes it easy strings operations in C.
 * **String map:**
-  * Fast key-value mapping
+  * Fast key-value mapping.
 * **And more:**
-  * Fields, parameters, cookies, headers under hash table structure
-  * Several callbacks for total library customization
+  * Fields, parameters, cookies, headers under hash table structure.
+  * Several callbacks for total library customization.
 
 # Examples
 

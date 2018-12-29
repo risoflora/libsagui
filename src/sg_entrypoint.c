@@ -39,11 +39,10 @@ int sg__entrypoint_cmp(const void *a, const void *b) {
 }
 
 const char *sg_entrypoint_name(struct sg_entrypoint *entrypoint) {
-    if (!entrypoint) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return entrypoint->name;
+    if (entrypoint)
+        return entrypoint->name;
+    errno = EINVAL;
+    return NULL;
 }
 
 int sg_entrypoint_set_user_data(struct sg_entrypoint *entrypoint, void *data) {
@@ -54,9 +53,8 @@ int sg_entrypoint_set_user_data(struct sg_entrypoint *entrypoint, void *data) {
 }
 
 void *sg_entrypoint_user_data(struct sg_entrypoint *entrypoint) {
-    if (!entrypoint) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return entrypoint->user_data;
+    if (entrypoint)
+        return entrypoint->user_data;
+    errno = EINVAL;
+    return NULL;
 }

@@ -91,27 +91,24 @@ static void sg__route_free(struct sg_route *route) {
 }
 
 void *sg_route_handle(struct sg_route *route) {
-    if (!route) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return route->re;
+    if (route)
+        return route->re;
+    errno = EINVAL;
+    return NULL;
 }
 
 void *sg_route_match(struct sg_route *route) {
-    if (!route) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return route->match;
+    if (route)
+        return route->match;
+    errno = EINVAL;
+    return NULL;
 }
 
 const char *sg_route_rawpattern(struct sg_route *route) {
-    if (!route) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return route->pattern;
+    if (route)
+        return route->pattern;
+    errno = EINVAL;
+    return NULL;
 }
 
 char *sg_route_pattern(struct sg_route *route) {
@@ -132,11 +129,10 @@ char *sg_route_pattern(struct sg_route *route) {
 }
 
 const char *sg_route_path(struct sg_route *route) {
-    if (!route) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return route->path;
+    if (route)
+        return route->path;
+    errno = EINVAL;
+    return NULL;
 }
 
 int sg_route_get_segments(struct sg_route *route, sg_get_segments_cb cb, void *cls) {
@@ -195,11 +191,10 @@ int sg_route_get_vars(struct sg_route *route, sg_get_vars_cb cb, void *cls) {
 }
 
 void *sg_route_user_data(struct sg_route *route) {
-    if (!route) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return route->user_data;
+    if (route)
+        return route->user_data;
+    errno = EINVAL;
+    return NULL;
 }
 
 int sg_routes_add2(struct sg_route **routes, struct sg_route **route, const char *pattern, char *errmsg, size_t errlen,
