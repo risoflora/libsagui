@@ -685,6 +685,7 @@ GENERATE_DEPRECATEDLIST= YES
 # ... \endcond blocks.
 
 ENABLED_SECTIONS       = @SG_HTTPS_SUPPORT_DOC@ \
+                         @SG_HTTP_COMPRESSION_DOC@ \
                          @SG_PATH_ROUTING_DOC@
 
 # The MAX_INITIALIZER_LINES tag determines the maximum number of lines that the
@@ -2091,6 +2092,7 @@ INCLUDE_FILE_PATTERNS  =
 # This tag requires that the tag ENABLE_PREPROCESSING is set to YES.
 
 PREDEFINED             = @SG_HTTPS_SUPPORT_DOC@ \
+                         @SG_HTTP_COMPRESSION_DOC@ \
                          @SG_PATH_ROUTING_DOC@
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this

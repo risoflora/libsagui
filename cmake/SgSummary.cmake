@@ -84,6 +84,12 @@ else ()
     set(_https_support "No")
 endif ()
 
+if (SG_HTTP_COMPRESSION)
+    set(_http_compression "Yes")
+else ()
+    set(_http_compression "No")
+endif ()
+
 if (SG_PATH_ROUTING)
     set(_routing "Yes")
 else ()
@@ -176,6 +182,7 @@ endif ()
 #    CFLAGS: ${_cflags}
 #  Build: ${_build_type}-${_build_arch} (${_lib_type})
 #  HTTPS: ${_https_support}
+#  Compression: ${_http_compression}
 #  Routing: ${_routing}
 #  Examples: ${_build_examples}
 #  Docs:
@@ -198,6 +205,7 @@ Sagui library ${VERSION} - building summary:
     CFLAGS: ${_cflags}
   Build: ${_build_type}-${_build_arch} (${_lib_type})
   HTTPS: ${_https_support}
+  Compression: ${_http_compression}
   Routing: ${_routing}
   Examples: ${_build_examples}
   Docs:
@@ -213,6 +221,8 @@ unset(_build_type)
 unset(_build_arch)
 unset(_lib_type)
 unset(_https_support)
+unset(_http_compression)
+unset(_routing)
 unset(_build_examples)
 unset(_build_html)
 unset(_build_pdf)
