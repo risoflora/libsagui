@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -851,6 +851,14 @@ SG_EXTERN int sg_httpres_set_cookie(struct sg_httpres *res, const char *name, co
  */
 SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t size, const char *content_type,
                                     unsigned int status);
+
+#ifdef SG_HTTP_COMPRESSION
+
+/* warning: this function is experimental. */
+SG_EXTERN int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const char *content_type,
+                                     unsigned int status);
+
+#endif
 
 /**
  * Offer a file as download.

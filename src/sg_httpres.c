@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -32,6 +32,9 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#ifdef SG_HTTP_COMPRESSION
+#include <zlib.h>
+#endif
 #include "sg_macros.h"
 #include "microhttpd.h"
 #include "sagui.h"
@@ -178,6 +181,36 @@ failed:
         oom();
     return errnum;
 }
+
+#ifdef SG_HTTP_COMPRESSION
+
+/* warning: this function is experimental. */
+int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const char *content_type,
+                           unsigned int status) {
+    Bytef *dest;
+    uLongf dest_size;
+    int ret;
+    if (!res || !buf || ((ssize_t) size < 0) || !content_type || (status < 100) || (status > 599))
+        return EINVAL;
+    if (res->handle)
+        return EALREADY;
+    dest_size = compressBound(size);
+    if (!(dest = sg__malloc(dest_size)))
+        oom();
+    if (((ret = compress2(dest, &dest_size, buf, size, Z_BEST_COMPRESSION)) != Z_OK) || (dest_size >= size)) {
+        sg__free(dest);
+        return ret;
+    }
+    if (!(res->handle = MHD_create_response_from_buffer(dest_size, dest, MHD_RESPMEM_MUST_FREE)))
+        oom();
+    if (strlen(content_type) > 0)
+        sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_TYPE, content_type);
+    sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_ENCODING, "deflate");
+    res->status = status;
+    return 0;
+}
+
+#endif
 
 int sg_httpres_clear(struct sg_httpres *res) {
     if (!res)
