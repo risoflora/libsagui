@@ -48,6 +48,7 @@ endif ()
 set(__SG_TESTS_INCLUDED ON)
 
 if (BUILD_TESTING)
+    add_definitions(-DSG_TESTING=1)
     if (WIN32)
         set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
     endif ()

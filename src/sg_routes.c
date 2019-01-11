@@ -150,7 +150,7 @@ int sg_route_segments_iter(struct sg_route *route, sg_segments_iter_cb cb, void 
         if (!(segment = strdup(route->path + off)))
             return ENOMEM;
         segment[route->ovector[r + 1] - off] = '\0';
-        r = cb(cls, segment);
+        r = cb(cls, (unsigned int) i - 1, segment);
         sg__free(segment);
         if (r != 0)
             return r;
@@ -217,9 +217,11 @@ bool sg_routes_add(struct sg_route **routes, const char *pattern, sg_route_cb cb
     int ret;
     if ((ret = sg_routes_add2(routes, &route, pattern, err, sizeof(err), cb, cls)) == 0)
         return true;
+#ifndef SG_TESTING
     if (ret == EINVAL || ret == EALREADY)
         sg_strerror(ret, err, sizeof(err));
     sg__err_cb(NULL, err);
+#endif
     errno = ret;
     return false;
 }

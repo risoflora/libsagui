@@ -41,16 +41,18 @@
 static void route_cb(__SG_UNUSED void *cls, __SG_UNUSED struct sg_route *route) {
 }
 
-static int route_segments_empty_iter_cb(__SG_UNUSED void *cls, __SG_UNUSED const char *segment) {
+static int route_segments_empty_iter_cb(__SG_UNUSED void *cls, __SG_UNUSED unsigned int index,
+                                        __SG_UNUSED const char *segment) {
     return 0;
 }
 
-static int route_segments_123_iter_cb(__SG_UNUSED void *cls, __SG_UNUSED const char *segment) {
+static int route_segments_123_iter_cb(__SG_UNUSED void *cls, __SG_UNUSED unsigned int index,
+                                      __SG_UNUSED const char *segment) {
     return 123;
 }
 
-static int route_segments_concat_iter_cb(void *cls, const char *segment) {
-    strcat(cls, segment);
+static int route_segments_concat_iter_cb(void *cls, __SG_UNUSED unsigned int index, const char *segment) {
+    sprintf(cls, "%s%d%s", (char *) cls, index, segment);
     return 0;
 }
 
@@ -208,7 +210,7 @@ static void test_route_segments_iter(void) {
     memset(str, 0, sizeof(str));
     ASSERT(strcmp(str, "") == 0);
     ASSERT(sg_route_segments_iter(route, route_segments_concat_iter_cb, str) == 0);
-    ASSERT(strcmp(str, "foobar") == 0);
+    ASSERT(strcmp(str, "0foo1bar") == 0);
 
     sg__route_free(route);
 }

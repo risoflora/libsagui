@@ -1310,11 +1310,12 @@ struct sg_route;
 /**
  * Callback signature used by #sg_route_segments_iter() to iterate the path segments.
  * \param[out] cls User-defined closure.
+ * \param[out] index Current iterated item index.
  * \param[out] segment Current iterated segment.
  * \retval 0 - Success.
  * \retval E<ERROR> - User-defined error to stop the segments iteration.
  */
-typedef int (*sg_segments_iter_cb)(void *cls, const char *segment);
+typedef int (*sg_segments_iter_cb)(void *cls, unsigned int index, const char *segment);
 
 /**
  * Callback signature used by #sg_route_vars_iter() to iterate the path variables.

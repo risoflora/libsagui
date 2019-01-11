@@ -31,8 +31,8 @@
 
 /* NOTE: Error checking has been omitted to make it clear. */
 
-static int segments_iter_cb(__SG_UNUSED void *cls, const char *segment) {
-    fprintf(stdout, " %s\n", segment);
+static int segments_iter_cb(__SG_UNUSED void *cls, unsigned int index, const char *segment) {
+    fprintf(stdout, " %d: %s\n", index, segment);
     return 0;
 }
 
