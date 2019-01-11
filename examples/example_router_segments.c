@@ -31,25 +31,25 @@
 
 /* NOTE: Error checking has been omitted to make it clear. */
 
-static int get_segments_cb(__SG_UNUSED void *cls, const char *segment) {
+static int segments_iter_cb(__SG_UNUSED void *cls, const char *segment) {
     fprintf(stdout, " %s\n", segment);
     return 0;
 }
 
 static void route_cb(void *cls, struct sg_route *route) {
     fprintf(stdout, "%s: %s\n", sg_route_path(route), (const char *) cls);
-    sg_route_get_segments(route, get_segments_cb, NULL);
+    sg_route_segments_iter(route, segments_iter_cb, NULL);
 }
 
 int main(void) {
     struct sg_router *router;
     struct sg_route *routes = NULL;
     sg_routes_add(&routes, "/foo/[0-9]+", route_cb, "foo-data");
-    sg_routes_add(&routes, "/bar/([a-zA-Z]+)", route_cb, "bar-data");
+    sg_routes_add(&routes, "/bar/([a-zA-Z]+)/([0-9]+)", route_cb, "bar-data");
     router = sg_router_new(routes);
     sg_router_dispatch(router, "/foo/123", NULL);
     fprintf(stdout, "---\n");
-    sg_router_dispatch(router, "/bar/abc", NULL);
+    sg_router_dispatch(router, "/bar/abc/123", NULL);
     sg_routes_cleanup(&routes);
     sg_router_free(router);
     fflush(stdout);

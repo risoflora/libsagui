@@ -41,15 +41,15 @@
 static void route_cb(__SG_UNUSED void *cls, __SG_UNUSED struct sg_route *route) {
 }
 
-static int route_get_segments_empty_cb(__SG_UNUSED void *cls, __SG_UNUSED const char *segment) {
+static int route_segments_empty_iter_cb(__SG_UNUSED void *cls, __SG_UNUSED const char *segment) {
     return 0;
 }
 
-static int route_get_segments_123_cb(__SG_UNUSED void *cls, __SG_UNUSED const char *segment) {
+static int route_segments_123_iter_cb(__SG_UNUSED void *cls, __SG_UNUSED const char *segment) {
     return 123;
 }
 
-static int route_get_segments_concat_cb(void *cls, const char *segment) {
+static int route_segments_concat_iter_cb(void *cls, const char *segment) {
     strcat(cls, segment);
     return 0;
 }
@@ -193,21 +193,21 @@ static void test_route_path(void) {
     ASSERT(errno == 0);
 }
 
-static void test_route_get_segments(void) {
+static void test_route_segments_iter(void) {
     struct sg_route *route;
     char err[SG_ERR_SIZE];
     char str[100];
-    ASSERT(sg_route_get_segments(NULL, route_get_segments_empty_cb, "foo") == EINVAL);
+    ASSERT(sg_route_segments_iter(NULL, route_segments_empty_iter_cb, "foo") == EINVAL);
     route = sg__route_new("/(foo)/(bar)", err, sizeof(err), route_cb, "foo");
-    ASSERT(sg_route_get_segments(route, NULL, "foo") == EINVAL);
+    ASSERT(sg_route_segments_iter(route, NULL, "foo") == EINVAL);
 
     route->path = "/foo/bar";
     route->rc = pcre2_match(route->re, (PCRE2_SPTR) route->path, strlen(route->path), 0, 0, route->match, NULL);
-    ASSERT(sg_route_get_segments(route, route_get_segments_123_cb, NULL) == 123);
+    ASSERT(sg_route_segments_iter(route, route_segments_123_iter_cb, NULL) == 123);
 
     memset(str, 0, sizeof(str));
     ASSERT(strcmp(str, "") == 0);
-    ASSERT(sg_route_get_segments(route, route_get_segments_concat_cb, str) == 0);
+    ASSERT(sg_route_segments_iter(route, route_segments_concat_iter_cb, str) == 0);
     ASSERT(strcmp(str, "foobar") == 0);
 
     sg__route_free(route);
@@ -404,7 +404,7 @@ int main(void) {
     test_route_rawpattern();
     test_route_pattern();
     test_route_path();
-    test_route_get_segments();
+    test_route_segments_iter();
     test_route_get_vars();
     test_route_user_data();
     test_routes_add2();

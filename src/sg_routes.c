@@ -135,7 +135,7 @@ const char *sg_route_path(struct sg_route *route) {
     return NULL;
 }
 
-int sg_route_get_segments(struct sg_route *route, sg_get_segments_cb cb, void *cls) {
+int sg_route_segments_iter(struct sg_route *route, sg_segments_iter_cb cb, void *cls) {
     char *segment;
     size_t off;
     int r;

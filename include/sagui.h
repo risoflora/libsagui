@@ -1308,13 +1308,13 @@ SG_EXTERN int sg_entrypoints_find(struct sg_entrypoints *entrypoints, struct sg_
 struct sg_route;
 
 /**
- * Callback signature used by #sg_route_get_segments() to iterate the path segments.
+ * Callback signature used by #sg_route_segments_iter() to iterate the path segments.
  * \param[out] cls User-defined closure.
  * \param[out] segment Current iterated segment.
  * \retval 0 - Success.
  * \retval E<ERROR> - User-defined error to stop the segments iteration.
  */
-typedef int (*sg_get_segments_cb)(void *cls, const char *segment);
+typedef int (*sg_segments_iter_cb)(void *cls, const char *segment);
 
 /**
  * Callback signature used by #sg_route_get_vars() to iterate the path variables.
@@ -1394,7 +1394,7 @@ SG_EXTERN const char *sg_route_path(struct sg_route *route);
  * \retval EINVAL - Invalid argument.
  * \return Callback result when it is different from `0`.
  */
-SG_EXTERN int sg_route_get_segments(struct sg_route *route, sg_get_segments_cb cb, void *cls);
+SG_EXTERN int sg_route_segments_iter(struct sg_route *route, sg_segments_iter_cb cb, void *cls);
 
 /**
  * Iterates over path variables.
