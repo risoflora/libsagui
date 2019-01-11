@@ -199,7 +199,15 @@ int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const
         oom();
     if (((ret = compress2(dest, &dest_size, buf, size, Z_BEST_COMPRESSION)) != Z_OK) || (dest_size >= size)) {
         sg__free(dest);
-        return ret;
+        switch (ret) {
+            case Z_STREAM_ERROR:
+                return EINVAL;
+            case Z_MEM_ERROR:
+                return ENOMEM;
+            case Z_BUF_ERROR:
+                return ENOBUFS;
+            default:;
+        }
     }
     if (!(res->handle = MHD_create_response_from_buffer(dest_size, dest, MHD_RESPMEM_MUST_FREE)))
         oom();
