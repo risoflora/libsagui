@@ -158,7 +158,7 @@ int sg_route_segments_iter(struct sg_route *route, sg_segments_iter_cb cb, void 
     return 0;
 }
 
-int sg_route_get_vars(struct sg_route *route, sg_get_vars_cb cb, void *cls) {
+int sg_route_vars_iter(struct sg_route *route, sg_vars_iter_cb cb, void *cls) {
     PCRE2_SPTR tbl, rec;
     char *val;
     size_t off;

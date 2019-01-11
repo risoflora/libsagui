@@ -66,7 +66,7 @@ static void route_download_cb(__SG_UNUSED void *cls, struct sg_route *route) {
     struct sg_str *page = sg_str_new();
     char file[256];
     memset(file, 0, sizeof(file));
-    sg_route_get_vars(route, route_download_file_cb, file);
+    sg_route_vars_iter(route, route_download_file_cb, file);
     if (strlen(file) == 0)
         strcpy(file, "Download");
     sg_str_printf(page, "<html><head><title>Download</title></head><body>%s</body></html>", file);

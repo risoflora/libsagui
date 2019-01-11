@@ -31,14 +31,14 @@
 
 /* NOTE: Error checking has been omitted to make it clear. */
 
-static int get_vars_cb(__SG_UNUSED void *cls, const char *name, const char *val) {
+static int vars_iter_cb(__SG_UNUSED void *cls, const char *name, const char *val) {
     fprintf(stdout, " %s: %s\n", name, val);
     return 0;
 }
 
 static void route_cb(void *cls, struct sg_route *route) {
     fprintf(stdout, "%s: %s\n", sg_route_path(route), (const char *) cls);
-    sg_route_get_vars(route, get_vars_cb, NULL);
+    sg_route_vars_iter(route, vars_iter_cb, NULL);
 }
 
 int main(void) {

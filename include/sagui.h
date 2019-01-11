@@ -1317,14 +1317,14 @@ struct sg_route;
 typedef int (*sg_segments_iter_cb)(void *cls, const char *segment);
 
 /**
- * Callback signature used by #sg_route_get_vars() to iterate the path variables.
+ * Callback signature used by #sg_route_vars_iter() to iterate the path variables.
  * \param[out] cls User-defined closure.
  * \param[out] name Current iterated variable name.
  * \param[out] val Current iterated variable value.
  * \retval 0 - Success.
  * \retval E<ERROR> - User-defined error to stop the variables iteration.
  */
-typedef int (*sg_get_vars_cb)(void *cls, const char *name, const char *val);
+typedef int (*sg_vars_iter_cb)(void *cls, const char *name, const char *val);
 
 /**
  * Callback signature used to handle the path routing.
@@ -1405,7 +1405,7 @@ SG_EXTERN int sg_route_segments_iter(struct sg_route *route, sg_segments_iter_cb
  * \retval EINVAL - Invalid argument.
  * \return Callback result when it is different from `0`.
  */
-SG_EXTERN int sg_route_get_vars(struct sg_route *route, sg_get_vars_cb cb, void *cls);
+SG_EXTERN int sg_route_vars_iter(struct sg_route *route, sg_vars_iter_cb cb, void *cls);
 
 /**
  * Gets user data from the route handle.

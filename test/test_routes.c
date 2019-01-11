@@ -54,15 +54,15 @@ static int route_segments_concat_iter_cb(void *cls, const char *segment) {
     return 0;
 }
 
-static int route_get_vars_empty_cb(__SG_UNUSED void *cls, __SG_UNUSED const char *name, __SG_UNUSED const char *val) {
+static int route_vars_empty_iter_cb(__SG_UNUSED void *cls, __SG_UNUSED const char *name, __SG_UNUSED const char *val) {
     return 0;
 }
 
-static int route_get_vars_123_cb(__SG_UNUSED void *cls, __SG_UNUSED const char *name, __SG_UNUSED const char *val) {
+static int route_vars_123_iter_cb(__SG_UNUSED void *cls, __SG_UNUSED const char *name, __SG_UNUSED const char *val) {
     return 123;
 }
 
-static int route_get_vars_concat_cb(void *cls, const char *name, const char *val) {
+static int route_vars_concat_iter_cb(void *cls, const char *name, const char *val) {
     strcat(cls, name);
     strcat(cls, val);
     return 0;
@@ -213,22 +213,22 @@ static void test_route_segments_iter(void) {
     sg__route_free(route);
 }
 
-static void test_route_get_vars(void) {
+static void test_route_vars_iter(void) {
     struct sg_route *route;
     char err[SG_ERR_SIZE];
     char str[100];
-    ASSERT(sg_route_get_vars(NULL, route_get_vars_empty_cb, "foo") == EINVAL);
+    ASSERT(sg_route_vars_iter(NULL, route_vars_empty_iter_cb, "foo") == EINVAL);
     route = sg__route_new("/(?<var1>[a-z]+)/(?<var2>[0-9]+)", err, sizeof(err), route_cb, "foo");
-    ASSERT(sg_route_get_vars(route, NULL, "foo") == EINVAL);
+    ASSERT(sg_route_vars_iter(route, NULL, "foo") == EINVAL);
 
 
     route->path = "/abc/123";
     route->rc = pcre2_match(route->re, (PCRE2_SPTR) route->path, strlen(route->path), 0, 0, route->match, NULL);
-    ASSERT(sg_route_get_vars(route, route_get_vars_123_cb, NULL) == 123);
+    ASSERT(sg_route_vars_iter(route, route_vars_123_iter_cb, NULL) == 123);
 
     memset(str, 0, sizeof(str));
     ASSERT(strcmp(str, "") == 0);
-    ASSERT(sg_route_get_vars(route, route_get_vars_concat_cb, str) == 0);
+    ASSERT(sg_route_vars_iter(route, route_vars_concat_iter_cb, str) == 0);
     ASSERT(strcmp(str, "var1abcvar2123") == 0);
 
     sg__route_free(route);
@@ -405,7 +405,7 @@ int main(void) {
     test_route_pattern();
     test_route_path();
     test_route_segments_iter();
-    test_route_get_vars();
+    test_route_vars_iter();
     test_route_user_data();
     test_routes_add2();
     test_routes_add();
