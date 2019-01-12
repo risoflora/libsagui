@@ -54,11 +54,11 @@ The router support is isolated from the HTTP, so it can be used to route any pat
 
 ```c
 void home_cb(void *cls, struct sg_route *route) {
-    printf(stdout, "Home\n");
+    printf("Home\n");
 }
 
 void download_cb(void *cls, struct sg_route *route) {
-    printf(stdout, "Download\n");
+    printf("Download\n");
 }
 
 int main() {
