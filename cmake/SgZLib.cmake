@@ -91,5 +91,12 @@ ExternalProject_Add(${ZLIB_FULL_NAME}
 
 ExternalProject_Get_Property(${ZLIB_FULL_NAME} INSTALL_DIR)
 set(ZLIB_INCLUDE_DIR ${INSTALL_DIR}/include)
-set(ZLIB_ARCHIVE_LIB ${INSTALL_DIR}/lib/libz.a)
+if (WIN32)
+    set(ZLIB_NAME "zlib")
+    set(ZLIB_SUFFIX ".dll")
+else ()
+    set(ZLIB_NAME "z")
+    set(ZLIB_SUFFIX "")
+endif ()
+set(ZLIB_ARCHIVE_LIB ${INSTALL_DIR}/lib/lib${ZLIB_NAME}${ZLIB_SUFFIX}.a)
 unset(INSTALL_DIR)
