@@ -194,26 +194,38 @@ int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const
         return EINVAL;
     if (res->handle)
         return EALREADY;
-    dest_size = compressBound(size);
-    if (!(dest = sg__malloc(dest_size)))
-        oom();
-    if (((ret = compress2(dest, &dest_size, buf, size, Z_BEST_COMPRESSION)) != Z_OK) || (dest_size >= size)) {
-        sg__free(dest);
-        switch (ret) {
-            case Z_STREAM_ERROR:
-                return EINVAL;
-            case Z_MEM_ERROR:
-                return ENOMEM;
-            case Z_BUF_ERROR:
-                return ENOBUFS;
-            default:;
-        }
+    if (size > 0) {
+        dest_size = compressBound(size);
+        if (!(dest = sg__malloc(dest_size)))
+            oom();
+        if (((ret = compress2(dest, &dest_size, buf, size, Z_BEST_COMPRESSION)) != Z_OK) || (dest_size >= size)) {
+            switch (ret) {
+                case Z_STREAM_ERROR: {
+                    sg__free(dest);
+                    return EINVAL;
+                }
+                case Z_MEM_ERROR: {
+                    sg__free(dest);
+                    return ENOMEM;
+                }
+                case Z_BUF_ERROR: {
+                    sg__free(dest);
+                    return ENOBUFS;
+                }
+                default:
+                    dest_size = size;
+                    memcpy(dest, buf, dest_size);
+            }
+        } else
+            sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_ENCODING, "deflate");
+    } else {
+        dest_size = 0;
+        dest = (Bytef *) strdup("");
     }
     if (!(res->handle = MHD_create_response_from_buffer(dest_size, dest, MHD_RESPMEM_MUST_FREE)))
         oom();
     if (strlen(content_type) > 0)
         sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_TYPE, content_type);
-    sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_ENCODING, "deflate");
     res->status = status;
     return 0;
 }

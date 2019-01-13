@@ -33,7 +33,7 @@
 #define PAGE "<html><head><title>Hello world</title></head><body>Hello world</body></html>"
 #define CONTENT_TYPE "text/html; charset=utf-8"
 
-static void req_cb(__SG_UNUSED void *cls, __SG_UNUSED struct sg_httpreq *req, struct sg_httpres *res) {
+static void req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_httpres *res) {
     struct sg_strmap **headers;
     const char *header;
     if ((headers = sg_httpreq_headers(req)) && (header = sg_strmap_get(*headers, "Accept-Encoding")) &&
@@ -41,8 +41,6 @@ static void req_cb(__SG_UNUSED void *cls, __SG_UNUSED struct sg_httpreq *req, st
         sg_httpres_zsendbinary(res, PAGE, strlen(PAGE), CONTENT_TYPE, 200);
     else
         sg_httpres_sendbinary(res, PAGE, strlen(PAGE), CONTENT_TYPE, 200);
-    headers = sg_httpres_headers(res);
-    sg_strmap_set(headers, "Content-Encoding", "deflate");
 }
 
 int main(void) {
