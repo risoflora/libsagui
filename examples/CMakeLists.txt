@@ -23,7 +23,7 @@
 #
 #   –– cross-platform library which helps to develop web servers or frameworks.
 #
-# Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+# Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
 #
 # This file is part of Sagui library.
 #
@@ -67,6 +67,10 @@ if (SG_BUILD_EXAMPLES)
         add_definitions(-DSG_EXAMPLES_CERTS_DIR="${SG_EXAMPLES_CERTS_DIR}")
         list(APPEND SG_EXAMPLES httpsrv_tls)
         list(APPEND SG_EXAMPLES httpsrv_tls_cert_auth)
+    endif ()
+    if (SG_HTTP_COMPRESSION)
+        list(APPEND SG_EXAMPLES
+                httpcomp)
     endif ()
     if (SG_PATH_ROUTING)
         list(APPEND SG_EXAMPLES
