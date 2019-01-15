@@ -17,7 +17,7 @@ Sagui is a cross-platform C library which helps to develop web servers or framew
   * Just-in-time optimization ([JIT](https://www.pcre.org/current/doc/html/pcre2jit.html)).
   * Binary search in path entry-points.
 * **HTTPS support:**
-  * TLS 1.3 under [GnuTLS](https://www.gnutls.org) library.
+  * TLS 1.3 through [GnuTLS](https://www.gnutls.org) library.
 * **Basic authentication:**
   * For standard login using *user name/password*.
 * **Upload/download streaming by:**
