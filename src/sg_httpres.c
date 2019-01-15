@@ -184,7 +184,6 @@ failed:
 
 #ifdef SG_HTTP_COMPRESSION
 
-/* warning: this function is experimental. */
 int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const char *content_type,
                            unsigned int status) {
     Bytef *dest;
@@ -198,7 +197,7 @@ int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const
         dest_size = compressBound(size);
         if (!(dest = sg__malloc(dest_size)))
             oom();
-        if (((ret = compress2(dest, &dest_size, buf, size, Z_BEST_COMPRESSION)) != Z_OK) || (dest_size >= size)) {
+        if (((ret = compress2(dest, &dest_size, buf, size, Z_BEST_COMPRESSION)) != Z_OK) || (dest_size >= size))
             switch (ret) {
                 case Z_STREAM_ERROR: {
                     sg__free(dest);
@@ -216,7 +215,7 @@ int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const
                     dest_size = size;
                     memcpy(dest, buf, dest_size);
             }
-        } else
+        else
             sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_ENCODING, "deflate");
     } else {
         dest_size = 0;

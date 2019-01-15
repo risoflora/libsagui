@@ -98,6 +98,64 @@ static void test_httpres_set_cookie(struct sg_httpres *res) {
     ASSERT(strcmp(sg_strmap_get(*sg_httpres_headers(res), MHD_HTTP_HEADER_SET_COOKIE), "foo=bar") == 0);
 }
 
+static void test_httpres_zsendbinary(struct sg_httpres *res) {
+    char *str = "foo";
+    size_t len = strlen(str);
+
+    ASSERT(sg_httpres_zsendbinary(NULL, str, len, "text/plain", 200) == EINVAL);
+    ASSERT(sg_httpres_zsendbinary(res, NULL, len, "text/plain", 200) == EINVAL);
+    ASSERT(sg_httpres_zsendbinary(res, str, (size_t) -1, "text/plain", 200) == EINVAL);
+    ASSERT(sg_httpres_zsendbinary(res, str, len, NULL, 200) == EINVAL);
+    ASSERT(sg_httpres_zsendbinary(res, str, len, "text/plain", 99) == EINVAL);
+    ASSERT(sg_httpres_zsendbinary(res, str, len, "text/plain", 600) == EINVAL);
+
+    str = "foooooooooo";
+    len = strlen(str);
+    res->status = 0;
+    ASSERT(sg_httpres_zsendbinary(res, str, len, "text/plain", 200) == 0);
+    ASSERT(!sg_strmap_get(res->headers, "Content-Encoding"));
+    ASSERT(strcmp(sg_strmap_get(res->headers, "Content-Type"), "text/plain") == 0);
+    ASSERT(res->status == 200);
+    MHD_destroy_response(res->handle);
+    res->handle = NULL;
+    str = "fooooooooooobaaaaaaaaaarrrrrrrrrrr";
+    len = strlen(str);
+    res->status = 0;
+    ASSERT(sg_httpres_zsendbinary(res, str, len, "text/plain", 200) == 0);
+    ASSERT(strcmp(sg_strmap_get(res->headers, "Content-Encoding"), "deflate") == 0);
+    ASSERT(strcmp(sg_strmap_get(res->headers, "Content-Type"), "text/plain") == 0);
+    ASSERT(res->status == 200);
+    MHD_destroy_response(res->handle);
+    res->handle = NULL;
+
+    str = "foo";
+    len = strlen(str);
+    res->status = 0;
+    ASSERT(sg_httpres_zsendbinary(res, "foo", 0, "text/plain", 200) == 0);
+    ASSERT(res->status == 200);
+    MHD_destroy_response(res->handle);
+    res->handle = NULL;
+    res->status = 0;
+    ASSERT(sg_httpres_zsendbinary(res, str, len, "", 200) == 0);
+    ASSERT(res->status == 200);
+    MHD_destroy_response(res->handle);
+    res->handle = NULL;
+    res->status = 0;
+    ASSERT(sg_httpres_zsendbinary(res, "", 0, "", 204) == 0); /* No content. */
+    ASSERT(res->status == 204);
+    MHD_destroy_response(res->handle);
+    res->handle = NULL;
+
+    res->status = 0;
+    ASSERT(sg_httpres_zsendbinary(res, str, len, "text/plain", 201) == 0);
+    ASSERT(res->status == 201);
+    ASSERT(sg_httpres_zsendbinary(res, str, len, "text/plain", 200) == EALREADY);
+    ASSERT(strcmp(sg_strmap_get(*sg_httpres_headers(res), MHD_HTTP_HEADER_CONTENT_TYPE), "text/plain") == 0);
+    ASSERT(res->status == 201);
+    MHD_destroy_response(res->handle);
+    res->handle = NULL;
+}
+
 static void test_httpres_sendbinary(struct sg_httpres *res) {
     char *str = "foo";
     const size_t len = strlen(str);
@@ -173,7 +231,9 @@ static void test_httpres_download(struct sg_httpres *res) {
     ASSERT(fclose(file) == 0);
     ASSERT(sg_httpres_download(res, PATH, 200) == 0);
     ASSERT(strcmp(sg_strmap_get(*sg_httpres_headers(res), MHD_HTTP_HEADER_CONTENT_DISPOSITION),
-                  "attachment; filename=\"" FILENAME "\"") == 0);
+                  "attachment; filename=\""
+                   FILENAME
+                   "\"") == 0);
     ASSERT(sg_httpres_download(res, PATH, 200) == EALREADY);
     sg_free(res->handle);
     res->handle = NULL;
@@ -218,7 +278,9 @@ static void test_httpres_render(struct sg_httpres *res) {
     ASSERT(fclose(file) == 0);
     ASSERT(sg_httpres_render(res, PATH, 200) == 0);
     ASSERT(strcmp(sg_strmap_get(*sg_httpres_headers(res), MHD_HTTP_HEADER_CONTENT_DISPOSITION),
-                  "inline; filename=\"" FILENAME "\"") == 0);
+                  "inline; filename=\""
+                   FILENAME
+                   "\"") == 0);
     ASSERT(sg_httpres_render(res, PATH, 200) == EALREADY);
     sg_free(res->handle);
     res->handle = NULL;
@@ -270,7 +332,9 @@ static void test_httpres_sendfile(struct sg_httpres *res) {
 
     ASSERT(sg_httpres_sendfile(res, size, len, offset, PATH, true, 200) == 0);
     ASSERT(strcmp(sg_strmap_get(*sg_httpres_headers(res), MHD_HTTP_HEADER_CONTENT_DISPOSITION),
-                  "inline; filename=\"" FILENAME "\"") == 0);
+                  "inline; filename=\""
+                   FILENAME
+                   "\"") == 0);
 
     ASSERT(sg_httpres_sendfile(res, size, len, offset, PATH, true, 200) == EALREADY);
 
@@ -278,7 +342,9 @@ static void test_httpres_sendfile(struct sg_httpres *res) {
     res->handle = NULL;
     ASSERT(sg_httpres_sendfile(res, size, len, offset, PATH, false, 201) == 0);
     ASSERT(strcmp(sg_strmap_get(*sg_httpres_headers(res), MHD_HTTP_HEADER_CONTENT_DISPOSITION),
-                  "attachment; filename=\"" FILENAME "\"") == 0);
+                  "attachment; filename=\""
+                   FILENAME
+                   "\"") == 0);
     ASSERT(res->status == 201);
 #undef PATH
 #undef FILENAME
@@ -351,6 +417,7 @@ int main(void) {
     test_httpres_headers(res);
     test_httpres_set_cookie(res);
     test_httpres_sendbinary(res);
+    test_httpres_zsendbinary(res);
     test_httpres_download(res);
     test_httpres_render(res);
     test_httpres_sendfile(res);
