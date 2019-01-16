@@ -417,11 +417,11 @@ int main(void) {
     test_httpres_headers(res);
     test_httpres_set_cookie(res);
     test_httpres_sendbinary(res);
-    test_httpres_zsendbinary(res);
     test_httpres_download(res);
     test_httpres_render(res);
     test_httpres_sendfile(res);
     test_httpres_sendstream(res);
+    test_httpres_zsendbinary(res);
     test_httpres_clear(res);
     sg__httpres_free(res);
     return EXIT_SUCCESS;

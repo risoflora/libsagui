@@ -852,29 +852,6 @@ SG_EXTERN int sg_httpres_set_cookie(struct sg_httpres *res, const char *name, co
 SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t size, const char *content_type,
                                     unsigned int status);
 
-#ifdef SG_HTTP_COMPRESSION
-
-/**
- * Compresses a binary content and sends it to the client. The compression is done by zlib library using the
- * DEFLATE compression algorithm.
- * \param[in] res Response handle.
- * \param[in] buf Binary content.
- * \param[in] size Content size.
- * \param[in] content_type `Content-Type` of the content.
- * \param[in] status HTTP status code.
- * \retval 0 - Success.
- * \retval EINVAL - Invalid argument.
- * \retval ENOMEM - Out of memory.
- * \retval ENOBUFS - No buffer space available.
- * \retval EALREADY - Operation already in progress.
- * \note When compression succeeds, the header `Content-Encoding: deflate` is automatically added to the response.
- * \warning It exits the application if called when no memory space is available.
- */
-SG_EXTERN int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const char *content_type,
-                                     unsigned int status);
-
-#endif
-
 /**
  * Offer a file as download.
  * \param[in] res Response handle.
@@ -942,6 +919,48 @@ SG_EXTERN int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_
  */
 SG_EXTERN int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, size_t block_size, sg_read_cb read_cb,
                                     void *handle, sg_free_cb free_cb, unsigned int status);
+
+#ifdef SG_HTTP_COMPRESSION
+
+/**
+ * Compresses a null-terminated string content and sends it to the client. The compression is done by zlib library using
+ * the DEFLATE compression algorithm.
+ * \param[in] res Response handle.
+ * \param[in] buf Binary content.
+ * \param[in] size Content size.
+ * \param[in] content_type `Content-Type` of the content.
+ * \param[in] status HTTP status code.
+ * \retval 0 - Success.
+ * \retval EINVAL - Invalid argument.
+ * \retval ENOMEM - Out of memory.
+ * \retval ENOBUFS - No buffer space available.
+ * \retval EALREADY - Operation already in progress.
+ * \note When compression succeeds, the header `Content-Encoding: deflate` is automatically added to the response.
+ * \warning It exits the application if called when no memory space is available.
+ */
+#define sg_httpres_zsend(res, val, content_type, status) \
+    sg_httpres_zsendbinary((res), (void *) (val), ((val != NULL) ? strlen((val)) : 0), (content_type), (status))
+
+/**
+ * Compresses a binary content and sends it to the client. The compression is done by zlib library using the
+ * DEFLATE compression algorithm.
+ * \param[in] res Response handle.
+ * \param[in] buf Binary content.
+ * \param[in] size Content size.
+ * \param[in] content_type `Content-Type` of the content.
+ * \param[in] status HTTP status code.
+ * \retval 0 - Success.
+ * \retval EINVAL - Invalid argument.
+ * \retval ENOMEM - Out of memory.
+ * \retval ENOBUFS - No buffer space available.
+ * \retval EALREADY - Operation already in progress.
+ * \note When compression succeeds, the header `Content-Encoding: deflate` is automatically added to the response.
+ * \warning It exits the application if called when no memory space is available.
+ */
+SG_EXTERN int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const char *content_type,
+                                     unsigned int status);
+
+#endif
 
 /**
  * Clears all headers, cookies, status and internal buffers of the response handle.
