@@ -835,7 +835,7 @@ SG_EXTERN int sg_httpres_set_cookie(struct sg_httpres *res, const char *name, co
  * \warning It exits the application if called when no memory space is available.
  */
 #define sg_httpres_send(res, val, content_type, status) \
-    sg_httpres_sendbinary((res), (void *) (val), ((val) ? strlen((val)) : 0), (content_type), (status))
+    sg_httpres_sendbinary((res), (void *) (val), ((val != NULL) ? strlen((val)) : 0), (content_type), (status))
 
 /**
  * Sends a binary content to the client.
@@ -938,7 +938,7 @@ SG_EXTERN int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, size_
  * \warning It exits the application if called when no memory space is available.
  */
 #define sg_httpres_zsend(res, val, content_type, status) \
-    sg_httpres_zsendbinary((res), (void *) (val), ((val) ? strlen((val)) : 0), (content_type), (status))
+    sg_httpres_zsendbinary((res), (void *) (val), ((val != NULL) ? strlen((val)) : 0), (content_type), (status))
 
 /**
  * Compresses a binary content and sends it to the client. The compression is done by zlib library using the
