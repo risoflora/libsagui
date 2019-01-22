@@ -368,7 +368,7 @@ static void test_httpres_zsend(struct sg_httpres *res) {
     ASSERT(sg_httpres_zsend(res, str, "text/plain", 99) == EINVAL);
     ASSERT(sg_httpres_zsend(res, str, "text/plain", 600) == EINVAL);
 
-    str = "foooooooooo";
+    str = "foooo";
     res->status = 0;
     sg_strmap_cleanup(&res->headers);
     ASSERT(sg_httpres_zsend(res, str, "text/plain", 200) == 0);
@@ -419,7 +419,7 @@ static void test_httpres_zsendbinary(struct sg_httpres *res) {
     ASSERT(sg_httpres_zsendbinary(res, str, len, "text/plain", 99) == EINVAL);
     ASSERT(sg_httpres_zsendbinary(res, str, len, "text/plain", 600) == EINVAL);
 
-    str = "foooooooooo";
+    str = "foooo";
     len = strlen(str);
     res->status = 0;
     sg_strmap_cleanup(&res->headers);

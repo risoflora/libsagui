@@ -35,6 +35,9 @@
 #include <errno.h>
 #include <unistd.h>
 #include <ctype.h>
+#ifdef SG_HTTP_COMPRESSION
+#include <zlib.h>
+#endif
 #include "sg_macros.h"
 #include "sagui.h"
 #include "sg_utils.h"
@@ -181,6 +184,43 @@ bool sg__is_cookie_val(const char *val) {
     }
     return true;
 }
+
+#ifdef SG_HTTP_COMPRESSION
+
+int sg__compress(const void *src, size_t src_size, void *dest, size_t *dest_size) {
+    z_stream stream;
+    const uInt max = (uInt) -1;
+    uLong left;
+    int err;
+    left = *dest_size;
+    *dest_size = 0;
+    stream.zalloc = NULL;
+    stream.zfree = NULL;
+    stream.opaque = NULL;
+    if ((err = deflateInit2(&stream, Z_BEST_COMPRESSION, Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL,
+                            Z_DEFAULT_STRATEGY)) != Z_OK)
+        return err;
+    stream.next_out = dest;
+    stream.avail_out = 0;
+    stream.next_in = (z_const Bytef *) src;
+    stream.avail_in = 0;
+    do {
+        if (stream.avail_out == 0) {
+            stream.avail_out = left > (uLong) max ? max : (uInt) left;
+            left -= stream.avail_out;
+        }
+        if (stream.avail_in == 0) {
+            stream.avail_in = src_size > (uLong) max ? max : (uInt) src_size;
+            src_size -= stream.avail_in;
+        }
+        err = deflate(&stream, src_size ? Z_NO_FLUSH : Z_FINISH);
+    } while (err == Z_OK);
+    *dest_size = stream.total_out;
+    deflateEnd(&stream);
+    return err == Z_STREAM_END ? Z_OK : err;
+}
+
+#endif
 
 /* Version. */
 

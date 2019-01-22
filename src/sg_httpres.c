@@ -197,7 +197,7 @@ int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const
         dest_size = compressBound(size);
         if (!(dest = sg__malloc(dest_size)))
             oom();
-        if (((ret = compress2(dest, &dest_size, buf, size, Z_BEST_COMPRESSION)) != Z_OK) || (dest_size >= size))
+        if (((ret = sg__compress(buf, size, dest, &dest_size)) != Z_OK) || (dest_size >= size))
             switch (ret) {
                 case Z_STREAM_ERROR: {
                     sg__free(dest);

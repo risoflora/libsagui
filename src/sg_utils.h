@@ -66,6 +66,12 @@ SG__EXTERN bool sg__is_cookie_name(const char *name);
 
 SG__EXTERN bool sg__is_cookie_val(const char *val);
 
+#ifdef SG_HTTP_COMPRESSION
+
+SG__EXTERN int sg__compress(const void *src, size_t src_size, void *dest, size_t *dest_size);
+
+#endif
+
 SG__EXTERN void sg__err_cb(__SG_UNUSED void *cls, const char *err);
 
 #endif /* SG_UTILS_H */
