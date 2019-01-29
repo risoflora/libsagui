@@ -55,6 +55,7 @@ do {                                                                    \
 #define OK_MSG "libsagui [OK]"
 #define ERROR_MSG "libsagui [ERROR]"
 #define DENIED_MSG "Denied"
+#define PAGE "<html><head><title>Hello world</title></head><body>Hello world</body></html>"
 
 static bool strmatch(const char *s1, const char *s2) {
     if (!s1 || !s2)
@@ -107,6 +108,7 @@ static void srv_req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_
     char filename[PATH_MAX];
     char text[4];
     char *data;
+    const char *header;
 
     ASSERT(data = sg_httpreq_user_data(req));
     ASSERT(strcmp(data, "abc123") == 0);
@@ -125,7 +127,11 @@ static void srv_req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_
         ASSERT(strcmp(sg_strmap_get(*cookies, "cookie2"), "cookie-value2") == 0);
         ASSERT(strcmp(sg_strmap_get(*params, "param1"), "param-value1") == 0);
         ASSERT(strcmp(sg_strmap_get(*params, "param2"), "param-value2") == 0);
-        sg_httpres_send(res, OK_MSG, "text/plain", 200);
+        if ((headers = sg_httpreq_headers(req)) && (header = sg_strmap_get(*headers, "Accept-Encoding")) &&
+            strcasestr(header, "deflate"))
+            sg_httpres_zsend(res, PAGE, "text/html", 200);
+        else
+            sg_httpres_send(res, OK_MSG, "text/plain", 200);
         return;
     }
 
@@ -233,6 +239,7 @@ int main(void) {
     struct curl_slist *headers;
     curl_mime *form;
     curl_mimepart *field;
+    curl_off_t cl;
     FILE *tmp_file;
     char url[100];
     char text[4];
@@ -281,6 +288,17 @@ int main(void) {
     ASSERT(curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &status) == CURLE_OK);
     ASSERT(status == 200);
     ASSERT(strcmp(sg_str_content(res), OK_MSG) == 0);
+
+    ASSERT(sg_str_clear(res) == 0);
+    ASSERT(curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "deflate") == CURLE_OK);
+    ret = curl_easy_perform(curl);
+    CURL_LOG(ret);
+    ASSERT(ret == CURLE_OK);
+    ASSERT(curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &status) == CURLE_OK);
+    ASSERT(status == 200);
+    ASSERT(strcmp(sg_str_content(res), PAGE) == 0);
+    ASSERT(curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &cl) == CURLE_OK);
+    ASSERT((curl_off_t) strlen(PAGE) > cl);
 
     snprintf(url, sizeof(url), "http://localhost:%d/cancel-auth", TEST_HTTPSRV_CURL_PORT);
     ASSERT(curl_easy_setopt(curl, CURLOPT_USERPWD, "wrong:pass") == CURLE_OK);
