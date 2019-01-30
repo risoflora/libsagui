@@ -43,6 +43,63 @@
 #include "sg_httputils.h"
 #include "sg_httpres.h"
 
+#ifdef SG_HTTP_COMPRESSION
+
+static ssize_t sg__httpres_zread_cb(void *handle, __SG_UNUSED uint64_t offset, char *buf, size_t size) {
+    struct sg__httpres_zholder *holder = handle;
+    const uInt max = (uInt) -1;
+    uLong left;
+    void *mem;
+    size_t len;
+    ssize_t read;
+    int errnum;
+    if (!(mem = sg__malloc(size)))
+        return MHD_CONTENT_READER_END_WITH_ERROR;
+
+    if ((read = (size_t) holder->read_cb(holder->handle, holder->offset, mem, size)) == 0) {
+        errnum = Z_STREAM_END;
+        len = MHD_CONTENT_READER_END_OF_STREAM;
+        goto done;
+    }
+
+    len = (size_t) read;
+    left = (uLong) read;
+
+    holder->stream.next_out = (Bytef *) buf;
+    holder->stream.avail_out = 0;
+    holder->stream.next_in = (z_const Bytef *) mem;
+    holder->stream.avail_in = 0;
+    do {
+        if (holder->stream.avail_out == 0) {
+            holder->stream.avail_out = left > (uLong) max ? max : (uInt) left;
+            left -= holder->stream.avail_out;
+        }
+        if (holder->stream.avail_in == 0) {
+            holder->stream.avail_in = len > (uLong) max ? max : (uInt) len;
+            len -= holder->stream.avail_in;
+        }
+        errnum = deflate(&holder->stream, len ? Z_NO_FLUSH : Z_FINISH);
+    } while (errnum == Z_OK);
+    holder->offset += read;
+    if ((len = holder->stream.total_out) == 0)
+        len = MHD_CONTENT_READER_END_OF_STREAM;
+done:
+    sg__free(mem);
+    return errnum == Z_STREAM_END ? len : MHD_CONTENT_READER_END_WITH_ERROR;
+}
+
+static void sg__httpres_zfree_cb(void *handle) {
+    struct sg__httpres_zholder *holder;
+    if (!(holder = handle))
+        return;
+    deflateEnd(&holder->stream);
+    if (holder->free_cb)
+        holder->free_cb(holder->handle);
+    sg__free(holder);
+}
+
+#endif
+
 struct sg_httpres *sg__httpres_new(struct MHD_Connection *con) {
     struct sg_httpres *res;
     sg__new(res);
@@ -100,8 +157,8 @@ int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t size, const 
     return 0;
 }
 
-SG_EXTERN int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size, uint64_t offset,
-                                  const char *filename, bool rendered, unsigned int status) {
+int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size, uint64_t offset,
+                        const char *filename, bool rendered, unsigned int status) {
     struct stat sbuf;
     char *cd_header;
     const char *cd_type, *cd_basename;
@@ -227,6 +284,49 @@ int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const
         sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_TYPE, content_type);
     res->status = status;
     return 0;
+}
+
+/* TODO: WARNING: this function is experimental. */
+int sg_httpres_zsendstream(struct sg_httpres *res, uint64_t size, size_t block_size, sg_read_cb read_cb, void *handle,
+                           sg_free_cb free_cb, unsigned int status) {
+    struct sg__httpres_zholder *holder = NULL;
+    int errnum;
+    if (!res || (block_size < 1) || !read_cb || (status < 100) || (status > 599)) {
+        errnum = EINVAL;
+        goto failed;
+    }
+    if (res->handle) {
+        errnum = EALREADY;
+        goto failed;
+    }
+    if (!(holder = sg__malloc(sizeof(struct sg__httpres_zholder))))
+        return ENOMEM;
+
+    holder->stream.zalloc = NULL;
+    holder->stream.zfree = NULL;
+    holder->stream.opaque = NULL;
+    if ((errnum = deflateInit2(&holder->stream, Z_BEST_COMPRESSION, Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL,
+                               Z_DEFAULT_STRATEGY)) != Z_OK)
+        goto failed;
+    holder->read_cb = read_cb;
+    holder->free_cb = free_cb;
+    holder->offset = 0;
+    holder->handle = handle;
+
+    sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_ENCODING, "deflate");
+
+    if (!(res->handle = MHD_create_response_from_callback((size > 0 ? size : MHD_SIZE_UNKNOWN), block_size,
+                                                          sg__httpres_zread_cb, holder, sg__httpres_zfree_cb))) {
+        errnum = ENOMEM;
+        goto failed;
+    }
+    res->status = status;
+    return 0;
+failed:
+    sg__httpres_zfree_cb(holder);
+    if (errnum == ENOMEM)
+        oom();
+    return errnum;
 }
 
 #endif

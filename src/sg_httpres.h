@@ -29,6 +29,10 @@
 #define SG_HTTPRES_H
 
 #include <time.h>
+#ifdef SG_HTTP_COMPRESSION
+#include <stdint.h>
+#include <zlib.h>
+#endif
 #include "sg_macros.h"
 #include "microhttpd.h"
 #include "sagui.h"
@@ -40,6 +44,18 @@ struct sg_httpres {
     unsigned int status;
     int ret;
 };
+
+#ifdef SG_HTTP_COMPRESSION
+
+struct sg__httpres_zholder {
+    z_stream stream;
+    sg_read_cb read_cb;
+    sg_free_cb free_cb;
+    uint64_t offset;
+    void *handle;
+};
+
+#endif
 
 SG__EXTERN struct sg_httpres *sg__httpres_new(struct MHD_Connection *con);
 
