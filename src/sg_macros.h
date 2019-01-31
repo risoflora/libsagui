@@ -62,6 +62,14 @@
 #define PATH_SEP '/'
 #endif
 
+#ifndef SG_BLOCK_SIZE
+#ifdef _WIN32
+#define SG_BLOCK_SIZE 16384 /* 16k */
+#else
+#define SG_BLOCK_SIZE 4096 /* 4k */
+#endif
+#endif
+
 /* macro used for handling `Out of memory` errors. */
 #ifndef oom
 #ifdef NDEBUG

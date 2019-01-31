@@ -287,11 +287,11 @@ int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const
 }
 
 /* TODO: WARNING: this function is experimental. */
-int sg_httpres_zsendstream(struct sg_httpres *res, uint64_t size, size_t block_size, sg_read_cb read_cb, void *handle,
-                           sg_free_cb free_cb, unsigned int status) {
+int sg_httpres_zsendstream(struct sg_httpres *res, uint64_t size, sg_read_cb read_cb, void *handle, sg_free_cb free_cb,
+                           unsigned int status) {
     struct sg__httpres_zholder *holder = NULL;
     int errnum;
-    if (!res || (block_size < 1) || !read_cb || (status < 100) || (status > 599)) {
+    if (!res || !read_cb || (status < 100) || (status > 599)) {
         errnum = EINVAL;
         goto failed;
     }
@@ -315,7 +315,7 @@ int sg_httpres_zsendstream(struct sg_httpres *res, uint64_t size, size_t block_s
 
     sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_ENCODING, "deflate");
 
-    if (!(res->handle = MHD_create_response_from_callback((size > 0 ? size : MHD_SIZE_UNKNOWN), block_size,
+    if (!(res->handle = MHD_create_response_from_callback((size > 0 ? size : MHD_SIZE_UNKNOWN), SG_BLOCK_SIZE,
                                                           sg__httpres_zread_cb, holder, sg__httpres_zfree_cb))) {
         errnum = ENOMEM;
         goto failed;
