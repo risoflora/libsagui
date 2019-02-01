@@ -1271,7 +1271,7 @@ typedef int (*sg_entrypoints_iter_cb)(void *cls, struct sg_entrypoint *entrypoin
 /**
  * Creates a new entry-points handle.
  * \return Entry-points handle.
- * \warning It exits the application if called when no memory space is available.
+ * \retval NULL If no memory space available and sets the `errno` to `ENOMEM`.
  */
 SG_EXTERN struct sg_entrypoints *sg_entrypoints_new(void)
 __SG_MALLOC;

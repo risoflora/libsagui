@@ -236,7 +236,7 @@ const char *sg_version_str(void) {
 
 void *sg_alloc(size_t size) {
     void *ptr;
-    sg__alloc(ptr, size);
+    sg__alloc2(ptr, size);
     return ptr;
 }
 
