@@ -152,6 +152,15 @@ SG_EXTERN unsigned int sg_version(void);
 SG_EXTERN const char *sg_version_str(void);
 
 /**
+ * Allocates a new memory space.
+ * \param[in] size Memory size to be allocated.
+ * \return Pointer of the allocated memory.
+ * \retval NULL If size is `0` or no memory space.
+ */
+SG_EXTERN void *sg_malloc(size_t size)
+__SG_MALLOC;
+
+/**
  * Allocates a new zero-initialize memory space.
  * \param[in] size Memory size to be allocated.
  * \return Pointer of the zero-initialized allocated memory.
@@ -537,7 +546,7 @@ typedef void (*sg_httpreq_cb)(void *cls, struct sg_httpreq *req, struct sg_httpr
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  * \retval EALREADY Realm already set.
- * \warning It exits the application if called when no memory space is available.
+ * \retval ENOMEM Out of memory.
  */
 SG_EXTERN int sg_httpauth_set_realm(struct sg_httpauth *auth, const char *realm);
 
@@ -557,6 +566,7 @@ SG_EXTERN const char *sg_httpauth_realm(struct sg_httpauth *auth);
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  * \retval EALREADY Already denied.
+ * \retval ENOMEM Out of memory.
  */
 SG_EXTERN int sg_httpauth_deny(struct sg_httpauth *auth, const char *justification, const char *content_type);
 
@@ -819,7 +829,7 @@ SG_EXTERN struct sg_strmap **sg_httpres_headers(struct sg_httpres *res);
  * \param[in] val Cookie value.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
- * \retval NULL If no memory space available and sets the `errno` to `ENOMEM`.
+ * \retval ENOMEM Out of memory.
  */
 SG_EXTERN int sg_httpres_set_cookie(struct sg_httpres *res, const char *name, const char *val);
 
@@ -980,6 +990,7 @@ SG_EXTERN int sg_httpres_clear(struct sg_httpres *res);
  * \param[in] err_cb Callback to handle server errors.
  * \param[in] cls User-defined closure.
  * \return New HTTP server handle.
+ * \retval NULL If no memory space available.
  * \retval NULL If the \pr{req_cb} or \pr{err_cb} is null and sets the `errno` to `EINVAL`.
  */
 SG_EXTERN struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb, sg_httpreq_cb req_cb, sg_err_cb err_cb, void *cls)
@@ -1271,7 +1282,7 @@ typedef int (*sg_entrypoints_iter_cb)(void *cls, struct sg_entrypoint *entrypoin
 /**
  * Creates a new entry-points handle.
  * \return Entry-points handle.
- * \retval NULL If no memory space available and sets the `errno` to `ENOMEM`.
+ * \retval NULL If no memory space available.
  */
 SG_EXTERN struct sg_entrypoints *sg_entrypoints_new(void)
 __SG_MALLOC;
@@ -1289,8 +1300,8 @@ SG_EXTERN void sg_entrypoints_free(struct sg_entrypoints *entrypoints);
  * \param[in] user_data User data pointer.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
+ * \retval ENOMEM Out of memory.
  * \retval EALREADY Entry-point already added.
- * \warning It exits the application if called when no memory space is available.
  */
 SG_EXTERN int sg_entrypoints_add(struct sg_entrypoints *entrypoints, const char *path, void *user_data);
 
@@ -1300,8 +1311,8 @@ SG_EXTERN int sg_entrypoints_add(struct sg_entrypoints *entrypoints, const char 
  * \param[in] path Entry-point path to be removed.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
+ * \retval ENOMEM Out of memory.
  * \retval ENOENT Entry-point already removed.
- * \warning It exits the application if called when no memory space is available.
  */
 SG_EXTERN int sg_entrypoints_rm(struct sg_entrypoints *entrypoints, const char *path);
 
@@ -1331,8 +1342,8 @@ SG_EXTERN int sg_entrypoints_clear(struct sg_entrypoints *entrypoints);
  * \param[in] path Entry-point path to be found.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
+ * \retval ENOMEM Out of memory.
  * \retval ENOENT Pair not found.
- * \warning It exits the application if called when no memory space is available.
  */
 SG_EXTERN int sg_entrypoints_find(struct sg_entrypoints *entrypoints, struct sg_entrypoint **entrypoint,
                                   const char *path);

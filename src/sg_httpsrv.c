@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -48,7 +48,10 @@ static int sg__httpsrv_ahc(void *cls, struct MHD_Connection *con, const char *ur
     struct sg_httpsrv *srv = cls;
     struct sg_httpreq *req = *con_cls;
     if (!req) {
-        *con_cls = (req = sg__httpreq_new(con, version, method, url));
+        req = sg__httpreq_new(con, version, method, url);
+        if (!req)
+            return MHD_NO;
+        *con_cls = req;
         if (srv->auth_cb) {
             req->res->ret = srv->auth_cb(srv->cls, req->auth, req, req->res);
             if (!sg__httpauth_dispatch(req->auth))
@@ -113,9 +116,10 @@ static bool sg__httpsrv_listen(struct sg_httpsrv *srv, const char *key, const ch
             sg__httpsrv_addopt(ops, &pos, MHD_OPTION_HTTPS_MEM_DHPARAMS, 0, (void *) dhparams);
     }
     sg__httpsrv_addopt(ops, &pos, MHD_OPTION_END, 0, NULL);
-    return (srv->handle = MHD_start_daemon(flags, port, NULL, NULL, sg__httpsrv_ahc, srv,
-                                           MHD_OPTION_ARRAY, ops,
-                                           MHD_OPTION_END));
+    srv->handle = MHD_start_daemon(flags, port, NULL, NULL, sg__httpsrv_ahc, srv,
+                                   MHD_OPTION_ARRAY, ops,
+                                   MHD_OPTION_END);
+    return srv->handle != NULL;
 }
 
 struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb, sg_httpreq_cb req_cb, sg_err_cb err_cb, void *cls) {
@@ -124,7 +128,9 @@ struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb, sg_httpreq_cb req_cb,
         errno = EINVAL;
         return NULL;
     }
-    sg__new(srv);
+    srv = sg_alloc(sizeof(struct sg_httpsrv));
+    if (!srv)
+        return NULL;
     srv->auth_cb = auth_cb;
     srv->req_cb = req_cb;
     srv->err_cb = err_cb;
@@ -155,9 +161,9 @@ struct sg_httpsrv *sg_httpsrv_new(sg_httpreq_cb cb, void *cls) {
 void sg_httpsrv_free(struct sg_httpsrv *srv) {
     if (!srv)
         return;
-    sg__free(srv->uplds_dir);
+    sg_free(srv->uplds_dir);
     sg_httpsrv_shutdown(srv);
-    sg__free(srv);
+    sg_free(srv);
 }
 
 #ifdef SG_HTTPS_SUPPORT
@@ -224,7 +230,7 @@ int sg_httpsrv_set_upld_cbs(struct sg_httpsrv *srv, sg_httpupld_cb cb, void *cls
 int sg_httpsrv_set_upld_dir(struct sg_httpsrv *srv, const char *dir) {
     if (!srv || !dir)
         return EINVAL;
-    sg__free(srv->uplds_dir);
+    sg_free(srv->uplds_dir);
     srv->uplds_dir = strdup(dir);
     return 0;
 }

@@ -243,6 +243,18 @@ static void test_version(void) {
     ASSERT(ver_original[ver_len] == '\0');
 }
 
+static void test_malloc(void) {
+    char *buf;
+#define TEST_MEM_BUF_LEN 10
+    buf = sg_malloc(TEST_MEM_BUF_LEN);
+    ASSERT(buf);
+    memset(buf, 'a', TEST_MEM_BUF_LEN - 1);
+    buf[TEST_MEM_BUF_LEN - 1] = '\0';
+    ASSERT(strlen(buf) == TEST_MEM_BUF_LEN - 1);
+#undef TEST_MEM_BUF_LEN
+    sg_free(buf);
+}
+
 static void test_alloc(void) {
     char *buf;
 #define TEST_MEM_BUF_LEN 10
@@ -394,6 +406,7 @@ int main(void) {
     test__is_cookie_name();
     test__is_cookie_val();
     test_version();
+    test_malloc();
     test_alloc();
     test_realloc();
     test_free();

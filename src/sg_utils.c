@@ -53,7 +53,7 @@ char *strndup(const char *s, size_t n) {
     size_t len = strlen(s);
     if (n < len)
         len = n;
-    cpy = sg__malloc(len + 1);
+    cpy = sg_malloc(len + 1);
     if (!cpy)
         return NULL;
     cpy[len] = '\0';
@@ -67,10 +67,10 @@ static wchar_t *stow(const char *str) {
     if (str) {
         len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str, -1, NULL, 0);
         if (len > 0) {
-            res = sg__malloc(len * sizeof(wchar_t));
+            res = sg_malloc(len * sizeof(wchar_t));
             if (res) {
                 if (MultiByteToWideChar(CP_UTF8, 0, str, -1, res, len) == 0) {
-                    sg__free(res);
+                    sg_free(res);
                     return NULL;
                 }
             }
@@ -86,10 +86,10 @@ static char *wtos(const wchar_t *str) {
     if (str) {
         len = WideCharToMultiByte(CP_UTF8, 0, str, -1, NULL, 0, NULL, NULL);
         if (len > 0) {
-            res = sg__malloc(len * sizeof(wchar_t));
+            res = sg_malloc(len * sizeof(wchar_t));
             if (res) {
                 if (WideCharToMultiByte(CP_UTF8, 0, str, -1, res, len, NULL, FALSE) == 0) {
-                    sg__free(res);
+                    sg_free(res);
                     return NULL;
                 }
             }
@@ -110,9 +110,9 @@ int sg__rename(const char *old, const char *new) {
         goto done;
     }
     ret = _wrename(o, n);
-    sg__free(n);
+    sg_free(n);
 done:
-    sg__free(o);
+    sg_free(o);
     return ret;
 }
 
@@ -154,19 +154,19 @@ char *sg__strjoin(char sep, const char *a, const char *b) {
     len = strlen(a);
     if ((len == 0) || (a[len - 1] == sep)) {
         len += strlen(b) + 1;
-        str = sg__malloc(len);
+        str = sg_malloc(len);
         if (!str)
             return NULL;
         snprintf(str, len, "%s%s", a, b);
     } else if (strlen(b) == 0) {
         len += 1;
-        str = sg__malloc(len);
+        str = sg_malloc(len);
         if (!str)
             return NULL;
         memcpy(str, a, len);
     } else {
         len += 1 + strlen(b) + 1;
-        str = sg__malloc(len);
+        str = sg_malloc(len);
         if (!str)
             return NULL;
         snprintf(str, len, "%s%c%s", a, sep, b);
@@ -242,20 +242,26 @@ const char *sg_version_str(void) {
 
 /* Memory. */
 
+/*TODO: develop a memory manager to manage sg_malloc(), sg_alloc(), sg_realloc() and sg_free(). */
+
+void *sg_malloc(size_t size) {
+    return malloc(size);
+}
+
 void *sg_alloc(size_t size) {
     void *ptr;
-    ptr = sg__malloc(size);
+    ptr = malloc(size);
     if (ptr)
         memset(ptr, 0, size);
     return ptr;
 }
 
 void *sg_realloc(void *ptr, size_t size) {
-    return sg__realloc(ptr, size);
+    return realloc(ptr, size);
 }
 
 void sg_free(void *ptr) {
-    sg__free(ptr);
+    free(ptr);
 }
 
 /* String. */
@@ -320,7 +326,7 @@ char *sg_extract_entrypoint(const char *path) {
         if (*(path + end) == '/')
             break;
     len = (end - start) + 1;
-    str = sg__malloc(len + 1);
+    str = sg_malloc(len + 1);
     if (!str) {
         errno = EINVAL;
         return NULL;
