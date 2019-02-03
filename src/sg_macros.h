@@ -89,25 +89,13 @@ do {                                                                            
 #define sg__malloc(size) malloc((size))
 #endif
 
-#ifndef sg__alloc2
-#define sg__alloc2(ptr, size)                                                                                          \
-do {                                                                                                                   \
-    if (((ptr) = sg__malloc((size))))                                                                                  \
-        memset((ptr), 0, (size));                                                                                      \
-} while (0)
-#endif
-
-#ifndef sg__alloc
-#define sg__alloc(ptr, size)                                                                                           \
-do {                                                                                                                   \
-    if (!((ptr) = sg__malloc((size))))                                                                                 \
-        oom();                                                                                                         \
-    memset((ptr), 0, (size));                                                                                          \
-} while (0)
-#endif
-
 #ifndef sg__new
-#define sg__new(ptr) sg__alloc((ptr), sizeof(*(ptr)))
+#define sg__new(ptr)                                                                                                   \
+do {                                                                                                                   \
+    if (!((ptr) = sg__malloc(sizeof(*(ptr)))))                                                                         \
+        oom();                                                                                                         \
+    memset((ptr), 0, sizeof(*(ptr)));                                                                                  \
+} while (0)
 #endif
 
 #ifndef sg__realloc

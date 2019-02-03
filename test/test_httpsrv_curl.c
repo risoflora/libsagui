@@ -128,7 +128,7 @@ static void srv_req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_
         ASSERT(strcmp(sg_strmap_get(*params, "param1"), "param-value1") == 0);
         ASSERT(strcmp(sg_strmap_get(*params, "param2"), "param-value2") == 0);
         if ((headers = sg_httpreq_headers(req)) && (header = sg_strmap_get(*headers, "Accept-Encoding")) &&
-            strcasestr(header, "deflate"))
+            strstr(header, "deflate"))
             sg_httpres_zsend(res, PAGE, "text/html", 200);
         else
             sg_httpres_send(res, OK_MSG, "text/plain", 200);

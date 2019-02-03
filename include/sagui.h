@@ -819,7 +819,7 @@ SG_EXTERN struct sg_strmap **sg_httpres_headers(struct sg_httpres *res);
  * \param[in] val Cookie value.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
- * \warning It exits the application if called when no memory space is available.
+ * \retval NULL If no memory space available and sets the `errno` to `ENOMEM`.
  */
 SG_EXTERN int sg_httpres_set_cookie(struct sg_httpres *res, const char *name, const char *val);
 

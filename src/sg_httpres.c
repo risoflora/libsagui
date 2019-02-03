@@ -89,8 +89,8 @@ done:
 }
 
 static void sg__httpres_zfree_cb(void *handle) {
-    struct sg__httpres_zholder *holder;
-    if (!(holder = handle))
+    struct sg__httpres_zholder *holder = handle;
+    if (!holder)
         return;
     deflateEnd(&holder->stream);
     if (holder->free_cb)
@@ -136,7 +136,9 @@ int sg_httpres_set_cookie(struct sg_httpres *res, const char *name, const char *
     if (!res || !name || !val || !sg__is_cookie_name(name) || !sg__is_cookie_val(val))
         return EINVAL;
     len = strlen(name) + strlen("=") + strlen(val) + 1;
-    sg__alloc(str, len);
+    str = sg__malloc(len);
+    if (!str)
+        return ENOMEM;
     snprintf(str, len, "%s=%s", name, val);
     ret = sg_strmap_add(&res->headers, MHD_HTTP_HEADER_SET_COOKIE, str);
     sg__free(str);
@@ -254,7 +256,7 @@ int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const
         dest_size = compressBound(size);
         if (!(dest = sg__malloc(dest_size)))
             oom();
-        if (((ret = sg__compress(buf, size, dest, &dest_size)) != Z_OK) || (dest_size >= size))
+        if (((ret = sg__compress(buf, size, dest, (size_t *) &dest_size)) != Z_OK) || (dest_size >= size))
             switch (ret) {
                 case Z_STREAM_ERROR: {
                     sg__free(dest);

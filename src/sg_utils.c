@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -53,7 +53,8 @@ char *strndup(const char *s, size_t n) {
     size_t len = strlen(s);
     if (n < len)
         len = n;
-    if (!(cpy = sg__malloc(len + 1)))
+    cpy = sg__malloc(len + 1);
+    if (!cpy)
         return NULL;
     cpy[len] = '\0';
     return memcpy(cpy, s, len);
@@ -64,8 +65,9 @@ static wchar_t *stow(const char *str) {
     wchar_t *res = NULL;
     int len;
     if (str) {
-        if ((len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str, -1, NULL, 0)) > 0) {
-            sg__alloc(res, len * sizeof(wchar_t));
+        len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str, -1, NULL, 0);
+        if (len > 0) {
+            res = sg__malloc(len * sizeof(wchar_t));
             if (res) {
                 if (MultiByteToWideChar(CP_UTF8, 0, str, -1, res, len) == 0) {
                     sg__free(res);
@@ -82,8 +84,9 @@ static char *wtos(const wchar_t *str) {
     char *res = NULL;
     int len;
     if (str) {
-        if ((len = WideCharToMultiByte(CP_UTF8, 0, str, -1, NULL, 0, NULL, NULL)) > 0) {
-            sg__alloc(res, len * sizeof(wchar_t));
+        len = WideCharToMultiByte(CP_UTF8, 0, str, -1, NULL, 0, NULL, NULL);
+        if (len > 0) {
+            res = sg__malloc(len * sizeof(wchar_t));
             if (res) {
                 if (WideCharToMultiByte(CP_UTF8, 0, str, -1, res, len, NULL, FALSE) == 0) {
                     sg__free(res);
@@ -98,9 +101,11 @@ static char *wtos(const wchar_t *str) {
 int sg__rename(const char *old, const char *new) {
     int ret = 0;
     wchar_t *o, *n;
-    if (!(o = stow(old)))
+    o = stow(old);
+    if (!o)
         return ENOMEM;
-    if (!(n = stow(new))) {
+    n = stow(new);
+    if (!n) {
         ret = ENOMEM;
         goto done;
     }
@@ -149,17 +154,20 @@ char *sg__strjoin(char sep, const char *a, const char *b) {
     len = strlen(a);
     if ((len == 0) || (a[len - 1] == sep)) {
         len += strlen(b) + 1;
-        if (!(str = sg__malloc(len)))
+        str = sg__malloc(len);
+        if (!str)
             return NULL;
         snprintf(str, len, "%s%s", a, b);
     } else if (strlen(b) == 0) {
         len += 1;
-        if (!(str = sg__malloc(len)))
+        str = sg__malloc(len);
+        if (!str)
             return NULL;
         memcpy(str, a, len);
     } else {
         len += 1 + strlen(b) + 1;
-        if (!(str = sg__malloc(len)))
+        str = sg__malloc(len);
+        if (!str)
             return NULL;
         snprintf(str, len, "%s%c%s", a, sep, b);
     }
@@ -197,8 +205,8 @@ int sg__compress(const void *src, size_t src_size, void *dest, size_t *dest_size
     stream.zalloc = NULL;
     stream.zfree = NULL;
     stream.opaque = NULL;
-    if ((errnum = deflateInit2(&stream, Z_BEST_COMPRESSION, Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL,
-                               Z_DEFAULT_STRATEGY)) != Z_OK)
+    errnum = deflateInit2(&stream, Z_BEST_COMPRESSION, Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY);
+    if (errnum != Z_OK)
         return errnum;
     stream.next_out = dest;
     stream.avail_out = 0;
@@ -236,7 +244,9 @@ const char *sg_version_str(void) {
 
 void *sg_alloc(size_t size) {
     void *ptr;
-    sg__alloc2(ptr, size);
+    ptr = sg__malloc(size);
+    if (ptr)
+        memset(ptr, 0, size);
     return ptr;
 }
 
