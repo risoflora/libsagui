@@ -173,19 +173,19 @@ int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size
         return EALREADY;
     if (((fd = open(filename, O_RDONLY)) == -1) || fstat(fd, &sbuf)) {
         errnum = errno;
-        goto fail;
+        goto error;
     }
     if (S_ISDIR(sbuf.st_mode)) {
         errnum = EISDIR;
-        goto fail;
+        goto error;
     }
     if (!S_ISREG(sbuf.st_mode)) {
         errnum = EBADF;
-        goto fail;
+        goto error;
     }
     if ((max_size > 0) && ((uint64_t) sbuf.st_size > max_size)) {
         errnum = EFBIG;
-        goto fail;
+        goto error;
     }
 #define SG_FNFMT "%s; filename=\"%s\""
     cd_type = rendered ? "inline" : "attachment";
@@ -193,7 +193,7 @@ int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size
     fn_size = (size_t) snprintf(NULL, 0, SG_FNFMT, cd_type, cd_basename) + 1;
     if (!(cd_header = sg__malloc(fn_size))) {
         errnum = ENOMEM;
-        goto fail;
+        goto error;
     }
     snprintf(cd_header, fn_size, SG_FNFMT, cd_type, cd_basename);
 #undef SG_FNFMT
@@ -203,11 +203,11 @@ int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size
         size = ((uint64_t) sbuf.st_size) - offset;
     if (!(res->handle = MHD_create_response_from_fd_at_offset64(size, fd, offset))) {
         errnum = ENOMEM;
-        goto fail;
+        goto error;
     }
     res->status = status;
     return 0;
-fail:
+error:
     if ((fd != -1) && close(fd) && (errnum == 0))
         errnum = errno;
     if (errnum == ENOMEM)
@@ -220,20 +220,20 @@ int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, size_t block_si
     int errnum;
     if (!res || (block_size < 1) || !read_cb || (status < 100) || (status > 599)) {
         errnum = EINVAL;
-        goto failed;
+        goto error;
     }
     if (res->handle) {
         errnum = EALREADY;
-        goto failed;
+        goto error;
     }
     if (!(res->handle = MHD_create_response_from_callback((size > 0 ? size : MHD_SIZE_UNKNOWN), block_size,
                                                           read_cb, handle, free_cb))) {
         errnum = ENOMEM;
-        goto failed;
+        goto error;
     }
     res->status = status;
     return 0;
-failed:
+error:
     if (free_cb)
         free_cb(handle);
     if (errnum == ENOMEM)
@@ -295,11 +295,11 @@ int sg_httpres_zsendstream(struct sg_httpres *res, uint64_t size, sg_read_cb rea
     int errnum;
     if (!res || !read_cb || (status < 100) || (status > 599)) {
         errnum = EINVAL;
-        goto failed;
+        goto error;
     }
     if (res->handle) {
         errnum = EALREADY;
-        goto failed;
+        goto error;
     }
     if (!(holder = sg__malloc(sizeof(struct sg__httpres_zholder))))
         return ENOMEM;
@@ -309,7 +309,7 @@ int sg_httpres_zsendstream(struct sg_httpres *res, uint64_t size, sg_read_cb rea
     holder->stream.opaque = NULL;
     if ((errnum = deflateInit2(&holder->stream, Z_BEST_COMPRESSION, Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL,
                                Z_DEFAULT_STRATEGY)) != Z_OK)
-        goto failed;
+        goto error;
     holder->read_cb = read_cb;
     holder->free_cb = free_cb;
     holder->offset = 0;
@@ -320,11 +320,11 @@ int sg_httpres_zsendstream(struct sg_httpres *res, uint64_t size, sg_read_cb rea
     if (!(res->handle = MHD_create_response_from_callback((size > 0 ? size : MHD_SIZE_UNKNOWN), SG_BLOCK_SIZE,
                                                           sg__httpres_zread_cb, holder, sg__httpres_zfree_cb))) {
         errnum = ENOMEM;
-        goto failed;
+        goto error;
     }
     res->status = status;
     return 0;
-failed:
+error:
     sg__httpres_zfree_cb(holder);
     if (errnum == ENOMEM)
         oom();

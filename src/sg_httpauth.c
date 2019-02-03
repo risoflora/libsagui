@@ -37,8 +37,9 @@
 #include "sg_httpauth.h"
 
 struct sg_httpauth *sg__httpauth_new(struct sg_httpres *res) {
-    struct sg_httpauth *auth;
-    sg__new(auth);
+    struct sg_httpauth *auth = sg_alloc(sizeof(struct sg_httpauth));
+    if (!auth)
+        return NULL;
     auth->usr = MHD_basic_auth_get_username_password(res->con, &auth->pwd);
     auth->res = res;
     return auth;
@@ -47,10 +48,10 @@ struct sg_httpauth *sg__httpauth_new(struct sg_httpres *res) {
 void sg__httpauth_free(struct sg_httpauth *auth) {
     if (!auth)
         return;
-    sg__free(auth->usr);
-    sg__free(auth->pwd);
-    sg__free(auth->realm);
-    sg__free(auth);
+    sg_free(auth->usr);
+    sg_free(auth->pwd);
+    sg_free(auth->realm);
+    sg_free(auth);
 }
 
 bool sg__httpauth_dispatch(struct sg_httpauth *auth) {
@@ -78,8 +79,9 @@ int sg_httpauth_set_realm(struct sg_httpauth *auth, const char *realm) {
         return EINVAL;
     if (auth->realm)
         return EALREADY;
-    if (!(auth->realm = strdup(realm)))
-        oom();
+    auth->realm = strdup(realm);
+    if (!auth->realm)
+        return ENOMEM;
     return 0;
 }
 
@@ -97,6 +99,8 @@ int sg_httpauth_deny(struct sg_httpauth *auth, const char *justification, const 
         return EALREADY;
     auth->res->handle = MHD_create_response_from_buffer(strlen(justification), (void *) justification,
                                                         MHD_RESPMEM_MUST_COPY);
+    if (!auth->res->handle)
+        return ENOMEM;
     return sg_strmap_add(&auth->res->headers, MHD_HTTP_HEADER_CONTENT_TYPE, content_type);
 }
 
