@@ -990,7 +990,7 @@ SG_EXTERN int sg_httpres_clear(struct sg_httpres *res);
  * \param[in] err_cb Callback to handle server errors.
  * \param[in] cls User-defined closure.
  * \return New HTTP server handle.
- * \retval NULL If no memory space available.
+ * \retval NULL If no memory space is available.
  * \retval NULL If the \pr{req_cb} or \pr{err_cb} is null and sets the `errno` to `EINVAL`.
  */
 SG_EXTERN struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb, sg_httpreq_cb req_cb, sg_err_cb err_cb, void *cls)
@@ -1282,7 +1282,7 @@ typedef int (*sg_entrypoints_iter_cb)(void *cls, struct sg_entrypoint *entrypoin
 /**
  * Creates a new entry-points handle.
  * \return Entry-points handle.
- * \retval NULL If no memory space available.
+ * \retval NULL If no memory space is available.
  */
 SG_EXTERN struct sg_entrypoints *sg_entrypoints_new(void)
 __SG_MALLOC;
@@ -1420,7 +1420,7 @@ SG_EXTERN const char *sg_route_rawpattern(struct sg_route *route);
  * \param[in] route Route handle.
  * \return Pattern as null-terminated string.
  * \retval NULL If \pr{route} is null and sets the `errno` to `EINVAL`.
- * \retval NULL If no memory space available and sets the `errno` to `ENOMEM`.
+ * \retval NULL If no memory space is available and sets the `errno` to `ENOMEM`.
  * \warning The caller must free the returned value.
  */
 SG_EXTERN char *sg_route_pattern(struct sg_route *route)

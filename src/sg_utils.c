@@ -42,7 +42,7 @@
 #include "sagui.h"
 #include "sg_utils.h"
 
-#define SG_VERSION_STR xstr(SG_VERSION_MAJOR) "." xstr(SG_VERSION_MINOR) "." xstr(SG_VERSION_PATCH)
+#define SG__VERSION_STR xstr(SG_VERSION_MAJOR) "." xstr(SG_VERSION_MINOR) "." xstr(SG_VERSION_PATCH)
 
 /* Platform. */
 
@@ -237,7 +237,7 @@ unsigned int sg_version(void) {
 }
 
 const char *sg_version_str(void) {
-    return SG_VERSION_STR;
+    return SG__VERSION_STR;
 }
 
 /* Memory. */
@@ -352,18 +352,17 @@ char *sg_tmpdir() {
 #else
     char *buf;
     size_t len;
-#define SG_TMPDIR_TRY_ENV(name) \
-do {                            \
-    buf = getenv(name);         \
-    if (buf)                    \
-        goto done;              \
-}                               \
-while (0)
-    SG_TMPDIR_TRY_ENV("TMPDIR");
-    SG_TMPDIR_TRY_ENV("TMP");
-    SG_TMPDIR_TRY_ENV("TEMP");
-    SG_TMPDIR_TRY_ENV("TEMPDIR");
-#undef SG_TMPDIR_TRY_ENV
+#define SG__TMPDIR_TRY_ENV(name)                                                                                       \
+do {                                                                                                                   \
+    buf = getenv(name);                                                                                                \
+    if (buf)                                                                                                           \
+        goto done;                                                                                                     \
+} while (0)
+    SG__TMPDIR_TRY_ENV("TMPDIR");
+    SG__TMPDIR_TRY_ENV("TMP");
+    SG__TMPDIR_TRY_ENV("TEMP");
+    SG__TMPDIR_TRY_ENV("TEMPDIR");
+#undef SG__TMPDIR_TRY_ENV
 #ifdef __ANDROID__
     buf = "/data/local/tmp";
 #else

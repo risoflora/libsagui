@@ -62,11 +62,11 @@
 #define PATH_SEP '/'
 #endif
 
-#ifndef SG_BLOCK_SIZE
+#ifndef SG__BLOCK_SIZE
 #ifdef _WIN32
-#define SG_BLOCK_SIZE 16384 /* 16k */
+#define SG__BLOCK_SIZE 16384 /* 16k */
 #else
-#define SG_BLOCK_SIZE 4096 /* 4k */
+#define SG__BLOCK_SIZE 4096 /* 4k */
 #endif
 #endif
 

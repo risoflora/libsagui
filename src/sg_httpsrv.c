@@ -142,6 +142,10 @@ struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb, sg_httpreq_cb req_cb,
     srv->upld_save_cb = sg__httpupld_save_cb;
     srv->upld_save_as_cb = sg__httpupld_save_as_cb;
     srv->uplds_dir = sg_tmpdir();
+    if (!srv->uplds_dir) {
+        sg_free(srv);
+        return NULL;
+    }
 #ifdef __arm__
     srv->post_buf_size = 1024; /* ~1 Kb */
     srv->payld_limit = 1048576; /* ~1 MB */

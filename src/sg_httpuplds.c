@@ -25,6 +25,7 @@
  * along with Sagui library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdbool.h>
 #include <errno.h>
 #include <sys/stat.h>
 #include "sg_macros.h"
@@ -35,17 +36,29 @@
 #include "sg_strmap.h"
 #include "sg_httpreq.h"
 
-static void sg__httpuplds_add(struct sg_httpsrv *srv, struct sg_httpreq *req, const char *fieldname,
-                              const char *filename, const char *content_type, const char *transfer_encoding) {
-    sg__new(req->curr_upld);
+static void sg__httpuplds_free(struct sg_httpsrv *srv, struct sg_httpreq *req);
+
+static int sg__httpuplds_add(struct sg_httpsrv *srv, struct sg_httpreq *req, const char *fieldname,
+                             const char *filename, const char *content_type, const char *transfer_encoding) {
+    req->curr_upld = sg_alloc(sizeof(struct sg_httpupld));
+    if (!req->curr_upld)
+        return ENOMEM;
     LL_APPEND(req->uplds, req->curr_upld);
     req->curr_upld->dir = sg__strdup(srv->uplds_dir);
+    if (!req->curr_upld->dir)
+        goto fail;
     req->curr_upld->field = sg__strdup(fieldname);
     req->curr_upld->name = sg__strdup(filename);
+    if (!req->curr_upld->name)
+        goto fail;
     req->curr_upld->mime = sg__strdup(content_type);
     req->curr_upld->encoding = sg__strdup(transfer_encoding);
     req->curr_upld->save_cb = srv->upld_save_cb;
     req->curr_upld->save_as_cb = srv->upld_save_as_cb;
+    return 0;
+fail:
+    sg__httpuplds_free(NULL, req);
+    return ENOMEM;
 }
 
 static void sg__httpuplds_free(struct sg_httpsrv *srv, struct sg_httpreq *req) {
@@ -53,12 +66,12 @@ static void sg__httpuplds_free(struct sg_httpsrv *srv, struct sg_httpreq *req) {
         return;
     if (srv && srv->upld_free_cb)
         srv->upld_free_cb(req->curr_upld->handle);
-    sg__free(req->curr_upld->dir);
-    sg__free(req->curr_upld->field);
-    sg__free(req->curr_upld->name);
-    sg__free(req->curr_upld->mime);
-    sg__free(req->curr_upld->encoding);
-    sg__free(req->curr_upld);
+    sg_free(req->curr_upld->dir);
+    sg_free(req->curr_upld->field);
+    sg_free(req->curr_upld->name);
+    sg_free(req->curr_upld->mime);
+    sg_free(req->curr_upld->encoding);
+    sg_free(req->curr_upld);
 }
 
 static void sg__httpuplds_err(struct sg_httpsrv *srv, const char *fmt, ...) {
@@ -79,9 +92,11 @@ static int sg__httpuplds_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind, co
         holder = cls;
         if (filename) {
             if (off == 0) {
-                sg__httpuplds_add(holder->srv, holder->req, key, filename, content_type, transfer_encoding);
-                if (holder->srv->upld_cb(holder->srv->upld_cls, &holder->req->curr_upld->handle, holder->srv->uplds_dir,
-                                         key, filename, content_type, transfer_encoding) != 0)
+                if ((sg__httpuplds_add(holder->srv, holder->req, key, filename, content_type,
+                                       transfer_encoding) != 0) ||
+                    (holder->srv->upld_cb(holder->srv->upld_cls, &holder->req->curr_upld->handle,
+                                          holder->srv->uplds_dir, key, filename, content_type,
+                                          transfer_encoding) != 0))
                     return MHD_NO;
             }
             if (holder->srv->upld_write_cb(holder->req->curr_upld->handle, off, data, size) == -1)
@@ -101,8 +116,9 @@ static int sg__httpuplds_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind, co
                     return MHD_NO;
                 HASH_ADD_STR(holder->req->fields, key, holder->req->curr_field);
             } else {
-                if (!(val = sg__realloc(holder->req->curr_field->val, off + size)))
-                    oom();
+                val = sg_realloc(holder->req->curr_field->val, off + size);
+                if (!val)
+                    return MHD_NO;
                 holder->req->curr_field->val = val;
                 memcpy(holder->req->curr_field->val + off, data, size);
             }
@@ -157,12 +173,14 @@ void sg__httpuplds_cleanup(struct sg_httpsrv *srv, struct sg_httpreq *req) {
 int sg__httpupld_cb(void *cls, void **handle, const char *dir, __SG_UNUSED const char *field, const char *name,
                     __SG_UNUSED const char *mime, __SG_UNUSED const char *encoding) {
     char err[SG_ERR_SIZE >> 2];
-    struct sg__httpupld *h;
+    struct sg__httpupld *upld;
     struct stat sbuf;
     int errnum;
-    sg__new(h);
-    h->fd = -1;
-    h->srv = cls;
+    upld = sg_alloc(sizeof(struct sg__httpupld));
+    if (!upld)
+        return ENOMEM;
+    upld->fd = -1;
+    upld->srv = cls;
     if (stat(dir, &sbuf)) {
         sg__httpuplds_err(cls, _("Cannot find uploads directory \"%s\": %s.\n"), dir,
                           sg_strerror(errno, err, sizeof(err)));
@@ -173,17 +191,30 @@ int sg__httpupld_cb(void *cls, void **handle, const char *dir, __SG_UNUSED const
                           sg_strerror(ENOTDIR, err, sizeof(err)));
         return ENOTDIR;
     }
-    if (!(h->path = sg__strjoin(PATH_SEP, dir, "sg_upld_tmp_XXXXXX")) ||
-        !(h->dest = sg__strjoin(PATH_SEP, dir, name)))
-        oom();
-    if ((h->fd = mkstemp(h->path)) == -1) {
+    upld->path = sg__strjoin(PATH_SEP, dir, "sg_upld_tmp_XXXXXX");
+    if (!upld->path) {
+        errnum = ENOMEM;
+        goto fail;
+    }
+    upld->dest = sg__strjoin(PATH_SEP, dir, name);
+    if (!upld->dest) {
+        errnum = ENOMEM;
+        goto fail;
+    }
+    upld->fd = mkstemp(upld->path);
+    if (upld->fd == -1) {
         errnum = errno;
         sg__httpuplds_err(cls, _("Cannot create temporary upload file in \"%s\": %s.\n"), dir,
                           sg_strerror(errnum, err, sizeof(err)));
-        return errnum;
+        goto fail;
     }
-    *handle = h;
+    *handle = upld;
     return 0;
+fail:
+    sg_free(upld->path);
+    sg_free(upld->dest);
+    sg_free(upld);
+    return errnum;
 }
 
 ssize_t sg__httpupld_write_cb(void *handle, __SG_UNUSED uint64_t offset, const char *buf, size_t size) {
@@ -191,31 +222,31 @@ ssize_t sg__httpupld_write_cb(void *handle, __SG_UNUSED uint64_t offset, const c
 }
 
 void sg__httpupld_free_cb(void *handle) {
-    struct sg__httpupld *h;
-    if (!(h = handle))
+    struct sg__httpupld *upld = handle;
+    if (!upld)
         return;
-    if (h->fd != -1)
-        close(h->fd);
-    h->fd = -1;
-    unlink(h->path);
-    sg__free(h->path);
-    sg__free(h->dest);
-    sg__free(h);
+    if (upld->fd != -1)
+        close(upld->fd);
+    upld->fd = -1;
+    unlink(upld->path);
+    sg_free(upld->path);
+    sg_free(upld->dest);
+    sg_free(upld);
 }
 
 int sg__httpupld_save_cb(void *handle, bool overwritten) {
-    struct sg__httpupld *h = handle;
-    return h ? sg__httpupld_save_as_cb(h, h->dest, overwritten) : EINVAL;
+    struct sg__httpupld *upld = handle;
+    return upld ? sg__httpupld_save_as_cb(upld, upld->dest, overwritten) : EINVAL;
 }
 
 int sg__httpupld_save_as_cb(void *handle, const char *path, bool overwritten) {
-    struct sg__httpupld *h = handle;
+    struct sg__httpupld *upld = handle;
     struct stat sbuf;
-    if (!handle || !path || (h->fd < 0))
+    if (!handle || !path || (upld->fd < 0))
         return EINVAL;
-    if (close(h->fd))
+    if (close(upld->fd))
         return errno;
-    h->fd = -1;
+    upld->fd = -1;
     if ((stat(path, &sbuf) >= 0) && S_ISDIR(sbuf.st_mode))
         return EISDIR;
     if (!access(path, F_OK)) {
@@ -224,7 +255,7 @@ int sg__httpupld_save_as_cb(void *handle, const char *path, bool overwritten) {
         else
             return EEXIST;
     }
-    if (sg__rename(h->path, path))
+    if (sg__rename(upld->path, path))
         return errno;
     return 0;
 }
@@ -236,7 +267,8 @@ int sg_httpuplds_iter(struct sg_httpupld *uplds, sg_httpuplds_iter_cb cb, void *
         return EINVAL;
     if (uplds)
         LL_FOREACH(uplds, tmp) {
-            if ((ret = cb(cls, tmp)) != 0)
+            ret = cb(cls, tmp);
+            if (ret != 0)
                 return ret;
         }
     return 0;

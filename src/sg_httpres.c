@@ -190,16 +190,16 @@ int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size
         errnum = EFBIG;
         goto error;
     }
-#define SG_FNFMT "%s; filename=\"%s\""
+#define SG__FNFMT "%s; filename=\"%s\""
     cd_type = rendered ? "inline" : "attachment";
     cd_basename = basename(filename);
-    fn_size = (size_t) snprintf(NULL, 0, SG_FNFMT, cd_type, cd_basename) + 1;
+    fn_size = (size_t) snprintf(NULL, 0, SG__FNFMT, cd_type, cd_basename) + 1;
     if (!(cd_header = sg__malloc(fn_size))) {
         errnum = ENOMEM;
         goto error;
     }
-    snprintf(cd_header, fn_size, SG_FNFMT, cd_type, cd_basename);
-#undef SG_FNFMT
+    snprintf(cd_header, fn_size, SG__FNFMT, cd_type, cd_basename);
+#undef SG__FNFMT
     sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_DISPOSITION, cd_header);
     sg_free(cd_header);
     if (size == 0)
@@ -327,7 +327,7 @@ int sg_httpres_zsendstream(struct sg_httpres *res, uint64_t size, sg_read_cb rea
 
     sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_ENCODING, "deflate");
 
-    res->handle = MHD_create_response_from_callback((size > 0 ? size : MHD_SIZE_UNKNOWN), SG_BLOCK_SIZE,
+    res->handle = MHD_create_response_from_callback((size > 0 ? size : MHD_SIZE_UNKNOWN), SG__BLOCK_SIZE,
                                                     sg__httpres_zread_cb, holder, sg__httpres_zfree_cb);
     if (!res->handle) {
         errnum = ENOMEM;
