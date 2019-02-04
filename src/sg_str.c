@@ -30,8 +30,9 @@
 #include "sg_str.h"
 
 struct sg_str *sg_str_new(void) {
-    struct sg_str *str;
-    sg__new(str);
+    struct sg_str *str = sg_alloc(sizeof(struct sg_str));
+    if (!str)
+        return NULL;
     utstring_new(str->buf);
     return str;
 }
@@ -51,12 +52,12 @@ int sg_str_write(struct sg_str *str, const char *val, size_t len) {
 }
 
 int sg_str_printf_va(struct sg_str *str, const char *fmt, va_list ap) {
-    if (!str || !fmt
-#ifndef __arm__
-        || !ap
-#endif
-            )
+    if (!str || !fmt)
         return EINVAL;
+#ifndef __arm__
+    if (!ap)
+        return EINVAL;
+#endif
     utstring_printf_va(str->buf, fmt, ap);
     return 0;
 }

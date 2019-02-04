@@ -96,7 +96,9 @@ static int sg__httpuplds_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind, co
             }
         } else {
             if (off == 0) {
-                sg__strmap_new(&holder->req->curr_field, key, data);
+                holder->req->curr_field = sg__strmap_new(key, data);
+                if (!holder->req->curr_field)
+                    return MHD_NO;
                 HASH_ADD_STR(holder->req->fields, key, holder->req->curr_field);
             } else {
                 if (!(val = sg__realloc(holder->req->curr_field->val, off + size)))

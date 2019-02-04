@@ -34,8 +34,7 @@
 #include "sg_strmap.c"
 
 static void test__strmap_new(void) {
-    struct sg_strmap *pair;
-    sg__strmap_new(&pair, "ABC", "123");
+    struct sg_strmap *pair = sg__strmap_new("ABC", "123");
     ASSERT(pair);
     ASSERT(strcmp(pair->name, "ABC") == 0);
     ASSERT(strcmp(pair->val, "123") == 0);

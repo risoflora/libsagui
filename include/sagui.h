@@ -235,7 +235,7 @@ struct sg_str;
 /**
  * Creates a new zero-initialized string handle.
  * \return String handle.
- * \warning It exits the application if called when no memory space is available.
+ * \retval NULL If no memory space is available.
  */
 SG_EXTERN struct sg_str *sg_str_new(void)
 __SG_MALLOC;
@@ -364,9 +364,9 @@ SG_EXTERN const char *sg_strmap_val(struct sg_strmap *pair);
  * \param[in] val Pair value.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
+ * \retval ENOMEM Out of memory.
  * \note It cannot check if a name already exists in a pair added to the \pr{map}, then the uniqueness must be managed
  * by the application.
- * \warning It exits the application if called when no memory space is available.
  */
 SG_EXTERN int sg_strmap_add(struct sg_strmap **map, const char *name, const char *val);
 
@@ -377,9 +377,9 @@ SG_EXTERN int sg_strmap_add(struct sg_strmap **map, const char *name, const char
  * \param[in] val Pair value.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
+ * \retval ENOMEM Out of memory.
  * \note If a name already exists in a pair previously added into the \pr{map}, then the function replaces its value,
  * otherwise it is added as a new pair.
- * \warning It exits the application if called when no memory space is available.
  */
 SG_EXTERN int sg_strmap_set(struct sg_strmap **map, const char *name, const char *val);
 
@@ -391,6 +391,7 @@ SG_EXTERN int sg_strmap_set(struct sg_strmap **map, const char *name, const char
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  * \retval ENOENT Pair not found.
+ * \retval ENOMEM Out of memory.
  */
 SG_EXTERN int sg_strmap_find(struct sg_strmap *map, const char *name, struct sg_strmap **pair);
 
@@ -410,6 +411,7 @@ SG_EXTERN const char *sg_strmap_get(struct sg_strmap *map, const char *name);
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  * \retval ENOENT Pair already removed.
+ * \retval ENOMEM Out of memory.
  */
 SG_EXTERN int sg_strmap_rm(struct sg_strmap **map, const char *name);
 
@@ -842,7 +844,7 @@ SG_EXTERN int sg_httpres_set_cookie(struct sg_httpres *res, const char *name, co
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  * \retval EALREADY Operation already in progress.
- * \warning It exits the application if called when no memory space is available.
+ * \retval ENOMEM Out of memory.
  */
 #define sg_httpres_send(res, val, content_type, status) \
     sg_httpres_sendbinary((res), (void *) (val), ((val != NULL) ? strlen((val)) : 0), (content_type), (status))
@@ -857,7 +859,7 @@ SG_EXTERN int sg_httpres_set_cookie(struct sg_httpres *res, const char *name, co
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  * \retval EALREADY Operation already in progress.
- * \warning It exits the application if called when no memory space is available.
+ * \retval ENOMEM Out of memory.
  */
 SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t size, const char *content_type,
                                     unsigned int status);
@@ -872,7 +874,7 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t si
  * \retval EALREADY Operation already in progress.
  * \retval EISDIR Is a directory.
  * \retval EBADF Bad file number.
- * \warning It exits the application if called when no memory space is available.
+ * \retval ENOMEM Out of memory.
  */
 #define sg_httpres_download(res, filename, status) \
     sg_httpres_sendfile((res), 0, 0, 0, (filename), false, (status))
@@ -887,7 +889,7 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t si
  * \retval EALREADY Operation already in progress.
  * \retval EISDIR Is a directory.
  * \retval EBADF Bad file number.
- * \warning It exits the application if called when no memory space is available.
+ * \retval ENOMEM Out of memory.
  */
 #define sg_httpres_render(res, filename, status) \
     sg_httpres_sendfile((res), 0, 0, 0, (filename), true, (status))
@@ -907,7 +909,7 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t si
  * \retval EISDIR Is a directory.
  * \retval EBADF Bad file number.
  * \retval EFBIG File too large.
- * \warning It exits the application if called when no memory space is available.
+ * \retval ENOMEM Out of memory.
  */
 SG_EXTERN int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size, uint64_t offset,
                                   const char *filename, bool rendered, unsigned int status);
@@ -924,8 +926,8 @@ SG_EXTERN int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  * \retval EALREADY Operation already in progress.
+ * \retval ENOMEM Out of memory.
  * \note Use `size = 0` if the stream size is unknown.
- * \warning It exits the application if called when no memory space is available.
  */
 SG_EXTERN int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, size_t block_size, sg_read_cb read_cb,
                                     void *handle, sg_free_cb free_cb, unsigned int status);
@@ -945,7 +947,6 @@ SG_EXTERN int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, size_
  * \retval ENOBUFS No buffer space available.
  * \retval EALREADY Operation already in progress.
  * \note When compression succeeds, the header `Content-Encoding: deflate` is automatically added to the response.
- * \warning It exits the application if called when no memory space is available.
  */
 #define sg_httpres_zsend(res, val, content_type, status) \
     sg_httpres_zsendbinary((res), (void *) (val), ((val != NULL) ? strlen((val)) : 0), (content_type), (status))
@@ -964,7 +965,6 @@ SG_EXTERN int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, size_
  * \retval ENOBUFS No buffer space available.
  * \retval EALREADY Operation already in progress.
  * \note When compression succeeds, the header `Content-Encoding: deflate` is automatically added to the response.
- * \warning It exits the application if called when no memory space is available.
  */
 SG_EXTERN int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const char *content_type,
                                      unsigned int status);

@@ -53,7 +53,7 @@ static ssize_t sg__httpres_zread_cb(void *handle, __SG_UNUSED uint64_t offset, c
     size_t len;
     ssize_t read;
     int errnum;
-    if (!(mem = sg__malloc(size)))
+    if (!(mem = sg_malloc(size)))
         return MHD_CONTENT_READER_END_WITH_ERROR;
 
     if ((read = (size_t) holder->read_cb(holder->handle, holder->offset, mem, size)) == 0) {
@@ -84,7 +84,7 @@ static ssize_t sg__httpres_zread_cb(void *handle, __SG_UNUSED uint64_t offset, c
     if ((len = holder->stream.total_out) == 0)
         len = MHD_CONTENT_READER_END_OF_STREAM;
 done:
-    sg__free(mem);
+    sg_free(mem);
     return errnum == Z_STREAM_END ? len : MHD_CONTENT_READER_END_WITH_ERROR;
 }
 
@@ -95,14 +95,15 @@ static void sg__httpres_zfree_cb(void *handle) {
     deflateEnd(&holder->stream);
     if (holder->free_cb)
         holder->free_cb(holder->handle);
-    sg__free(holder);
+    sg_free(holder);
 }
 
 #endif
 
 struct sg_httpres *sg__httpres_new(struct MHD_Connection *con) {
-    struct sg_httpres *res;
-    sg__new(res);
+    struct sg_httpres *res = sg_alloc(sizeof(struct sg_httpres));
+    if (!res)
+        return NULL;
     res->con = con;
     res->status = 500;
     return res;
@@ -113,7 +114,7 @@ void sg__httpres_free(struct sg_httpres *res) {
         return;
     sg_strmap_cleanup(&res->headers);
     MHD_destroy_response(res->handle);
-    sg__free(res);
+    sg_free(res);
 }
 
 int sg__httpres_dispatch(struct sg_httpres *res) {
@@ -136,12 +137,12 @@ int sg_httpres_set_cookie(struct sg_httpres *res, const char *name, const char *
     if (!res || !name || !val || !sg__is_cookie_name(name) || !sg__is_cookie_val(val))
         return EINVAL;
     len = strlen(name) + strlen("=") + strlen(val) + 1;
-    str = sg__malloc(len);
+    str = sg_malloc(len);
     if (!str)
         return ENOMEM;
     snprintf(str, len, "%s=%s", name, val);
     ret = sg_strmap_add(&res->headers, MHD_HTTP_HEADER_SET_COOKIE, str);
-    sg__free(str);
+    sg_free(str);
     return ret;
 }
 
@@ -151,8 +152,9 @@ int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t size, const 
         return EINVAL;
     if (res->handle)
         return EALREADY;
-    if (!(res->handle = MHD_create_response_from_buffer(size, buf, MHD_RESPMEM_MUST_COPY)))
-        oom();
+    res->handle = MHD_create_response_from_buffer(size, buf, MHD_RESPMEM_MUST_COPY);
+    if (!res->handle)
+        return ENOMEM;
     if (strlen(content_type) > 0)
         sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_TYPE, content_type);
     res->status = status;
@@ -171,7 +173,8 @@ int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size
         return EINVAL;
     if (res->handle)
         return EALREADY;
-    if (((fd = open(filename, O_RDONLY)) == -1) || fstat(fd, &sbuf)) {
+    fd = open(filename, O_RDONLY);
+    if ((fd == -1) || fstat(fd, &sbuf)) {
         errnum = errno;
         goto error;
     }
@@ -198,10 +201,11 @@ int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size
     snprintf(cd_header, fn_size, SG_FNFMT, cd_type, cd_basename);
 #undef SG_FNFMT
     sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_DISPOSITION, cd_header);
-    sg__free(cd_header);
+    sg_free(cd_header);
     if (size == 0)
         size = ((uint64_t) sbuf.st_size) - offset;
-    if (!(res->handle = MHD_create_response_from_fd_at_offset64(size, fd, offset))) {
+    res->handle = MHD_create_response_from_fd_at_offset64(size, fd, offset);
+    if (!res->handle) {
         errnum = ENOMEM;
         goto error;
     }
@@ -226,8 +230,9 @@ int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, size_t block_si
         errnum = EALREADY;
         goto error;
     }
-    if (!(res->handle = MHD_create_response_from_callback((size > 0 ? size : MHD_SIZE_UNKNOWN), block_size,
-                                                          read_cb, handle, free_cb))) {
+    res->handle = MHD_create_response_from_callback((size > 0 ? size : MHD_SIZE_UNKNOWN), block_size, read_cb, handle,
+                                                    free_cb);
+    if (!res->handle) {
         errnum = ENOMEM;
         goto error;
     }
@@ -236,8 +241,6 @@ int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, size_t block_si
 error:
     if (free_cb)
         free_cb(handle);
-    if (errnum == ENOMEM)
-        oom();
     return errnum;
 }
 
@@ -254,20 +257,22 @@ int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const
         return EALREADY;
     if (size > 0) {
         dest_size = compressBound(size);
-        if (!(dest = sg__malloc(dest_size)))
-            oom();
-        if (((ret = sg__compress(buf, size, dest, (size_t *) &dest_size)) != Z_OK) || (dest_size >= size))
+        dest = sg_malloc(dest_size);
+        if (!dest)
+            return ENOMEM;
+        ret = sg__compress(buf, size, dest, (size_t *) &dest_size);
+        if ((ret != Z_OK) || (dest_size >= size))
             switch (ret) {
                 case Z_STREAM_ERROR: {
-                    sg__free(dest);
+                    sg_free(dest);
                     return EINVAL;
                 }
                 case Z_MEM_ERROR: {
-                    sg__free(dest);
+                    sg_free(dest);
                     return ENOMEM;
                 }
                 case Z_BUF_ERROR: {
-                    sg__free(dest);
+                    sg_free(dest);
                     return ENOBUFS;
                 }
                 default:
@@ -280,8 +285,11 @@ int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const
         dest_size = 0;
         dest = (Bytef *) strdup("");
     }
-    if (!(res->handle = MHD_create_response_from_buffer(dest_size, dest, MHD_RESPMEM_MUST_FREE)))
-        oom();
+    res->handle = MHD_create_response_from_buffer(dest_size, dest, MHD_RESPMEM_MUST_FREE);
+    if (!res->handle) {
+        sg_free(dest);
+        return ENOMEM;
+    }
     if (strlen(content_type) > 0)
         sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_TYPE, content_type);
     res->status = status;
@@ -301,14 +309,16 @@ int sg_httpres_zsendstream(struct sg_httpres *res, uint64_t size, sg_read_cb rea
         errnum = EALREADY;
         goto error;
     }
-    if (!(holder = sg__malloc(sizeof(struct sg__httpres_zholder))))
+    holder = sg__malloc(sizeof(struct sg__httpres_zholder));
+    if (!holder)
         return ENOMEM;
 
     holder->stream.zalloc = NULL;
     holder->stream.zfree = NULL;
     holder->stream.opaque = NULL;
-    if ((errnum = deflateInit2(&holder->stream, Z_BEST_COMPRESSION, Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL,
-                               Z_DEFAULT_STRATEGY)) != Z_OK)
+    errnum = deflateInit2(&holder->stream, Z_BEST_COMPRESSION, Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL,
+                          Z_DEFAULT_STRATEGY);
+    if (errnum != Z_OK)
         goto error;
     holder->read_cb = read_cb;
     holder->free_cb = free_cb;
@@ -317,8 +327,9 @@ int sg_httpres_zsendstream(struct sg_httpres *res, uint64_t size, sg_read_cb rea
 
     sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_ENCODING, "deflate");
 
-    if (!(res->handle = MHD_create_response_from_callback((size > 0 ? size : MHD_SIZE_UNKNOWN), SG_BLOCK_SIZE,
-                                                          sg__httpres_zread_cb, holder, sg__httpres_zfree_cb))) {
+    res->handle = MHD_create_response_from_callback((size > 0 ? size : MHD_SIZE_UNKNOWN), SG_BLOCK_SIZE,
+                                                    sg__httpres_zread_cb, holder, sg__httpres_zfree_cb);
+    if (!res->handle) {
         errnum = ENOMEM;
         goto error;
     }
@@ -326,8 +337,6 @@ int sg_httpres_zsendstream(struct sg_httpres *res, uint64_t size, sg_read_cb rea
     return 0;
 error:
     sg__httpres_zfree_cb(holder);
-    if (errnum == ENOMEM)
-        oom();
     return errnum;
 }
 

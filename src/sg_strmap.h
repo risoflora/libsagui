@@ -36,7 +36,7 @@ struct sg_strmap {
     UT_hash_handle hh;
 };
 
-SG__EXTERN void sg__strmap_new(struct sg_strmap **pair, const char *name, const char *val);
+SG__EXTERN struct sg_strmap *sg__strmap_new(const char *name, const char *val);
 
 SG__EXTERN void sg__strmap_free(struct sg_strmap *pair);
 

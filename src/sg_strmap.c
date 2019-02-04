@@ -31,25 +31,33 @@
 #include "sg_utils.h"
 #include "sg_strmap.h"
 
-void sg__strmap_new(struct sg_strmap **pair, const char *name, const char *val) {
-    sg__new(*pair);
-    (*pair)->key = strdup(name);
-    (*pair)->name = strdup(name);
-    (*pair)->val = strdup(val);
-    if (!(*pair)->key || !(*pair)->name || !(*pair)->val) {
-        sg__strmap_free(*pair);
-        oom();
-    }
-    sg__toasciilower((*pair)->key);
+struct sg_strmap *sg__strmap_new(const char *name, const char *val) {
+    struct sg_strmap *pair = sg_alloc(sizeof(struct sg_strmap));
+    if (!pair)
+        return NULL;
+    pair->key = strdup(name);
+    if (!pair->key)
+        goto fail;
+    pair->name = strdup(name);
+    if (!pair->name)
+        goto fail;
+    pair->val = strdup(val);
+    if (!pair->val)
+        goto fail;
+    sg__toasciilower(pair->key);
+    return pair;
+fail:
+    sg__strmap_free(pair);
+    return NULL;
 }
 
 void sg__strmap_free(struct sg_strmap *pair) {
     if (!pair)
         return;
-    sg__free(pair->key);
-    sg__free(pair->name);
-    sg__free(pair->val);
-    sg__free(pair);
+    sg_free(pair->key);
+    sg_free(pair->name);
+    sg_free(pair->val);
+    sg_free(pair);
 }
 
 const char *sg_strmap_name(struct sg_strmap *pair) {
@@ -72,7 +80,9 @@ int sg_strmap_add(struct sg_strmap **map, const char *name, const char *val) {
     struct sg_strmap *pair;
     if (!map || !name || !val)
         return EINVAL;
-    sg__strmap_new(&pair, name, val);
+    pair = sg__strmap_new(name, val);
+    if (!pair)
+        return ENOMEM;
     HASH_ADD_STR(*map, key, pair);
     return 0;
 }
@@ -81,7 +91,9 @@ int sg_strmap_set(struct sg_strmap **map, const char *name, const char *val) {
     struct sg_strmap *pair, *tmp;
     if (!map || !name || !val)
         return EINVAL;
-    sg__strmap_new(&pair, name, val);
+    pair = sg__strmap_new(name, val);
+    if (!pair)
+        return ENOMEM;
     HASH_REPLACE_STR(*map, key, pair, tmp);
     sg__strmap_free(tmp);
     return 0;
@@ -93,14 +105,14 @@ int sg_strmap_find(struct sg_strmap *map, const char *name, struct sg_strmap **p
         return EINVAL;
     key = strdup(name);
     if (!key)
-        oom();
+        return ENOMEM;
     sg__toasciilower(key);
     HASH_FIND_STR(map, key, *pair);
     if (!*pair) {
-        sg__free(key);
+        sg_free(key);
         return ENOENT;
     }
-    sg__free(key);
+    sg_free(key);
     return 0;
 }
 
@@ -116,15 +128,16 @@ int sg_strmap_rm(struct sg_strmap **map, const char *name) {
     char *key;
     if (!map || !name)
         return EINVAL;
-    if (!(key = strdup(name)))
-        oom();
+    key = strdup(name);
+    if (!key)
+        return ENOMEM;
     sg__toasciilower(key);
     HASH_FIND_STR(*map, key, pair);
     if (!pair) {
-        sg__free(key);
+        sg_free(key);
         return ENOENT;
     }
-    sg__free(key);
+    sg_free(key);
     HASH_DELETE_HH(hh, *map, &pair->hh);
     sg__strmap_free(pair);
     return 0;
