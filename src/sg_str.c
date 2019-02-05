@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -41,7 +41,7 @@ void sg_str_free(struct sg_str *str) {
     if (!str)
         return;
     utstring_free(str->buf);
-    sg__free(str);
+    sg_free(str);
 }
 
 int sg_str_write(struct sg_str *str, const char *val, size_t len) {

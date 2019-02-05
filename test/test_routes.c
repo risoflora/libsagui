@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -89,15 +89,19 @@ static void test__route_new(void) {
 #ifdef PCRE2_JIT_SUPPORT
     uint32_t opt;
 #endif
-    ASSERT(!sg__route_new("some\\Kpattern", err, sizeof(err), route_cb, "foo"));
+    int errnum;
+    ASSERT(!sg__route_new("some\\Kpattern", err, sizeof(err), &errnum, route_cb, "foo"));
+    ASSERT(errnum == EINVAL);
     ASSERT(strcmp(err, _("\\K is not not allowed.\n")) == 0);
 
-    ASSERT(!sg__route_new("foo[bar", err, sizeof(err), route_cb, "foo"));
+    ASSERT(!sg__route_new("foo[bar", err, sizeof(err), &errnum, route_cb, "foo"));
+    ASSERT(errnum == EINVAL);
     snprintf(errmsg, sizeof(errmsg), _("Pattern compilation failed at offset %d: %s.\n"), 9,
              "missing terminating ] for character class");
     ASSERT(strcmp(err, errmsg) == 0);
 
-    ASSERT((route = sg__route_new("(*NOTEMPTY)pattern", err, sizeof(err), route_cb, "foo")));
+    ASSERT((route = sg__route_new("(*NOTEMPTY)pattern", err, sizeof(err), &errnum, route_cb, "foo")));
+    ASSERT(errnum == 0);
     ASSERT(strcmp("(*NOTEMPTY)pattern", route->pattern) == 0);
     ASSERT(route->cb == route_cb);
     ASSERT(strcmp("foo", route->cls) == 0);
@@ -110,7 +114,8 @@ static void test__route_new(void) {
     ASSERT(opt == 1);
 #endif
 
-    ASSERT((route = sg__route_new("pattern", err, sizeof(err), route_cb, "foo")));
+    ASSERT((route = sg__route_new("pattern", err, sizeof(err), &errnum, route_cb, "foo")));
+    ASSERT(errnum == 0);
     ASSERT(strcmp("^pattern$", route->pattern) == 0);
     sg__route_free(route);
 }
@@ -175,7 +180,7 @@ static void test_route_pattern(void) {
     ASSERT((pattern = sg_route_pattern(&route)));
     ASSERT(errno == 0);
     ASSERT(strcmp(pattern, "foo") == 0);
-    sg__free(pattern);
+    sg_free(pattern);
 }
 
 static void test_route_path(void) {
@@ -199,8 +204,9 @@ static void test_route_segments_iter(void) {
     struct sg_route *route;
     char err[SG_ERR_SIZE];
     char str[100];
+    int errnum;
     ASSERT(sg_route_segments_iter(NULL, route_segments_empty_iter_cb, "foo") == EINVAL);
-    route = sg__route_new("/(foo)/(bar)", err, sizeof(err), route_cb, "foo");
+    route = sg__route_new("/(foo)/(bar)", err, sizeof(err), &errnum, route_cb, "foo");
     ASSERT(sg_route_segments_iter(route, NULL, "foo") == EINVAL);
 
     route->path = "/foo/bar";
@@ -219,8 +225,9 @@ static void test_route_vars_iter(void) {
     struct sg_route *route;
     char err[SG_ERR_SIZE];
     char str[100];
+    int errnum;
     ASSERT(sg_route_vars_iter(NULL, route_vars_empty_iter_cb, "foo") == EINVAL);
-    route = sg__route_new("/(?<var1>[a-z]+)/(?<var2>[0-9]+)", err, sizeof(err), route_cb, "foo");
+    route = sg__route_new("/(?<var1>[a-z]+)/(?<var2>[0-9]+)", err, sizeof(err), &errnum, route_cb, "foo");
     ASSERT(sg_route_vars_iter(route, NULL, "foo") == EINVAL);
 
 

@@ -37,7 +37,7 @@ static void r1_route_cb(void *cls, struct sg_route *route) {
     fflush(stdout);
 }
 
-static void r2_route_cb(__SG_UNUSED void *cls, struct sg_route *route) {
+static void r2_route_cb(void *cls, struct sg_route *route) {
     fprintf(stdout, "%s: %s\n", sg_route_path(route), (const char *) cls);
     fflush(stdout);
 }

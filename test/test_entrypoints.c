@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -93,10 +93,10 @@ static void test__entrypoints_add(struct sg_entrypoints *entrypoints) {
 
     entrypoint.name = strdup("abc");
     ASSERT(sg__entrypoints_add(entrypoints, &entrypoint, NULL) == EALREADY);
-    sg__free(entrypoint.name);
+    sg_free(entrypoint.name);
     entrypoint.name = strdup("def");
     ASSERT(sg__entrypoints_add(entrypoints, &entrypoint, NULL) == EALREADY);
-    sg__free(entrypoint.name);
+    sg_free(entrypoint.name);
 }
 
 static void test__entrypoints_rm(struct sg_entrypoints *entrypoints) {
@@ -134,10 +134,10 @@ static void test__entrypoints_find(struct sg_entrypoints *entrypoints) {
     sg_entrypoints_clear(entrypoints);
     entrypoint.name = strdup("foo");
     ASSERT(sg__entrypoints_find(entrypoints, &entrypoint, &item) == ENOENT);
-    sg__free(entrypoint.name);
+    sg_free(entrypoint.name);
     entrypoint.name = strdup("bar");
     ASSERT(sg__entrypoints_find(entrypoints, &entrypoint, &item) == ENOENT);
-    sg__free(entrypoint.name);
+    sg_free(entrypoint.name);
 
     entrypoint.name = strdup("foo");
     ASSERT(sg__entrypoints_add(entrypoints, &entrypoint, NULL) == 0);
@@ -145,10 +145,10 @@ static void test__entrypoints_find(struct sg_entrypoints *entrypoints) {
     ASSERT(sg__entrypoints_add(entrypoints, &entrypoint, NULL) == 0);
     entrypoint.name = strdup("foo");
     ASSERT(sg__entrypoints_find(entrypoints, &entrypoint, &item) == 0);
-    sg__free(entrypoint.name);
+    sg_free(entrypoint.name);
     entrypoint.name = strdup("bar");
     ASSERT(sg__entrypoints_find(entrypoints, &entrypoint, &item) == 0);
-    sg__free(entrypoint.name);
+    sg_free(entrypoint.name);
 }
 
 static void test_entrypoints_add(struct sg_entrypoints *entrypoints) {

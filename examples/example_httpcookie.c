@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -45,14 +45,15 @@ static int strtoint(const char *str) {
     return (int) strtol(str, NULL, 10);
 }
 
-static void req_cb(__SG_UNUSED void *cls, __SG_UNUSED struct sg_httpreq *req, struct sg_httpres *res) {
-    struct sg_strmap **cookies = sg_httpreq_cookies(req);
+static void req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_httpres *res) {
+    struct sg_strmap **cookies;
     char str[100];
     int count;
     if (strcmp(sg_httpreq_path(req), "/favicon.ico") == 0) {
         sg_httpres_send(res, "", "", 204);
         return;
     }
+    cookies = sg_httpreq_cookies(req);
     count = cookies ? strtoint(sg_strmap_get(*cookies, COOKIE_NAME)) : 0;
     if (count == 0) {
         snprintf(str, sizeof(str), INITIAL_PAGE);

@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -77,7 +77,8 @@ static void test_httpres_headers(struct sg_httpres *res) {
     res->headers = NULL;
     ASSERT(sg_httpres_headers(res));
     ASSERT(errno == 0);
-    ASSERT((headers = sg_httpres_headers(res)));
+    headers = sg_httpres_headers(res);
+    ASSERT(headers);
     ASSERT(sg_strmap_count(*headers) == 0);
     sg_strmap_add(&res->headers, "foo", "bar");
     sg_strmap_add(&res->headers, "abc", "123");
@@ -200,7 +201,8 @@ static void test_httpres_download(struct sg_httpres *res) {
 
     strcpy(str, "foo");
     unlink(PATH);
-    ASSERT((file = fopen(PATH, "w")));
+    file = fopen(PATH, "w");
+    ASSERT(file);
     ASSERT(fwrite(str, 1, len, file) == len);
     ASSERT(fclose(file) == 0);
     ASSERT(sg_httpres_download(res, PATH, 200) == 0);
@@ -247,7 +249,8 @@ static void test_httpres_render(struct sg_httpres *res) {
 
     strcpy(str, "foo");
     unlink(PATH);
-    ASSERT((file = fopen(PATH, "w")));
+    file = fopen(PATH, "w");
+    ASSERT(file);
     ASSERT(fwrite(str, 1, len, file) == len);
     ASSERT(fclose(file) == 0);
     ASSERT(sg_httpres_render(res, PATH, 200) == 0);
@@ -299,7 +302,8 @@ static void test_httpres_sendfile(struct sg_httpres *res) {
 
     strcpy(str, "foo");
     unlink(PATH);
-    ASSERT((file = fopen(PATH, "w")));
+    file = fopen(PATH, "w");
+    ASSERT(file);
     ASSERT(fwrite(str, 1, len, file) == len);
     ASSERT(fclose(file) == 0);
     ASSERT(sg_httpres_sendfile(res, size, 1, offset, PATH, false, 200) == EFBIG);
@@ -351,7 +355,7 @@ static void test_httpres_sendstream(struct sg_httpres *res) {
     sg_free(res->handle);
     res->handle = NULL;
     ASSERT(sg_httpres_sendstream(res, size, block_size, dummy_read_cb, str, dummy_free_cb, 201) == 0);
-    ASSERT((res->status = 201));
+    ASSERT(res->status == 201);
     ASSERT(sg_httpres_sendstream(res, size, block_size, dummy_read_cb, str, dummy_free_cb, 200) == EALREADY);
     sg_free(res->handle);
     res->handle = NULL;
@@ -494,6 +498,7 @@ static void test_httpres_clear(struct sg_httpres *res) {
 
 int main(void) {
     struct sg_httpres *res = sg__httpres_new(NULL);
+    ASSERT(res);
     test__httpres_new();
     test__httpres_free();
     test__httpres_dispatch(res);

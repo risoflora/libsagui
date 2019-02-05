@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -51,14 +51,14 @@ extern const char *__progname;
 #ifdef NDEBUG
 #define ASSERT(expr) ((void) 0)
 #else
-#define ASSERT(expr)                                                                        \
-do {                                                                                        \
-    if (!(expr)) {                                                                          \
-        if ((fprintf(stderr, "%s: %s:%d: %s: Assertion `%s' failed.\n",                     \
-                __progname, __FILE__, __LINE__, __extension__ __FUNCTION__, #expr) > 0))    \
-            fflush(stderr);                                                                 \
-        exit(EXIT_FAILURE);                                                                 \
-    }                                                                                       \
+#define ASSERT(expr)                                                                                                   \
+do {                                                                                                                   \
+    if (!(expr)) {                                                                                                     \
+        if ((fprintf(stderr, "%s: %s:%d: %s: Assertion `%s' failed.\n",                                                \
+                __progname, __FILE__, __LINE__, __extension__ __FUNCTION__, #expr) > 0))                               \
+            fflush(stderr);                                                                                            \
+        exit(EXIT_FAILURE);                                                                                            \
+    }                                                                                                                  \
 } while (0)
 #endif
 

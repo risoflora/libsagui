@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -75,7 +75,8 @@ static void test_router_new(void) {
 
     ASSERT(sg_routes_add(&routes, "foo", route_empty_cb, "foo"));
     ASSERT(sg_routes_add(&routes, "bar", route_empty_cb, "bar"));
-    ASSERT((router = sg_router_new(routes)));
+    router = sg_router_new(routes);
+    ASSERT(router);
     ASSERT(router->routes == routes);
     sg_routes_cleanup(&routes);
     sg_router_free(router);

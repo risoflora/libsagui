@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -38,7 +38,7 @@
 
 /* NOTE: Error checking has been omitted to make it clear. */
 
-static void req_cb(__SG_UNUSED void *cls, __SG_UNUSED struct sg_httpreq *req, __SG_UNUSED struct sg_httpres *res) {
+static void req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_httpres *res) {
     struct sg_str *payload = sg_httpreq_payload(req);
     sg_httpres_send(res, sg_str_content(payload), "text/plain", 200);
 }

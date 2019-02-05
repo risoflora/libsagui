@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -77,7 +77,8 @@ static void process_uploads(struct sg_httpreq *req, struct sg_httpres *res) {
     upld = sg_httpreq_uploads(req);
     while (upld) {
         name = sg_httpupld_name(upld);
-        if ((errnum = sg_httpupld_save(upld, true)) == 0)
+        errnum = sg_httpupld_save(upld, true);
+        if (errnum == 0)
             sg_str_printf(body, "<li><a href=\"?file=%s\">%s</a></li>", name, name);
         else {
             sg_strerror(errnum, errmsg, sizeof(errmsg));
@@ -101,9 +102,13 @@ static void req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_http
     if (sg_httpreq_is_uploading(req))
         process_uploads(req, res);
     else {
-        if ((qs = sg_httpreq_params(req)) && (file = sg_strmap_get(*qs, "file"))) {
-            sprintf(path, "%s%c%s", sg_tmpdir(), PATH_SEP, file);
-            sg_httpres_download(res, path, 200);
+        qs = sg_httpreq_params(req);
+        if (qs) {
+            file = sg_strmap_get(*qs, "file");
+            if (file) {
+                sprintf(path, "%s%c%s", sg_tmpdir(), PATH_SEP, file);
+                sg_httpres_download(res, path, 200);
+            }
         } else
             sg_httpres_send(res, PAGE_FORM, CONTENT_TYPE, 200);
     }

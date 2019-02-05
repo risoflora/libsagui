@@ -194,7 +194,7 @@ int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size
     cd_type = rendered ? "inline" : "attachment";
     cd_basename = basename(filename);
     fn_size = (size_t) snprintf(NULL, 0, SG__FNFMT, cd_type, cd_basename) + 1;
-    if (!(cd_header = sg__malloc(fn_size))) {
+    if (!(cd_header = sg_malloc(fn_size))) {
         errnum = ENOMEM;
         goto error;
     }
@@ -214,8 +214,6 @@ int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size
 error:
     if ((fd != -1) && close(fd) && (errnum == 0))
         errnum = errno;
-    if (errnum == ENOMEM)
-        oom();
     return errnum;
 }
 
@@ -309,7 +307,7 @@ int sg_httpres_zsendstream(struct sg_httpres *res, uint64_t size, sg_read_cb rea
         errnum = EALREADY;
         goto error;
     }
-    holder = sg__malloc(sizeof(struct sg__httpres_zholder));
+    holder = sg_malloc(sizeof(struct sg__httpres_zholder));
     if (!holder)
         return ENOMEM;
 

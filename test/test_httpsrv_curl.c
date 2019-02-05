@@ -66,7 +66,8 @@ static bool strmatch(const char *s1, const char *s2) {
 static ssize_t sg_httpres_sendstream_read_cb(void *handle, uint64_t offset, char *buf, size_t size) {
     size_t read_size;
     (void) offset;
-    ASSERT((read_size = fread(buf, 1, size, handle)) == size);
+    read_size = fread(buf, 1, size, handle);
+    ASSERT(read_size == size);
     return read_size;
 }
 
@@ -80,7 +81,8 @@ static bool srv_auth_cb(__SG_UNUSED void *cls, struct sg_httpauth *auth, struct 
     bool pass;
     ASSERT(sg_httpauth_set_realm(auth, "My realm") == 0);
     ASSERT(sg_httpreq_set_user_data(req, data) == 0);
-    if (!(pass = strmatch(sg_httpauth_usr(auth), "foo") && strmatch(sg_httpauth_pwd(auth), "bar"))) {
+    pass = strmatch(sg_httpauth_usr(auth), "foo") && strmatch(sg_httpauth_pwd(auth), "bar");
+    if (!pass) {
         sg_free(data);
         ASSERT(sg_httpauth_deny(auth, DENIED_MSG, "text/plain") == 0);
         if (strcmp(sg_httpreq_path(req), "/cancel-auth") == 0)
@@ -110,7 +112,8 @@ static void srv_req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_
     char *data;
     const char *header;
 
-    ASSERT(data = sg_httpreq_user_data(req));
+    data = sg_httpreq_user_data(req);
+    ASSERT(data);
     ASSERT(strcmp(data, "abc123") == 0);
     sg_free(data);
     ASSERT(strcmp(sg_httpreq_version(req), "HTTP/1.1") == 0);
@@ -118,27 +121,35 @@ static void srv_req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_
     if (strcmp(sg_httpreq_path(req), "/") == 0) {
         ASSERT(strcmp(sg_httpreq_method(req), "GET") == 0);
         ASSERT(!sg_httpreq_is_uploading(req));
-        ASSERT(*(headers = sg_httpreq_headers(req)));
-        ASSERT(*(cookies = sg_httpreq_cookies(req)));
-        ASSERT(*(params = sg_httpreq_params(req)));
+        headers = sg_httpreq_headers(req);
+        ASSERT(*headers);
+        cookies = sg_httpreq_cookies(req);
+        ASSERT(*cookies);
+        params = sg_httpreq_params(req);
+        ASSERT(*params);
         ASSERT(strcmp(sg_strmap_get(*headers, "header1"), "header-value1") == 0);
         ASSERT(strcmp(sg_strmap_get(*headers, "header2"), "header-value2") == 0);
         ASSERT(strcmp(sg_strmap_get(*cookies, "cookie1"), "cookie-value1") == 0);
         ASSERT(strcmp(sg_strmap_get(*cookies, "cookie2"), "cookie-value2") == 0);
         ASSERT(strcmp(sg_strmap_get(*params, "param1"), "param-value1") == 0);
         ASSERT(strcmp(sg_strmap_get(*params, "param2"), "param-value2") == 0);
-        if ((headers = sg_httpreq_headers(req)) && (header = sg_strmap_get(*headers, "Accept-Encoding")) &&
-            strstr(header, "deflate"))
-            sg_httpres_zsend(res, PAGE, "text/html", 200);
-        else
-            sg_httpres_send(res, OK_MSG, "text/plain", 200);
+        headers = sg_httpreq_headers(req);
+        if (headers) {
+            header = sg_strmap_get(*headers, "Accept-Encoding");
+            if (header && strstr(header, "deflate")) {
+                sg_httpres_zsend(res, PAGE, "text/html", 200);
+                return;
+            }
+        }
+        sg_httpres_send(res, OK_MSG, "text/plain", 200);
         return;
     }
 
     if (strcmp(sg_httpreq_path(req), "/form") == 0) {
         ASSERT(strcmp(sg_httpreq_method(req), "POST") == 0);
         ASSERT(sg_httpreq_is_uploading(req));
-        ASSERT(*(fields = sg_httpreq_fields(req)));
+        fields = sg_httpreq_fields(req);
+        ASSERT(*fields);
         ASSERT(strcmp(sg_strmap_get(*fields, "field1"), "field-value1") == 0);
         ASSERT(strcmp(sg_strmap_get(*fields, "field2"), "field-value2") == 0);
         sg_httpres_send(res, OK_MSG, "text/plain", 200);
@@ -148,7 +159,8 @@ static void srv_req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_
     if (strcmp(sg_httpreq_path(req), "/payload") == 0) {
         ASSERT(strcmp(sg_httpreq_method(req), "POST") == 0);
         ASSERT(sg_httpreq_is_uploading(req));
-        ASSERT(payload = sg_httpreq_payload(req));
+        payload = sg_httpreq_payload(req);
+        ASSERT(payload);
         ASSERT(strcmp(sg_str_content(payload), "{\"foo\":\"bar\"}") == 0);
         sg_httpres_send(res, OK_MSG, "text/plain", 200);
         return;
@@ -157,7 +169,8 @@ static void srv_req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_
     if (strcmp(sg_httpreq_path(req), "/upload") == 0) {
         ASSERT(strcmp(sg_httpreq_method(req), "POST") == 0);
         ASSERT(sg_httpreq_is_uploading(req));
-        ASSERT(*(fields = sg_httpreq_fields(req)));
+        fields = sg_httpreq_fields(req);
+        ASSERT(*fields);
         ASSERT(strcmp(sg_strmap_get(*fields, "form-field1"), "form-field-value1") == 0);
         ASSERT(strcmp(sg_strmap_get(*fields, "form-field2"), "form-field-value2") == 0);
         unlink(filename1);
@@ -169,7 +182,8 @@ static void srv_req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_
             if (strcmp(sg_httpupld_name(upld), "foo.txt") == 0) {
                 ASSERT(sg_httpupld_save_as(upld, filename1, true) == 0);
                 ASSERT(access(filename1, F_OK) == 0);
-                ASSERT(tmp_file = fopen(filename1, "r"));
+                tmp_file = fopen(filename1, "r");
+                ASSERT(tmp_file);
                 memset(text, 0, sizeof(text));
                 ASSERT(fread(text, 1, len, tmp_file) == len);
                 ASSERT(fclose(tmp_file) == 0);
@@ -177,7 +191,8 @@ static void srv_req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_
             } else if (strcmp(sg_httpupld_name(upld), "bar.txt") == 0) {
                 ASSERT(sg_httpupld_save_as(upld, filename2, true) == 0);
                 ASSERT(access(filename2, F_OK) == 0);
-                ASSERT(tmp_file = fopen(filename2, "r"));
+                tmp_file = fopen(filename2, "r");
+                ASSERT(tmp_file);
                 memset(text, 0, sizeof(text));
                 ASSERT(fread(text, 1, len, tmp_file) == len);
                 ASSERT(fclose(tmp_file) == 0);
@@ -214,7 +229,8 @@ static void srv_req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_
     if (strcmp(sg_httpreq_path(req), "/stream") == 0) {
         ASSERT(strcmp(sg_httpreq_method(req), "GET") == 0);
         ASSERT(access(filename1, F_OK) == 0);
-        ASSERT(tmp_file = fopen(filename1, "r"));
+        tmp_file = fopen(filename1, "r");
+        ASSERT(tmp_file);
         sg_httpres_sendstream(res, len, 256,
                               sg_httpres_sendstream_read_cb, tmp_file, sg_httpres_sendstream_free_cb, 200);
         return;
@@ -247,9 +263,12 @@ int main(void) {
 
     curl_global_init(CURL_GLOBAL_ALL);
 
-    ASSERT(srv = sg_httpsrv_new2(srv_auth_cb, srv_req_cb, srv_err_cb, NULL));
-    ASSERT(curl = curl_easy_init());
-    ASSERT(res = sg_str_new());
+    srv = sg_httpsrv_new2(srv_auth_cb, srv_req_cb, srv_err_cb, NULL);
+    ASSERT(srv);
+    curl = curl_easy_init();
+    ASSERT(curl);
+    res = sg_str_new();
+    ASSERT(res);
 
     ASSERT(sg_httpsrv_listen(srv, TEST_HTTPSRV_CURL_PORT, false));
 
@@ -258,8 +277,10 @@ int main(void) {
     ASSERT(curl_easy_setopt(curl, CURLOPT_URL, url) == CURLE_OK);
     ASSERT(curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write_func) == CURLE_OK);
     ASSERT(curl_easy_setopt(curl, CURLOPT_WRITEDATA, res) == CURLE_OK);
-    ASSERT(headers = curl_slist_append(NULL, "header1: header-value1"));
-    ASSERT(headers = curl_slist_append(headers, "header2: header-value2"));
+    headers = curl_slist_append(NULL, "header1: header-value1");
+    ASSERT(headers);
+    headers = curl_slist_append(headers, "header2: header-value2");
+    ASSERT(headers);
     ASSERT(curl_easy_setopt(curl, CURLOPT_HTTPHEADER, (struct curl_slist *) headers) == CURLE_OK);
     ASSERT(curl_easy_setopt(curl, CURLOPT_COOKIE, "cookie1=cookie-value1; cookie2=cookie-value2;") == CURLE_OK);
 
@@ -369,23 +390,27 @@ int main(void) {
 
     unlink(filename2);
     ASSERT(access(filename2, F_OK) == -1);
-    ASSERT(tmp_file = fopen(filename2, "w"));
+    tmp_file = fopen(filename2, "w");
+    ASSERT(tmp_file);
     memset(text, 0, sizeof(text));
     snprintf(text, sizeof(text), "bar");
     ASSERT(fwrite(text, 1, len, tmp_file) == len);
     ASSERT(fclose(tmp_file) == 0);
     ASSERT(access(filename2, F_OK) == 0);
 
-    ASSERT(field = curl_mime_addpart(form));
+    field = curl_mime_addpart(form);
+    ASSERT(field);
     ASSERT(curl_mime_name(field, "file1") == CURLE_OK);
     ASSERT(curl_mime_filedata(field, filename1) == CURLE_OK);
-    ASSERT(field = curl_mime_addpart(form));
+    field = curl_mime_addpart(form);
+    ASSERT(field);
     ASSERT(curl_mime_name(field, "file2") == CURLE_OK);
     ASSERT(curl_mime_filedata(field, filename2) == CURLE_OK);
 
     ASSERT(curl_easy_setopt(curl, CURLOPT_MIMEPOST, form) == CURLE_OK);
     curl_slist_free_all(headers);
-    ASSERT(headers = curl_slist_append(NULL, "Content-Type: multipart/form-data"));
+    headers = curl_slist_append(NULL, "Content-Type: multipart/form-data");
+    ASSERT(headers);
     ASSERT(curl_easy_setopt(curl, CURLOPT_HTTPHEADER, (struct curl_slist *) headers) == CURLE_OK);
 
     ASSERT(sg_str_clear(res) == 0);

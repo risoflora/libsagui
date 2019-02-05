@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -317,64 +317,64 @@ static void test_extract_entrypoint(void) {
 
     ASSERT((str = sg_extract_entrypoint("")));
     ASSERT(strcmp(str, "/") == 0);
-    sg__free(str);
+    sg_free(str);
     ASSERT((str = sg_extract_entrypoint("/")));
     ASSERT(strcmp(str, "/") == 0);
-    sg__free(str);
+    sg_free(str);
     ASSERT((str = sg_extract_entrypoint("//")));
     ASSERT(strcmp(str, "/") == 0);
-    sg__free(str);
+    sg_free(str);
     ASSERT((str = sg_extract_entrypoint("///////")));
     ASSERT(strcmp(str, "/") == 0);
-    sg__free(str);
+    sg_free(str);
     ASSERT((str = sg_extract_entrypoint("foo")));
     ASSERT(strcmp(str, "/foo") == 0);
-    sg__free(str);
+    sg_free(str);
     ASSERT((str = sg_extract_entrypoint("/foo")));
     ASSERT(strcmp(str, "/foo") == 0);
-    sg__free(str);
+    sg_free(str);
     ASSERT((str = sg_extract_entrypoint("//foo")));
     ASSERT(strcmp(str, "/foo") == 0);
-    sg__free(str);
+    sg_free(str);
     ASSERT((str = sg_extract_entrypoint("///////foo")));
     ASSERT(strcmp(str, "/foo") == 0);
-    sg__free(str);
+    sg_free(str);
     ASSERT((str = sg_extract_entrypoint("foo/")));
     ASSERT(strcmp(str, "/foo") == 0);
-    sg__free(str);
+    sg_free(str);
     ASSERT((str = sg_extract_entrypoint("foo//")));
     ASSERT(strcmp(str, "/foo") == 0);
-    sg__free(str);
+    sg_free(str);
     ASSERT((str = sg_extract_entrypoint("/foo/")));
     ASSERT(strcmp(str, "/foo") == 0);
-    sg__free(str);
+    sg_free(str);
     ASSERT((str = sg_extract_entrypoint("///foo///")));
     ASSERT(strcmp(str, "/foo") == 0);
-    sg__free(str);
+    sg_free(str);
     ASSERT((str = sg_extract_entrypoint("/foo/bar")));
     ASSERT(strcmp(str, "/foo") == 0);
-    sg__free(str);
+    sg_free(str);
     ASSERT((str = sg_extract_entrypoint("///foo/bar")));
     ASSERT(strcmp(str, "/foo") == 0);
-    sg__free(str);
+    sg_free(str);
     ASSERT((str = sg_extract_entrypoint("/foo///bar")));
     ASSERT(strcmp(str, "/foo") == 0);
-    sg__free(str);
+    sg_free(str);
     ASSERT((str = sg_extract_entrypoint("///foo///bar")));
     ASSERT(strcmp(str, "/foo") == 0);
-    sg__free(str);
+    sg_free(str);
     ASSERT((str = sg_extract_entrypoint("/a")));
     ASSERT(strcmp(str, "/a") == 0);
-    sg__free(str);
+    sg_free(str);
     ASSERT((str = sg_extract_entrypoint("/a/b")));
     ASSERT(strcmp(str, "/a") == 0);
-    sg__free(str);
+    sg_free(str);
     ASSERT((str = sg_extract_entrypoint("//a/b")));
     ASSERT(strcmp(str, "/a") == 0);
-    sg__free(str);
+    sg_free(str);
     ASSERT((str = sg_extract_entrypoint("//a//b")));
     ASSERT(strcmp(str, "/a") == 0);
-    sg__free(str);
+    sg_free(str);
 }
 
 static void test_tmpdir(void) {

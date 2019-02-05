@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -146,7 +146,9 @@ static void test_httpauth_pwd(struct sg_httpauth *auth) {
 
 int main(void) {
     struct sg_httpauth *auth = sg_alloc(sizeof(struct sg_httpauth));
+    ASSERT(auth);
     auth->res = sg_alloc(sizeof(struct sg_httpres));
+    ASSERT(auth->res);
     test__httpauth_new();
     test__httpauth_free();
     test__httpauth_dispatch(auth);

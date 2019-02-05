@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -42,8 +42,8 @@ static void test__entrypoint_prepare(struct sg_entrypoint *entrypoint) {
 }
 
 static void test__entrypoint_cmp(struct sg_entrypoint *entrypoint1) {
-    struct sg_entrypoint *entrypoint2;
-    sg__new(entrypoint2);
+    struct sg_entrypoint *entrypoint2 = sg_alloc(sizeof(struct sg_entrypoint));
+    ASSERT(entrypoint2);
     entrypoint1->name = "foo";
     entrypoint2->name = "bar";
     ASSERT(sg__entrypoint_cmp(entrypoint1, entrypoint2) > 0);
@@ -53,7 +53,7 @@ static void test__entrypoint_cmp(struct sg_entrypoint *entrypoint1) {
     entrypoint1->name = "foo";
     entrypoint2->name = "foo";
     ASSERT(sg__entrypoint_cmp(entrypoint1, entrypoint2) == 0);
-    sg__free(entrypoint2);
+    sg_free(entrypoint2);
 }
 
 static void test_entrypoint_name(struct sg_entrypoint *entrypoint) {
@@ -93,13 +93,13 @@ static void test_entrypoint_user_data(struct sg_entrypoint *entrypoint) {
 }
 
 int main(void) {
-    struct sg_entrypoint *entrypoint;
-    sg__new(entrypoint);
+    struct sg_entrypoint *entrypoint = sg_alloc(sizeof(struct sg_entrypoint));
+    ASSERT(entrypoint);
     test__entrypoint_prepare(entrypoint);
     test__entrypoint_cmp(entrypoint);
     test_entrypoint_name(entrypoint);
     test_entrypoint_set_user_data(entrypoint);
     test_entrypoint_user_data(entrypoint);
-    sg__free(entrypoint);
+    sg_free(entrypoint);
     return EXIT_SUCCESS;
 }

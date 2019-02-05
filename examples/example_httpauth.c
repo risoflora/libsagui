@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -42,7 +42,8 @@ static bool auth_cb(__SG_UNUSED void *cls, struct sg_httpauth *auth, __SG_UNUSED
                     __SG_UNUSED struct sg_httpres *res) {
     bool pass;
     sg_httpauth_set_realm(auth, "My realm");
-    if (!(pass = strmatch(sg_httpauth_usr(auth), "abc") && strmatch(sg_httpauth_pwd(auth), "123")))
+    pass = strmatch(sg_httpauth_usr(auth), "abc") && strmatch(sg_httpauth_pwd(auth), "123");
+    if (!pass)
         sg_httpauth_deny(auth,
                          "<html><head><title>Denied</title></head><body><font color=\"red\">Go away</font></body></html>",
                          "text/html; charset=utf-8");

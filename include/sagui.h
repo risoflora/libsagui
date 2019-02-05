@@ -1452,6 +1452,7 @@ SG_EXTERN int sg_route_segments_iter(struct sg_route *route, sg_segments_iter_cb
  * \param[in,out] cls User-specified value.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
+ * \retval ENOMEM Out of memory.
  * \return Callback result when it is different from `0`.
  */
 SG_EXTERN int sg_route_vars_iter(struct sg_route *route, sg_vars_iter_cb cb, void *cls);
@@ -1476,10 +1477,10 @@ SG_EXTERN void *sg_route_user_data(struct sg_route *route);
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  * \retval EALREADY Route already added.
+ * \retval ENOMEM Out of memory.
  * \note The pattern is enclosed between `^` and `$` automatically if it does not start with `(`.
  * \note The escape sequence \\K is not supported. It causes `EINVAL` if used.
  * \note The pattern is compiled using just-in-time optimization (JIT) when it is supported.
- * \warning It exits the application if called when no memory space is available.
  */
 SG_EXTERN int sg_routes_add2(struct sg_route **routes, struct sg_route **route, const char *pattern,
                              char *errmsg, size_t errlen, sg_route_cb cb, void *cls);
@@ -1493,10 +1494,10 @@ SG_EXTERN int sg_routes_add2(struct sg_route **routes, struct sg_route **route, 
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  * \retval EALREADY Route already added.
+ * \retval ENOMEM Out of memory.
  * \note The pattern is enclosed between `^` and `$` automatically if it does not start with `(`.
  * \note The escape sequence \\K is not supported. It causes `EINVAL` if used.
  * \note The pattern is compiled using just-in-time optimization (JIT) when it is supported.
- * \warning It exits the application if called when no memory space is available.
  */
 SG_EXTERN bool sg_routes_add(struct sg_route **routes, const char *pattern, sg_route_cb cb, void *cls);
 
@@ -1572,7 +1573,7 @@ typedef int (*sg_router_match_cb)(void *cls, struct sg_route *route);
  * Creates a new path router handle. It requires a filled route list \pr{routes}.
  * \param[in] routes Route list handle.
  * \return New router handle.
- * \retval NULL If the \pr{routes} is null and sets the `errno` to `EINVAL`.
+ * \retval NULL If the \pr{routes} is null and sets the `errno` to `EINVAL` or no memory space.
  */
 SG_EXTERN struct sg_router *sg_router_new(struct sg_route *routes)
 __SG_MALLOC;

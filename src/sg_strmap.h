@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -28,8 +28,8 @@
 #ifndef SG_STRMAP_H
 #define SG_STRMAP_H
 
-#include "uthash.h"
 #include "sg_macros.h"
+#include "uthash.h"
 
 struct sg_strmap {
     char *key, *name, *val;

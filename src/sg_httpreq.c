@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -38,16 +38,28 @@
 
 struct sg_httpreq *sg__httpreq_new(struct MHD_Connection *con, const char *version, const char *method,
                                    const char *path) {
-    struct sg_httpreq *req;
-    sg__new(req);
+    struct sg_httpreq *req = sg_alloc(sizeof(struct sg_httpreq));
+    if (!req)
+        return NULL;
     req->res = sg__httpres_new(con);
+    if (!req->res)
+        goto error;
     req->auth = sg__httpauth_new(req->res);
+    if (!req->auth)
+        goto error;
     req->payload = sg_str_new();
+    if (!req->payload)
+        goto error;
     req->con = con;
     req->version = version;
     req->method = method;
     req->path = path;
     return req;
+error:
+    sg__httpres_free(req->res);
+    sg__httpauth_free(req->auth);
+    sg_str_free(req->payload);
+    return NULL;
 }
 
 void sg__httpreq_free(struct sg_httpreq *req) {
@@ -62,7 +74,7 @@ void sg__httpreq_free(struct sg_httpreq *req) {
     MHD_destroy_post_processor(req->pp);
     sg__httpres_free(req->res);
     sg__httpauth_free(req->auth);
-    sg__free(req);
+    sg_free(req);
 }
 
 struct sg_strmap **sg_httpreq_headers(struct sg_httpreq *req) {
@@ -149,9 +161,10 @@ struct sg_httpupld *sg_httpreq_uploads(struct sg_httpreq *req) {
 
 void *sg_httpreq_tls_session(struct sg_httpreq *req) {
     const union MHD_ConnectionInfo *info;
-    if (req)
-        return (info = MHD_get_connection_info(req->con,
-                                               MHD_CONNECTION_INFO_GNUTLS_SESSION, NULL)) ? info->tls_session : NULL;
+    if (req) {
+        info = MHD_get_connection_info(req->con, MHD_CONNECTION_INFO_GNUTLS_SESSION, NULL);
+        return info ? info->tls_session : NULL;
+    }
     errno = EINVAL;
     return NULL;
 }

@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -70,43 +70,14 @@
 #endif
 #endif
 
-/* macro used for handling `Out of memory` errors. */
+/* used by utstring library */
 #ifndef oom
-#ifdef NDEBUG
-#define oom() exit(EXIT_FAILURE)
-#else
-#define oom()                                                                                                          \
-do {                                                                                                                   \
-    if (isatty(fileno(stderr)) && (fprintf(stderr, _("%s:%d: %s: Out of memory.\n"),                                   \
-                                        __FILE__, __LINE__, __extension__ __FUNCTION__) > 0))                          \
-        fflush(stderr);                                                                                                \
-    exit(EXIT_FAILURE);                                                                                                \
-} while (0)
-#endif
+#define oom() (void) 0
 #endif
 
-#ifndef sg__malloc
-#define sg__malloc(size) malloc((size))
-#endif
-
-#ifndef sg__alloc
-#define sg__alloc(ptr, size)                                                                                           \
-do {                                                                                                                   \
-    if (((ptr) = sg__malloc((size))))                                                                                  \
-        memset((ptr), 0, (size));                                                                                      \
-} while (0)
-#endif
-
-#ifndef sg__new
-#define sg__new(ptr) sg__alloc((ptr), sizeof(*(ptr)))
-#endif
-
-#ifndef sg__realloc
-#define sg__realloc(ptr, size) realloc((ptr), (size))
-#endif
-
-#ifndef sg__free
-#define sg__free(ptr) free((ptr))
+/* used by uthash library */
+#ifndef HASH_NONFATAL_OOM
+#define HASH_NONFATAL_OOM 1
 #endif
 
 #endif /* SG_MACROS_H */

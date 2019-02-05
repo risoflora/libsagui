@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -56,7 +56,8 @@ static void test_httpreq_headers(struct sg_httpreq *req) {
     req->headers = NULL;
     ASSERT(sg_httpreq_headers(req));
     ASSERT(errno == 0);
-    ASSERT((headers = sg_httpreq_headers(req)));
+    headers = sg_httpreq_headers(req);
+    ASSERT(headers);
     ASSERT(sg_strmap_count(*headers) == 0);
     sg_strmap_add(&req->headers, "foo", "bar");
     sg_strmap_add(&req->headers, "abc", "123");
@@ -75,7 +76,8 @@ static void test_httpreq_cookies(struct sg_httpreq *req) {
     req->cookies = NULL;
     ASSERT(sg_httpreq_cookies(req));
     ASSERT(errno == 0);
-    ASSERT((cookies = sg_httpreq_cookies(req)));
+    cookies = sg_httpreq_cookies(req);
+    ASSERT(cookies);
     ASSERT(sg_strmap_count(*cookies) == 0);
     sg_strmap_add(&req->cookies, "foo", "bar");
     sg_strmap_add(&req->cookies, "abc", "123");
@@ -94,7 +96,8 @@ static void test_httpreq_params(struct sg_httpreq *req) {
     req->params = NULL;
     ASSERT(sg_httpreq_params(req));
     ASSERT(errno == 0);
-    ASSERT((params = sg_httpreq_params(req)));
+    params = sg_httpreq_params(req);
+    ASSERT(params);
     ASSERT(sg_strmap_count(*params) == 0);
     sg_strmap_add(&req->params, "foo", "bar");
     sg_strmap_add(&req->params, "abc", "123");
@@ -113,7 +116,8 @@ static void test_httpreq_fields(struct sg_httpreq *req) {
     req->fields = NULL;
     ASSERT(sg_httpreq_fields(req));
     ASSERT(errno == 0);
-    ASSERT((fields = sg_httpreq_fields(req)));
+    fields = sg_httpreq_fields(req);
+    ASSERT(fields);
     ASSERT(sg_strmap_count(*fields) == 0);
     sg_strmap_add(&req->fields, "foo", "bar");
     sg_strmap_add(&req->fields, "abc", "123");

@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -34,17 +34,19 @@
 
 struct sg_router *sg_router_new(struct sg_route *routes) {
     struct sg_router *router;
-    if (routes) {
-        sg__new(router);
-        router->routes = routes;
-        return router;
+    if (!routes) {
+        errno = EINVAL;
+        return NULL;
     }
-    errno = EINVAL;
-    return NULL;
+    router = sg_alloc(sizeof(struct sg_router));
+    if (!router)
+        return NULL;
+    router->routes = routes;
+    return router;
 }
 
 void sg_router_free(struct sg_router *router) {
-    sg__free(router);
+    sg_free(router);
 }
 
 int sg_router_dispatch2(struct sg_router *router, const char *path, void *user_data,
@@ -54,20 +56,26 @@ int sg_router_dispatch2(struct sg_router *router, const char *path, void *user_d
     if (!router || !path || !router->routes)
         return EINVAL;
     LL_FOREACH(router->routes, route) {
-        if (dispatch_cb && ((ret = dispatch_cb(cls, path, route)) != 0))
-            return ret;
-        route->rc =
+        if (dispatch_cb) {
+            ret = dispatch_cb(cls, path, route);
+            if (ret != 0)
+                return ret;
+        }
 #ifdef PCRE2_JIT_SUPPORT
-                    pcre2_jit_match
+#define SG__PCRE2_MATCH pcre2_jit_match
 #else
-                    pcre2_match
+#define SG__PCRE2_MATCH pcre2_match
 #endif
-                                   (route->re, (PCRE2_SPTR) path, strlen(path), 0, 0, route->match, NULL);
+        route->rc = SG__PCRE2_MATCH(route->re, (PCRE2_SPTR) path, strlen(path), 0, 0, route->match, NULL);
+#undef SG__PCRE2_MATCH
         if (route->rc >= 0) {
             route->path = path;
             route->user_data = user_data;
-            if (match_cb && ((ret = match_cb(cls, route)) != 0))
-                return ret;
+            if (match_cb) {
+                ret = match_cb(cls, route);
+                if (ret != 0)
+                    return ret;
+            }
             route->cb(route->cls, route);
             return 0;
         }

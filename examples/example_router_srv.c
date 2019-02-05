@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -57,12 +57,12 @@ static int route_download_file_cb(void *cls, const char *name, const char *val) 
 }
 
 static void route_home_cb(__SG_UNUSED void *cls, struct sg_route *route) {
-    struct holder *h = sg_route_user_data(route);
-    sg_httpres_send(h->res, "<html><head><title>Home</title></head><body>Home</body></html>", "text/html", 200);
+    struct holder *holder = sg_route_user_data(route);
+    sg_httpres_send(holder->res, "<html><head><title>Home</title></head><body>Home</body></html>", "text/html", 200);
 }
 
 static void route_download_cb(__SG_UNUSED void *cls, struct sg_route *route) {
-    struct holder *h = sg_route_user_data(route);
+    struct holder *holder = sg_route_user_data(route);
     struct sg_str *page = sg_str_new();
     char file[256];
     memset(file, 0, sizeof(file));
@@ -70,19 +70,19 @@ static void route_download_cb(__SG_UNUSED void *cls, struct sg_route *route) {
     if (strlen(file) == 0)
         strcpy(file, "Download");
     sg_str_printf(page, "<html><head><title>Download</title></head><body>%s</body></html>", file);
-    sg_httpres_send(h->res, sg_str_content(page), "text/html", 200);
+    sg_httpres_send(holder->res, sg_str_content(page), "text/html", 200);
     sg_str_free(page);
 }
 
 static void route_about_cb(__SG_UNUSED void *cls, struct sg_route *route) {
-    struct holder *h = sg_route_user_data(route);
-    sg_httpres_send(h->res, "<html><head><title>About</title></head><body>About</body></html>", "text/html", 200);
+    struct holder *holder = sg_route_user_data(route);
+    sg_httpres_send(holder->res, "<html><head><title>About</title></head><body>About</body></html>", "text/html", 200);
 }
 
 static void req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_httpres *res) {
     struct sg_router *router = cls;
-    struct holder h = {req, res};
-    if (sg_router_dispatch(router, sg_httpreq_path(req), &h) != 0)
+    struct holder holder = {req, res};
+    if (sg_router_dispatch(router, sg_httpreq_path(req), &holder) != 0)
         sg_httpres_send(res, "<html><head><title>Not found</title></head><body>404</body></html>", "text/html", 404);
 }
 

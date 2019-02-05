@@ -7,7 +7,7 @@
  *
  *   –– cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (c) 2016-2018 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
  * This file is part of Sagui library.
  *
@@ -39,55 +39,64 @@
 
 static void sg__route_free(struct sg_route *route);
 
-static struct sg_route *sg__route_new(const char *pattern, char *errmsg, size_t errlen, sg_route_cb cb, void *cls) {
+static struct sg_route *sg__route_new(const char *pattern, char *errmsg, size_t errlen, int *errnum,
+                                      sg_route_cb cb, void *cls) {
     struct sg_route *route;
     PCRE2_UCHAR err[SG_ERR_SIZE >> 1];
     size_t off;
-    int errnum;
+    *errnum = 0;
     if (strstr(pattern, "\\K")) {
         strncpy(errmsg, _("\\K is not not allowed.\n"), errlen);
+        *errnum = EINVAL;
         return NULL;
     }
-    sg__new(route);
+    route = sg_alloc(sizeof(struct sg_route));
+    if (!route) {
+        *errnum = ENOMEM;
+        return NULL;
+    }
     off = strlen(pattern) + 3;
-    if (!(route->pattern = sg__malloc(off))) {
-        sg__free(route);
-        oom();
+    route->pattern = sg_malloc(off);
+    if (!route->pattern) {
+        *errnum = ENOMEM;
+        goto fail;
     }
     snprintf(route->pattern, off, ((*pattern == '(') ? "%s" : "^%s$"), pattern);
-    if (!(route->re = pcre2_compile((PCRE2_SPTR) route->pattern, PCRE2_ZERO_TERMINATED, PCRE2_CASELESS,
-                                    &errnum, &off, NULL))) {
-        if (pcre2_get_error_message(errnum, err, sizeof(err)) == PCRE2_ERROR_NOMEMORY)
-            oom();
+    route->re = pcre2_compile((PCRE2_SPTR) route->pattern, PCRE2_ZERO_TERMINATED, PCRE2_CASELESS, errnum, &off, NULL);
+    if (!route->re) {
+        pcre2_get_error_message(*errnum, err, sizeof(err));
         snprintf(errmsg, errlen, _("Pattern compilation failed at offset %d: %s.\n"), (unsigned int) off, err);
-        sg__route_free(route);
-        return NULL;
+        *errnum = EINVAL;
+        goto fail;
     }
 #ifdef PCRE2_JIT_SUPPORT
-    errnum = pcre2_jit_compile(route->re, PCRE2_JIT_COMPLETE);
-    if (errnum < 0) {
-        if (pcre2_get_error_message(errnum, err, sizeof(err)) == PCRE2_ERROR_NOMEMORY)
-            oom();
+    *errnum = pcre2_jit_compile(route->re, PCRE2_JIT_COMPLETE);
+    if (*errnum < 0) {
+        pcre2_get_error_message(*errnum, err, sizeof(err));
         snprintf(errmsg, errlen, _("JIT compilation failed: %s.\n"), err);
-        sg__route_free(route);
-        return NULL;
+        *errnum = EINVAL;
+        goto fail;
     }
 #endif
-    if (!(route->match = pcre2_match_data_create_from_pattern(route->re, NULL))) {
+    route->match = pcre2_match_data_create_from_pattern(route->re, NULL);
+    if (!route->match) {
         strncpy(errmsg, _("Cannot allocate match data from the pattern.\n"), errlen);
-        sg__route_free(route);
-        return NULL;
+        *errnum = EINVAL;
+        goto fail;
     }
     route->cb = cb;
     route->cls = cls;
     return route;
+fail:
+    sg__route_free(route);
+    return NULL;
 }
 
 static void sg__route_free(struct sg_route *route) {
     pcre2_match_data_free(route->match);
     pcre2_code_free(route->re);
-    sg__free(route->pattern);
-    sg__free(route);
+    sg_free(route->pattern);
+    sg_free(route);
 }
 
 void *sg_route_handle(struct sg_route *route) {
@@ -121,7 +130,8 @@ char *sg_route_pattern(struct sg_route *route) {
         errno = 0;
         return NULL;
     }
-    if (!(pattern = strndup(route->pattern + 1, strlen(route->pattern) - 2))) {
+    pattern = strndup(route->pattern + 1, strlen(route->pattern) - 2);
+    if (!pattern) {
         errno = ENOMEM;
         return NULL;
     }
@@ -147,11 +157,12 @@ int sg_route_segments_iter(struct sg_route *route, sg_segments_iter_cb cb, void 
     for (int i = 1; i < route->rc; i++) {
         r = i << 1;
         off = route->ovector[r];
-        if (!(segment = strdup(route->path + off)))
+        segment = strdup(route->path + off);
+        if (!segment)
             return ENOMEM;
         segment[route->ovector[r + 1] - off] = '\0';
         r = cb(cls, (unsigned int) i - 1, segment);
-        sg__free(segment);
+        sg_free(segment);
         if (r != 0)
             return r;
     }
@@ -179,10 +190,11 @@ int sg_route_vars_iter(struct sg_route *route, sg_vars_iter_cb cb, void *cls) {
         n = (rec[0] << 8) | rec[1];
         r = n << 1;
         off = route->ovector[r];
-        if (!(val = strndup(route->path + off, route->ovector[r + 1] - off)))
-            oom();
+        val = strndup(route->path + off, route->ovector[r + 1] - off);
+        if (!val)
+            return ENOMEM;
         r = cb(cls, (const char *) rec + 2, val);
-        sg__free(val);
+        sg_free(val);
         if (r != 0)
             return r;
         rec += len;
@@ -199,14 +211,16 @@ void *sg_route_user_data(struct sg_route *route) {
 
 int sg_routes_add2(struct sg_route **routes, struct sg_route **route, const char *pattern, char *errmsg, size_t errlen,
                    sg_route_cb cb, void *cls) {
+    int errnum;
     if (!routes || !route || !pattern || !errmsg || (errlen < 1) || !cb)
         return EINVAL;
     LL_FOREACH(*routes, *route) {
         if (strncmp(pattern, (*route)->pattern + 1, strlen(pattern)) == 0)
             return EALREADY;
     }
-    if (!(*route = sg__route_new(pattern, errmsg, errlen, cb, cls)))
-        return EINVAL;
+    *route = sg__route_new(pattern, errmsg, errlen, &errnum, cb, cls);
+    if (errnum != 0)
+        return errnum;
     LL_APPEND(*routes, *route);
     return 0;
 }
@@ -214,8 +228,8 @@ int sg_routes_add2(struct sg_route **routes, struct sg_route **route, const char
 bool sg_routes_add(struct sg_route **routes, const char *pattern, sg_route_cb cb, void *cls) {
     struct sg_route *route;
     char err[SG_ERR_SIZE];
-    int ret;
-    if ((ret = sg_routes_add2(routes, &route, pattern, err, sizeof(err), cb, cls)) == 0)
+    int ret = sg_routes_add2(routes, &route, pattern, err, sizeof(err), cb, cls);
+    if (ret == 0)
         return true;
 #ifndef SG_TESTING
     if (ret == EINVAL || ret == EALREADY)
@@ -247,7 +261,8 @@ int sg_routes_iter(struct sg_route *routes, sg_routes_iter_cb cb, void *cls) {
         return EINVAL;
     if (routes)
         LL_FOREACH(routes, tmp) {
-            if ((ret = cb(cls, tmp)) != 0)
+            ret = cb(cls, tmp);
+            if (ret != 0)
                 return ret;
         }
     return 0;
