@@ -34,6 +34,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "sg_macros.h"
+#ifdef SG_HTTP_COMPRESSION
+#include "zlib.h"
+#endif
 #include "sagui.h"
 
 #ifdef _WIN32
@@ -67,6 +70,13 @@ SG__EXTERN bool sg__is_cookie_name(const char *name);
 SG__EXTERN bool sg__is_cookie_val(const char *val);
 
 #ifdef SG_HTTP_COMPRESSION
+
+SG__EXTERN void sg__zinit(z_stream *stream, int *errnum);
+
+SG__EXTERN void sg__zend(z_stream *stream, int *errnum);
+
+SG__EXTERN void sg__zdeflate(z_stream *stream, const void *src, size_t src_size, void *dest, size_t *dest_size,
+                             int *errnum);
 
 SG__EXTERN int sg__compress(const void *src, size_t src_size, void *dest, size_t *dest_size);
 
