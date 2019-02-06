@@ -405,6 +405,10 @@ int main(void) {
     test__strjoin();
     test__is_cookie_name();
     test__is_cookie_val();
+    /*TODO: test__zinit() */
+    /*TODO: test__zend() */
+    /*TODO: test__zdeflate() */
+    /*TODO: test__compress() */
     test_version();
     test_malloc();
     test_alloc();

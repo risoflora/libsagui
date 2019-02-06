@@ -31,9 +31,9 @@
 #include <time.h>
 #ifdef SG_HTTP_COMPRESSION
 #include <stdint.h>
-#include <zlib.h>
-#endif
 #include "sg_macros.h"
+#include "zlib.h"
+#endif
 #include "microhttpd.h"
 #include "sagui.h"
 
