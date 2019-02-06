@@ -45,32 +45,23 @@
 
 #ifdef SG_HTTP_COMPRESSION
 
-static ssize_t sg__httpres_zread_cb(void *handle, __SG_UNUSED uint64_t offset, char *dest, size_t dest_size) {
+static ssize_t sg__httpres_zread_cb(void *handle, __SG_UNUSED uint64_t offset, char *dest, size_t size) {
     struct sg__httpres_zholder *holder = handle;
     void *buf;
     int errnum;
-    buf = sg_malloc(dest_size);
+    buf = sg_malloc(size);
     if (!buf)
         return MHD_CONTENT_READER_END_WITH_ERROR;
-    dest_size = (size_t) holder->read_cb(holder->handle, holder->offset, buf, dest_size);
-    if ((ssize_t) dest_size < 0) {
-        errnum = Z_STREAM_ERROR;
-        dest_size = MHD_CONTENT_READER_END_WITH_ERROR;
+    size = (size_t) holder->read_cb(holder->handle, holder->offset, buf, size);
+    if (size == MHD_CONTENT_READER_END_WITH_ERROR || size == MHD_CONTENT_READER_END_OF_STREAM)
         goto done;
-    }
-    if (dest_size == 0) {
-        errnum = Z_STREAM_END;
-        dest_size = MHD_CONTENT_READER_END_OF_STREAM;
-        goto done;
-    }
-    sg__zdeflate(&holder->stream, buf, dest_size, dest, &dest_size, &errnum);
-    holder->offset += dest_size;
-    dest_size = holder->stream.total_out;
-    if (dest_size == 0)
-        dest_size = MHD_CONTENT_READER_END_OF_STREAM;
+    holder->offset += size;
+    sg__zdeflate(&holder->stream, buf, size, dest, &size, &errnum);
+    if (size == 0)
+        size = MHD_CONTENT_READER_END_OF_STREAM;
 done:
     sg_free(buf);
-    return errnum == Z_STREAM_END ? dest_size : MHD_CONTENT_READER_END_WITH_ERROR;
+    return size;
 }
 
 static void sg__httpres_zfree_cb(void *handle) {
