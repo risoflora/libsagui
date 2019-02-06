@@ -332,31 +332,28 @@ static void test_httpres_sendfile(struct sg_httpres *res) {
 
 static void test_httpres_sendstream(struct sg_httpres *res) {
     char *str;
-    size_t size = sizeof(int), block_size = sizeof(int);
+    size_t size = sizeof(int);
     int buf = 1;
-    ASSERT(sg_httpres_sendstream(NULL, size, block_size, dummy_read_cb, &buf, dummy_free_cb, 200) == EINVAL);
+    ASSERT(sg_httpres_sendstream(NULL, size, dummy_read_cb, &buf, dummy_free_cb, 200) == EINVAL);
     ASSERT(buf == 0);
     buf = 1;
-    ASSERT(sg_httpres_sendstream(res, size, 0, dummy_read_cb, &buf, dummy_free_cb, 200) == EINVAL);
+    ASSERT(sg_httpres_sendstream(res, size, NULL, &buf, dummy_free_cb, 200) == EINVAL);
     ASSERT(buf == 0);
     buf = 1;
-    ASSERT(sg_httpres_sendstream(res, size, block_size, NULL, &buf, dummy_free_cb, 200) == EINVAL);
+    ASSERT(sg_httpres_sendstream(res, size, dummy_read_cb, &buf, dummy_free_cb, 99) == EINVAL);
     ASSERT(buf == 0);
     buf = 1;
-    ASSERT(sg_httpres_sendstream(res, size, block_size, dummy_read_cb, &buf, dummy_free_cb, 99) == EINVAL);
-    ASSERT(buf == 0);
-    buf = 1;
-    ASSERT(sg_httpres_sendstream(res, size, block_size, dummy_read_cb, &buf, dummy_free_cb, 600) == EINVAL);
+    ASSERT(sg_httpres_sendstream(res, size, dummy_read_cb, &buf, dummy_free_cb, 600) == EINVAL);
     ASSERT(buf == 0);
 
     size = sizeof(str);
     str = sg_alloc(size);
-    ASSERT(sg_httpres_sendstream(res, 0, block_size, dummy_read_cb, str, dummy_free_cb, 200) == 0);
+    ASSERT(sg_httpres_sendstream(res, 0, dummy_read_cb, str, dummy_free_cb, 200) == 0);
     sg_free(res->handle);
     res->handle = NULL;
-    ASSERT(sg_httpres_sendstream(res, size, block_size, dummy_read_cb, str, dummy_free_cb, 201) == 0);
+    ASSERT(sg_httpres_sendstream(res, size, dummy_read_cb, str, dummy_free_cb, 201) == 0);
     ASSERT(res->status == 201);
-    ASSERT(sg_httpres_sendstream(res, size, block_size, dummy_read_cb, str, dummy_free_cb, 200) == EALREADY);
+    ASSERT(sg_httpres_sendstream(res, size, dummy_read_cb, str, dummy_free_cb, 200) == EALREADY);
     sg_free(res->handle);
     res->handle = NULL;
     sg_free(str);

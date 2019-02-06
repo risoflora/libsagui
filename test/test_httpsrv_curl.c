@@ -231,8 +231,7 @@ static void srv_req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_
         ASSERT(access(filename1, F_OK) == 0);
         tmp_file = fopen(filename1, "r");
         ASSERT(tmp_file);
-        sg_httpres_sendstream(res, len, 256,
-                              sg_httpres_sendstream_read_cb, tmp_file, sg_httpres_sendstream_free_cb, 200);
+        sg_httpres_sendstream(res, len, sg_httpres_sendstream_read_cb, tmp_file, sg_httpres_sendstream_free_cb, 200);
         return;
     }
 

@@ -925,7 +925,6 @@ SG_EXTERN int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_
  * Sends a stream to the client.
  * \param[in] res Response handle.
  * \param[in] size Size of the stream.
- * \param[in] block_size Preferred block size for stream loading.
  * \param[in] read_cb Callback to read data from stream handle.
  * \param[in] handle Stream handle.
  * \param[in] free_cb Callback to free the stream handle.
@@ -936,8 +935,8 @@ SG_EXTERN int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_
  * \retval ENOMEM Out of memory.
  * \note Use `size = 0` if the stream size is unknown.
  */
-SG_EXTERN int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, size_t block_size, sg_read_cb read_cb,
-                                    void *handle, sg_free_cb free_cb, unsigned int status);
+SG_EXTERN int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, sg_read_cb read_cb, void *handle,
+                                    sg_free_cb free_cb, unsigned int status);
 
 #ifdef SG_HTTP_COMPRESSION
 

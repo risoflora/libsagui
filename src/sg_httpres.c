@@ -203,10 +203,10 @@ error:
     return errnum;
 }
 
-int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, size_t block_size, sg_read_cb read_cb, void *handle,
-                          sg_free_cb free_cb, unsigned int status) {
+int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, sg_read_cb read_cb, void *handle, sg_free_cb free_cb,
+                          unsigned int status) {
     int errnum;
-    if (!res || (block_size < 1) || !read_cb || (status < 100) || (status > 599)) {
+    if (!res || !read_cb || (status < 100) || (status > 599)) {
         errnum = EINVAL;
         goto error;
     }
@@ -214,8 +214,8 @@ int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, size_t block_si
         errnum = EALREADY;
         goto error;
     }
-    res->handle = MHD_create_response_from_callback((size > 0 ? size : MHD_SIZE_UNKNOWN), block_size,
-                                                    read_cb, handle, free_cb);
+    res->handle = MHD_create_response_from_callback((size > 0 ? size : MHD_SIZE_UNKNOWN), SG__BLOCK_SIZE, read_cb,
+                                                    handle, free_cb);
     if (!res->handle)
         return ENOMEM;
     res->status = status;
