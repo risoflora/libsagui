@@ -68,13 +68,13 @@ if (BUILD_TESTING)
     endif ()
     list(APPEND SG_TESTS
             utils
+            extra
             str
             strmap
             entrypoint
             entrypoints
             routes
             router
-            httputils
             httpauth
             httpuplds
             httpreq

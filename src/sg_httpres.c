@@ -40,7 +40,7 @@
 #include "sagui.h"
 #include "sg_utils.h"
 #include "sg_strmap.h"
-#include "sg_httputils.h"
+#include "sg_extra.h"
 #include "sg_httpres.h"
 
 #ifdef SG_HTTP_COMPRESSION
@@ -104,7 +104,7 @@ void sg__httpres_free(struct sg_httpres *res) {
 }
 
 int sg__httpres_dispatch(struct sg_httpres *res) {
-    sg_strmap_iter(res->headers, sg__httpheaders_iter, res->handle);
+    sg_strmap_iter(res->headers, sg__strmap_iter, res->handle);
     res->ret = MHD_queue_response(res->con, res->status, res->handle);
     return res->ret;
 }

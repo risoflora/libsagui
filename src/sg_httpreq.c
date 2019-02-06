@@ -31,7 +31,7 @@
 #include "sg_macros.h"
 #include "microhttpd.h"
 #include "sagui.h"
-#include "sg_httputils.h"
+#include "sg_extra.h"
 #include "sg_httpres.h"
 #include "sg_httpreq.h"
 #include "sg_httpauth.h"
@@ -83,7 +83,7 @@ struct sg_strmap **sg_httpreq_headers(struct sg_httpreq *req) {
         return NULL;
     }
     if (!req->headers)
-        MHD_get_connection_values(req->con, MHD_HEADER_KIND, sg__httpcon_iter, &req->headers);
+        MHD_get_connection_values(req->con, MHD_HEADER_KIND, sg__convals_iter, &req->headers);
     return &req->headers;
 }
 
@@ -93,7 +93,7 @@ struct sg_strmap **sg_httpreq_cookies(struct sg_httpreq *req) {
         return NULL;
     }
     if (!req->cookies)
-        MHD_get_connection_values(req->con, MHD_COOKIE_KIND, sg__httpcon_iter, &req->cookies);
+        MHD_get_connection_values(req->con, MHD_COOKIE_KIND, sg__convals_iter, &req->cookies);
     return &req->cookies;
 }
 
@@ -103,7 +103,7 @@ struct sg_strmap **sg_httpreq_params(struct sg_httpreq *req) {
         return NULL;
     }
     if (!req->params)
-        MHD_get_connection_values(req->con, MHD_GET_ARGUMENT_KIND, sg__httpcon_iter, &req->params);
+        MHD_get_connection_values(req->con, MHD_GET_ARGUMENT_KIND, sg__convals_iter, &req->params);
     return &req->params;
 }
 

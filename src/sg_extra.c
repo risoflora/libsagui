@@ -25,16 +25,28 @@
  * along with Sagui library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SG_HTTPUTILS_H
-#define SG_HTTPUTILS_H
-
+#include <stdbool.h>
+#include <string.h>
+#include <errno.h>
 #include "microhttpd.h"
-#include "sg_macros.h"
 #include "sg_strmap.h"
 #include "sagui.h"
+#include "sg_extra.h"
 
-SG__EXTERN int sg__httpcon_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind, const char *key, const char *val);
+int sg__convals_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind, const char *key, const char *val) {
+    sg_strmap_add(cls, key, val);
+    return MHD_YES;
+}
 
-SG__EXTERN int sg__httpheaders_iter(void *cls, struct sg_strmap *header);
+int sg__strmap_iter(void *cls, struct sg_strmap *header) {
+    MHD_add_response_header(cls, header->name, header->val);
+    return 0;
+}
 
-#endif /* SG_HTTPUTILS_H */
+ssize_t sg_eor(bool err) {
+    return
+#ifdef __ANDROID__
+        (ssize_t)
+#endif
+            err ? MHD_CONTENT_READER_END_WITH_ERROR : MHD_CONTENT_READER_END_OF_STREAM;
+}

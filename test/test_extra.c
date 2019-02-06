@@ -31,37 +31,37 @@
 #include <microhttpd.h>
 #include <sagui.h>
 #include "sg_strmap.h"
-#include "sg_httputils.h"
+#include "sg_extra.h"
 
-static void test__httpcon_iter(void) {
+static void test__convals_iter(void) {
     struct sg_strmap *map = NULL;
-    ASSERT(sg__httpcon_iter(NULL, MHD_HEADER_KIND, "foo", "bar") == MHD_YES);
+    ASSERT(sg__convals_iter(NULL, MHD_HEADER_KIND, "foo", "bar") == MHD_YES);
     ASSERT(!map);
-    ASSERT(sg__httpcon_iter(&map, MHD_HEADER_KIND, "foo", "bar") == MHD_YES);
+    ASSERT(sg__convals_iter(&map, MHD_HEADER_KIND, "foo", "bar") == MHD_YES);
     ASSERT(map);
     ASSERT(strcmp(sg_strmap_get(map, "foo"), "bar") == 0);
     sg_strmap_cleanup(&map);
 }
 
-static void test__httpheaders_iter(void) {
+static void test__strmap_iter(void) {
     struct sg_strmap *header = sg_alloc(sizeof(struct sg_strmap));
     struct MHD_Response *res = sg_alloc(64);
     header->name = "";
     header->val = "";
-    ASSERT(sg__httpheaders_iter(NULL, header) == 0);
-    ASSERT(sg__httpheaders_iter(res, header) == 0);
+    ASSERT(sg__strmap_iter(NULL, header) == 0);
+    ASSERT(sg__strmap_iter(res, header) == 0);
     sg_free(header);
     sg_free(res);
 }
 
-static void test_httpread_end(void) {
-    ASSERT(sg_httpread_end(false) == (ssize_t) MHD_CONTENT_READER_END_OF_STREAM);
-    ASSERT(sg_httpread_end(true) == (ssize_t) MHD_CONTENT_READER_END_WITH_ERROR);
+static void test_eor(void) {
+    ASSERT(sg_eor(false) == (ssize_t) MHD_CONTENT_READER_END_OF_STREAM);
+    ASSERT(sg_eor(true) == (ssize_t) MHD_CONTENT_READER_END_WITH_ERROR);
 }
 
 int main(void) {
-    test__httpcon_iter();
-    test__httpheaders_iter();
-    test_httpread_end();
+    test__convals_iter();
+    test__strmap_iter();
+    test_eor();
     return EXIT_SUCCESS;
 }

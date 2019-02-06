@@ -32,7 +32,7 @@
 #include "sg_macros.h"
 #include "microhttpd.h"
 #include "sagui.h"
-#include "sg_httputils.h"
+#include "sg_extra.h"
 #include "sg_strmap.h"
 #include "sg_httpauth.h"
 
@@ -64,7 +64,7 @@ bool sg__httpauth_dispatch(struct sg_httpauth *auth) {
         goto done;
     }
     if (auth->res->handle) {
-        sg_strmap_iter(auth->res->headers, sg__httpheaders_iter, auth->res->handle);
+        sg_strmap_iter(auth->res->headers, sg__strmap_iter, auth->res->handle);
         auth->res->ret = MHD_queue_basic_auth_fail_response(auth->res->con,
                                                             auth->realm ? auth->realm : _("Sagui realm"),
                                                             auth->res->handle);

@@ -217,6 +217,13 @@ SG_EXTERN char *sg_extract_entrypoint(const char *path);
  */
 SG_EXTERN char *sg_tmpdir(void);
 
+/**
+ * Indicates the end-of-read processed in #sg_httpres_sendstream().
+ * \param[in] err `true` to return a value indicating a stream reading error.
+ * \return Value to end a stream reading.
+ */
+SG_EXTERN ssize_t sg_eor(bool err);
+
 /** \} */
 
 /**
@@ -1214,13 +1221,6 @@ SG_EXTERN int sg_httpsrv_set_con_limit(struct sg_httpsrv *srv, unsigned int limi
  * \retval 0 If the \pr{srv} is null and sets the `errno` to `EINVAL`.
  */
 SG_EXTERN unsigned int sg_httpsrv_con_limit(struct sg_httpsrv *srv);
-
-/**
- * Returns a value to end a stream reading processed by #sg_httpres_sendstream().
- * \param[in] err `true` to return a value indicating a stream reading error.
- * \return Value to end a stream reading.
- */
-SG_EXTERN ssize_t sg_httpread_end(bool err);
 
 /** \} */
 

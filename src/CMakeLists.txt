@@ -53,9 +53,9 @@ set(SG_SOURCE_DIR ${SG_SOURCE_DIR} PARENT_SCOPE)
 
 list(APPEND SG_C_SOURCE
         ${SG_SOURCE_DIR}/sg_utils.c
+        ${SG_SOURCE_DIR}/sg_extra.c
         ${SG_SOURCE_DIR}/sg_str.c
         ${SG_SOURCE_DIR}/sg_strmap.c
-        ${SG_SOURCE_DIR}/sg_httputils.c
         ${SG_SOURCE_DIR}/sg_httpauth.c
         ${SG_SOURCE_DIR}/sg_httpuplds.c
         ${SG_SOURCE_DIR}/sg_httpreq.c
