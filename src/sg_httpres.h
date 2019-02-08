@@ -53,6 +53,7 @@ struct sg__httpres_zholder {
     sg_free_cb free_cb;
     uint64_t offset;
     void *handle;
+    void *buf;
 };
 
 #endif

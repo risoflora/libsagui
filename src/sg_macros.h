@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 #ifndef NDEBUG
 #include <unistd.h>
 #include <errno.h>
@@ -68,6 +69,10 @@
 #else
 #define SG__BLOCK_SIZE 4096 /* 4k */
 #endif
+#endif
+
+#ifndef SG__ZBUF_SIZE
+#define SG__ZBUF_SIZE UINT16_MAX
 #endif
 
 /* used by utstring library */

@@ -952,6 +952,7 @@ SG_EXTERN int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, sg_re
  * \retval ENOMEM Out of memory.
  * \retval ENOBUFS No buffer space available.
  * \retval EALREADY Operation already in progress.
+ * \retval Z_<ERROR> zlib error as negative number.
  * \note When compression succeeds, the header `Content-Encoding: deflate` is automatically added to the response.
  */
 #define sg_httpres_zsend(res, val, content_type, status) \

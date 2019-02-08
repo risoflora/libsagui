@@ -196,52 +196,37 @@ bool sg__is_cookie_val(const char *val) {
 
 #ifdef SG_HTTP_COMPRESSION
 
-void sg__zinit(z_stream *stream, int *errnum) {
-    stream->zalloc = NULL;
-    stream->zfree = NULL;
-    stream->opaque = NULL;
-    *errnum = deflateInit2(stream, Z_BEST_COMPRESSION, Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY);
-}
-
-void sg__zend(z_stream *stream, int *errnum) {
-    int ret = deflateEnd(stream);
-    if (*errnum == Z_STREAM_END)
-        *errnum = ret;
-}
-
-void sg__zdeflate(z_stream *stream, const void *src, size_t src_size, void *dest, size_t *dest_size, int *errnum) {
-    const uInt max = (uInt) -1;
-    uLong left = *dest_size;
-    stream->next_out = dest;
-    stream->avail_out = 0;
-    stream->next_in = (z_const Bytef *) src;
-    stream->avail_in = 0;
-    do {
-        if (stream->avail_out == 0) {
-            stream->avail_out = left > (uLong) max ? max : (uInt) left;
-            left -= stream->avail_out;
-        }
-        if (stream->avail_in == 0) {
-            stream->avail_in = src_size > (uLong) max ? max : (uInt) src_size;
-            src_size -= stream->avail_in;
-        }
-        *errnum = deflate(stream, src_size ? Z_NO_FLUSH : Z_FINISH);
-    } while (*errnum == Z_OK);
-    *dest_size = stream->total_out;
-}
-
 int sg__compress(const void *src, size_t src_size, void *dest, size_t *dest_size) {
     z_stream stream;
-    int errnum, saved_errnum;
-    sg__zinit(&stream, &errnum);
+    const uInt max = (uInt) -1;
+    uLong left;
+    int errnum;
+    left = *dest_size;
+    *dest_size = 0;
+    stream.zalloc = NULL;
+    stream.zfree = NULL;
+    stream.opaque = NULL;
+    errnum = deflateInit2(&stream, Z_BEST_COMPRESSION, Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY);
     if (errnum != Z_OK)
         return errnum;
-    sg__zdeflate(&stream, src, src_size, dest, dest_size, &errnum);
-    saved_errnum = errnum;
-    sg__zend(&stream, &errnum);
-    if (saved_errnum != Z_OK && saved_errnum != Z_STREAM_END)
-        errnum = saved_errnum;
-    return errnum;
+    stream.next_out = dest;
+    stream.avail_out = 0;
+    stream.next_in = (z_const Bytef *) src;
+    stream.avail_in = 0;
+    do {
+        if (stream.avail_out == 0) {
+            stream.avail_out = left > (uLong) max ? max : (uInt) left;
+            left -= stream.avail_out;
+        }
+        if (stream.avail_in == 0) {
+            stream.avail_in = src_size > (uLong) max ? max : (uInt) src_size;
+            src_size -= stream.avail_in;
+        }
+        errnum = deflate(&stream, src_size ? Z_NO_FLUSH : Z_FINISH);
+    } while (errnum == Z_OK);
+    *dest_size = stream.total_out;
+    deflateEnd(&stream);
+    return errnum == Z_STREAM_END ? Z_OK : errnum;
 }
 
 #endif
