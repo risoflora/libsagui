@@ -49,61 +49,72 @@ static ssize_t sg__httpres_zread_cb(void *handle, __SG_UNUSED uint64_t offset, c
     struct sg__httpres_zholder *holder = handle;
     int errnum;
 
-    size = (size_t) holder->read_cb(holder->handle, holder->offset, holder->buf, size);
+    void *buf = sg_malloc(size);
+    if (!buf)
+        return MHD_CONTENT_READER_END_WITH_ERROR;
+
+    if ((offset > 0) && (offset == holder->stream.total_out))
+        return MHD_CONTENT_READER_END_OF_STREAM;
+
+    size = (size_t) holder->read_cb(holder->handle, holder->offset, buf, size);
     holder->offset += size;
+    if (size == MHD_CONTENT_READER_END_WITH_ERROR)
+        goto done;
 
-    switch (size) {
-        case MHD_CONTENT_READER_END_OF_STREAM: {
-            holder->stream.next_in = NULL;
-            holder->stream.avail_in = 0;
-            while (1) {
-                errnum = deflate(&holder->stream, Z_FINISH);
-                if (errnum < 0)
-                    if (errnum != Z_BUF_ERROR)
-                        return MHD_CONTENT_READER_END_WITH_ERROR;
-                if (errnum == Z_STREAM_END)
-                    break;
-                memcpy(dest, holder->buf, SG__ZBUF_SIZE - holder->stream.avail_out);
-
-                holder->stream.next_out = holder->buf;
-                holder->stream.avail_out = SG__ZBUF_SIZE;
-            }
-            size = SG__ZBUF_SIZE - holder->stream.avail_out;
-            if (holder->stream.avail_out < SG__ZBUF_SIZE)
-                memcpy(dest, holder->buf, size);
-            return size;
+    if (size == MHD_CONTENT_READER_END_OF_STREAM) {
+        holder->stream.next_in = NULL;
+        holder->stream.avail_in = 0;
+        while (1) {
+            errnum = deflate(&holder->stream, Z_FINISH);
+            if (errnum < 0)
+                if (errnum != Z_BUF_ERROR)
+                    goto done;
+            if (errnum == Z_STREAM_END)
+                break;
+            memcpy(dest, holder->buf, SG__ZBUF_SIZE - holder->stream.avail_out);
+            size += SG__ZBUF_SIZE - holder->stream.avail_out;
+            holder->stream.next_out = holder->buf;
+            holder->stream.avail_out = SG__ZBUF_SIZE;
         }
-        case MHD_CONTENT_READER_END_WITH_ERROR:
-            return size;
-        default:;
+        size = 0;
+        if (holder->stream.avail_out < size) {
+            memcpy(dest, holder->buf, SG__ZBUF_SIZE - holder->stream.avail_out);
+        }
+        size += SG__ZBUF_SIZE - holder->stream.avail_out;
+        goto done;
     }
 
-    holder->stream.next_in = holder->buf;
+    holder->stream.next_in = buf;
     holder->stream.avail_in = (uInt) size;
+
+    size = 0;
 
     while (holder->stream.avail_in > 0) {
         errnum = deflate(&holder->stream, Z_NO_FLUSH);
         if (errnum < 0)
-            if (errnum != Z_BUF_ERROR)
-                return MHD_CONTENT_READER_END_WITH_ERROR;
+            if (errnum != Z_BUF_ERROR) {
+                size = MHD_CONTENT_READER_END_WITH_ERROR;
+                goto done;
+            }
         if (holder->stream.avail_out == 0) {
-
             memcpy(dest, holder->buf, SG__ZBUF_SIZE);
-
             holder->stream.next_out = holder->buf;
             holder->stream.avail_out = SG__ZBUF_SIZE;
         }
+        size += holder->stream.total_out;
     }
 
-    return holder->stream.total_out;
+done:
+    sg_free(buf);
+    return size;
 }
 
 static void sg__httpres_zfree_cb(void *handle) {
     struct sg__httpres_zholder *holder = handle;
     if (!holder)
         return;
-    sg_free(holder->buf);
     deflateEnd(&holder->stream);
+    sg_free(holder->buf);
     if (holder->free_cb)
         holder->free_cb(holder->handle);
     sg_free(holder);
