@@ -571,7 +571,7 @@ SG_EXTERN const char *sg_httpauth_realm(struct sg_httpauth *auth);
  * Deny the authentication sending a justification to the user.
  * \param[in] auth Authentication handle.
  * \param[in] justification Justification message.
- * \param[in] content_type `Content-Type` of the justification.
+ * \param[in] content_type Content type.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  * \retval EALREADY Already denied.
@@ -846,7 +846,7 @@ SG_EXTERN int sg_httpres_set_cookie(struct sg_httpres *res, const char *name, co
  * Sends a null-terminated string content to the client.
  * \param[in] res Response handle.
  * \param[in] val Null-terminated string.
- * \param[in] content_type `Content-Type` of the content.
+ * \param[in] content_type Content type.
  * \param[in] status HTTP status code.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
@@ -861,7 +861,7 @@ SG_EXTERN int sg_httpres_set_cookie(struct sg_httpres *res, const char *name, co
  * \param[in] res Response handle.
  * \param[in] buf Binary content.
  * \param[in] size Content size.
- * \param[in] content_type `Content-Type` of the content.
+ * \param[in] content_type Content type.
  * \param[in] status HTTP status code.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
@@ -945,7 +945,7 @@ SG_EXTERN int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, sg_re
  * the DEFLATE compression algorithm.
  * \param[in] res Response handle.
  * \param[in] val Null-terminated string.
- * \param[in] content_type `Content-Type` of the content.
+ * \param[in] content_type Content type.
  * \param[in] status HTTP status code.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
@@ -964,7 +964,7 @@ SG_EXTERN int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, sg_re
  * \param[in] res Response handle.
  * \param[in] buf Binary content.
  * \param[in] size Content size.
- * \param[in] content_type `Content-Type` of the content.
+ * \param[in] content_type Content type.
  * \param[in] status HTTP status code.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.

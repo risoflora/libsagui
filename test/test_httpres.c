@@ -138,10 +138,14 @@ static void test_httpres_sendbinary(struct sg_httpres *res) {
     ASSERT(sg_httpres_sendbinary(NULL, str, len, "text/plain", 200) == EINVAL);
     ASSERT(sg_httpres_sendbinary(res, NULL, len, "text/plain", 200) == EINVAL);
     ASSERT(sg_httpres_sendbinary(res, str, (size_t) -1, "text/plain", 200) == EINVAL);
-    ASSERT(sg_httpres_sendbinary(res, str, len, NULL, 200) == EINVAL);
     ASSERT(sg_httpres_sendbinary(res, str, len, "text/plain", 99) == EINVAL);
     ASSERT(sg_httpres_sendbinary(res, str, len, "text/plain", 600) == EINVAL);
 
+    res->status = 0;
+    ASSERT(sg_httpres_sendbinary(res, str, len, NULL, 200) == 0);
+    ASSERT(res->status == 200);
+    MHD_destroy_response(res->handle);
+    res->handle = NULL;
     res->status = 0;
     ASSERT(sg_httpres_sendbinary(res, "", len, "text/plain", 200) == 0);
     ASSERT(res->status == 200);
@@ -416,7 +420,6 @@ static void test_httpres_zsendbinary(struct sg_httpres *res) {
     ASSERT(sg_httpres_zsendbinary(NULL, str, len, "text/plain", 200) == EINVAL);
     ASSERT(sg_httpres_zsendbinary(res, NULL, len, "text/plain", 200) == EINVAL);
     ASSERT(sg_httpres_zsendbinary(res, str, (size_t) -1, "text/plain", 200) == EINVAL);
-    ASSERT(sg_httpres_zsendbinary(res, str, len, NULL, 200) == EINVAL);
     ASSERT(sg_httpres_zsendbinary(res, str, len, "text/plain", 99) == EINVAL);
     ASSERT(sg_httpres_zsendbinary(res, str, len, "text/plain", 600) == EINVAL);
 
@@ -444,6 +447,12 @@ static void test_httpres_zsendbinary(struct sg_httpres *res) {
     len = strlen(str);
     res->status = 0;
     ASSERT(sg_httpres_zsendbinary(res, "foo", 0, "text/plain", 200) == 0);
+    ASSERT(res->status == 200);
+    MHD_destroy_response(res->handle);
+    res->handle = NULL;
+
+    res->status = 0;
+    ASSERT(sg_httpres_zsendbinary(res, str, len, NULL, 200) == 0);
     ASSERT(res->status == 200);
     MHD_destroy_response(res->handle);
     res->handle = NULL;

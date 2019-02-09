@@ -39,10 +39,12 @@ static void req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_http
     headers = sg_httpreq_headers(req);
     if (headers) {
         header = sg_strmap_get(*headers, "Accept-Encoding");
-        if (header && strstr(header, "deflate"))
+        if (header && strstr(header, "deflate")) {
             sg_httpres_zsendbinary(res, PAGE, strlen(PAGE), CONTENT_TYPE, 200);
-    } else
-        sg_httpres_sendbinary(res, PAGE, strlen(PAGE), CONTENT_TYPE, 200);
+            return;
+        }
+    }
+    sg_httpres_sendbinary(res, PAGE, strlen(PAGE), CONTENT_TYPE, 200);
 }
 
 int main(void) {

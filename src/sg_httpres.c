@@ -170,14 +170,14 @@ int sg_httpres_set_cookie(struct sg_httpres *res, const char *name, const char *
 
 int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t size, const char *content_type,
                           unsigned int status) {
-    if (!res || !buf || ((ssize_t) size < 0) || !content_type || (status < 100) || (status > 599))
+    if (!res || !buf || ((ssize_t) size < 0) || (status < 100) || (status > 599))
         return EINVAL;
     if (res->handle)
         return EALREADY;
     res->handle = MHD_create_response_from_buffer(size, buf, MHD_RESPMEM_MUST_COPY);
     if (!res->handle)
         return ENOMEM;
-    if (strlen(content_type) > 0)
+    if (content_type)
         sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_TYPE, content_type);
     res->status = status;
     return 0;
@@ -269,7 +269,7 @@ int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const
     Bytef *dest;
     uLongf dest_size;
     int errnum;
-    if (!res || !buf || ((ssize_t) size < 0) || !content_type || (status < 100) || (status > 599))
+    if (!res || !buf || ((ssize_t) size < 0) || (status < 100) || (status > 599))
         return EINVAL;
     if (res->handle)
         return EALREADY;
@@ -293,7 +293,7 @@ int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const
         sg_free(dest);
         return ENOMEM;
     }
-    if (strlen(content_type) > 0)
+    if (content_type)
         sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_TYPE, content_type);
     res->status = status;
     return 0;
