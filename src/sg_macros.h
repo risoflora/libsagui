@@ -31,7 +31,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <limits.h>
 #ifndef NDEBUG
 #include <unistd.h>
 #include <errno.h>
@@ -71,8 +70,8 @@
 #endif
 #endif
 
-#ifndef SG__ZBUF_SIZE
-#define SG__ZBUF_SIZE UINT16_MAX
+#ifndef SG__ZLIB_CHUNK
+#define SG__ZLIB_CHUNK 16384 /* 16k */
 #endif
 
 /* used by utstring library */

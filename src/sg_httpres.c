@@ -45,68 +45,26 @@
 
 #ifdef SG_HTTP_COMPRESSION
 
-static ssize_t sg__httpres_zread_cb(void *handle, __SG_UNUSED uint64_t offset, char *dest, size_t size) {
+static ssize_t sg__httpres_zread_cb(void *handle, __SG_UNUSED uint64_t offset, char *mem, size_t size) {
     struct sg__httpres_zholder *holder = handle;
-    int errnum;
-
-    void *buf = sg_malloc(size);
-    if (!buf)
+    size_t have;
+    void *src, *buf;
+    src = sg_malloc(size);
+    if (!src)
         return MHD_CONTENT_READER_END_WITH_ERROR;
-
-    if ((offset > 0) && (offset == holder->stream.total_out))
-        return MHD_CONTENT_READER_END_OF_STREAM;
-
-    size = (size_t) holder->read_cb(holder->handle, holder->offset, buf, size);
-    holder->offset += size;
-    if (size == MHD_CONTENT_READER_END_WITH_ERROR)
+    have = (size_t) holder->read_cb(holder->handle, holder->offset, src, size);
+    if ((have == MHD_CONTENT_READER_END_WITH_ERROR) || (have == MHD_CONTENT_READER_END_OF_STREAM))
         goto done;
-
-    if (size == MHD_CONTENT_READER_END_OF_STREAM) {
-        holder->stream.next_in = NULL;
-        holder->stream.avail_in = 0;
-        while (1) {
-            errnum = deflate(&holder->stream, Z_FINISH);
-            if (errnum < 0)
-                if (errnum != Z_BUF_ERROR)
-                    goto done;
-            if (errnum == Z_STREAM_END)
-                break;
-            memcpy(dest, holder->buf, SG__ZBUF_SIZE - holder->stream.avail_out);
-            size += SG__ZBUF_SIZE - holder->stream.avail_out;
-            holder->stream.next_out = holder->buf;
-            holder->stream.avail_out = SG__ZBUF_SIZE;
-        }
-        size = 0;
-        if (holder->stream.avail_out < size) {
-            memcpy(dest, holder->buf, SG__ZBUF_SIZE - holder->stream.avail_out);
-        }
-        size += SG__ZBUF_SIZE - holder->stream.avail_out;
-        goto done;
+    holder->offset += have;
+    if (sg__deflate(&holder->stream, src, have, &buf, &have, holder->buf) != 0)
+        have = MHD_CONTENT_READER_END_WITH_ERROR;
+    else {
+        memcpy(mem, buf, have);
+        sg_free(buf);
     }
-
-    holder->stream.next_in = buf;
-    holder->stream.avail_in = (uInt) size;
-
-    size = 0;
-
-    while (holder->stream.avail_in > 0) {
-        errnum = deflate(&holder->stream, Z_NO_FLUSH);
-        if (errnum < 0)
-            if (errnum != Z_BUF_ERROR) {
-                size = MHD_CONTENT_READER_END_WITH_ERROR;
-                goto done;
-            }
-        if (holder->stream.avail_out == 0) {
-            memcpy(dest, holder->buf, SG__ZBUF_SIZE);
-            holder->stream.next_out = holder->buf;
-            holder->stream.avail_out = SG__ZBUF_SIZE;
-        }
-        size += holder->stream.total_out;
-    }
-
 done:
-    sg_free(buf);
-    return size;
+    sg_free(src);
+    return have;
 }
 
 static void sg__httpres_zfree_cb(void *handle) {
@@ -298,7 +256,7 @@ int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const
 /* TODO: WARNING: this function is experimental. */
 int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb, void *handle, sg_free_cb free_cb,
                            unsigned int status) {
-    struct sg__httpres_zholder *holder = NULL;
+    struct sg__httpres_zholder *holder;
     int errnum;
     if (!res || !read_cb || (status < 100) || (status > 599)) {
         errnum = EINVAL;
@@ -308,37 +266,38 @@ int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb, void *han
         errnum = EALREADY;
         goto error;
     }
-    holder = sg_malloc(sizeof(struct sg__httpres_zholder));
+    holder = sg_alloc(sizeof(struct sg__httpres_zholder));
     if (!holder) {
         errnum = ENOMEM;
         goto error;
     }
-    holder->buf = sg_malloc(SG__ZBUF_SIZE);
+    errnum = deflateInit(&holder->stream, Z_BEST_COMPRESSION);
+    if (errnum != Z_OK)
+        goto error_stream;
+    holder->buf = sg_malloc(SG__ZLIB_CHUNK);
     if (!holder->buf) {
         errnum = ENOMEM;
-        goto error;
+        goto error_buf;
     }
-    holder->stream.next_out = holder->buf;
-    holder->stream.avail_out = SG__ZBUF_SIZE;
-    errnum = deflateInit2(&holder->stream, Z_BEST_COMPRESSION, Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL,
-                          Z_DEFAULT_STRATEGY);
-    if (errnum != Z_OK)
-        goto error;
     holder->read_cb = read_cb;
     holder->free_cb = free_cb;
     holder->handle = handle;
     res->handle = MHD_create_response_from_callback(MHD_SIZE_UNKNOWN, SG__BLOCK_SIZE, sg__httpres_zread_cb, holder,
                                                     sg__httpres_zfree_cb);
     if (!res->handle) {
-        sg_free(holder->buf);
-        deflateEnd(&holder->stream);
-        return ENOMEM;
+        errnum = ENOMEM;
+        goto error_res;
     }
     sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_ENCODING, "deflate");
     res->status = status;
     return 0;
-error:
+error_res:
     sg_free(holder->buf);
+error_buf:
+    deflateEnd(&holder->stream);
+error_stream:
+    sg_free(holder);
+error:
     if (free_cb)
         free_cb(handle);
     return errnum;

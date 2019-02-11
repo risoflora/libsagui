@@ -28,10 +28,14 @@
 #include <stdbool.h>
 #include <string.h>
 #include <errno.h>
+#include "sg_macros.h"
+#ifdef SG_HTTP_COMPRESSION
+#include "zlib.h"
+#endif
 #include "microhttpd.h"
+#include "sg_extra.h"
 #include "sg_strmap.h"
 #include "sagui.h"
-#include "sg_extra.h"
 
 int sg__convals_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind, const char *key, const char *val) {
     sg_strmap_add(cls, key, val);
@@ -49,4 +53,34 @@ ssize_t sg_eor(bool err) {
         (ssize_t)
 #endif
             err ? MHD_CONTENT_READER_END_WITH_ERROR : MHD_CONTENT_READER_END_OF_STREAM;
+}
+
+int sg__deflate(z_stream *stream, const void *src, size_t src_size, void **dest, size_t *dest_size, void *tmp) {
+    unsigned int have;
+    int flush, ret;
+    *dest = NULL;
+    *dest_size = 0;
+    do {
+        if (src_size > SG__ZLIB_CHUNK) {
+            stream->avail_in = SG__ZLIB_CHUNK;
+            src_size -= SG__ZLIB_CHUNK;
+            flush = Z_NO_FLUSH;
+        } else {
+            stream->avail_in = (uInt) src_size;
+            flush = Z_SYNC_FLUSH;
+        }
+        stream->next_in = (Bytef *) src;
+        do {
+            stream->avail_out = SG__ZLIB_CHUNK;
+            stream->next_out = tmp;
+            ret = deflate(stream, flush);
+            have = SG__ZLIB_CHUNK - stream->avail_out;
+            *dest_size += have;
+            *dest = sg_realloc(*dest, *dest_size);
+            if (!*dest)
+                return ENOMEM;
+            memcpy((Bytef *) *dest + (*dest_size - have), tmp, have);
+        } while (stream->avail_out == 0);
+    } while (flush != Z_SYNC_FLUSH);
+    return (ret == Z_OK) ? 0 : ret;
 }

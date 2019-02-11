@@ -63,5 +63,6 @@ int main(void) {
     test__convals_iter();
     test__strmap_iter();
     test_eor();
+    /* TODO: test__compress() */
     return EXIT_SUCCESS;
 }

@@ -28,13 +28,19 @@
 #ifndef SG_EXTRA_H
 #define SG_EXTRA_H
 
-#include "microhttpd.h"
 #include "sg_macros.h"
+#ifdef SG_HTTP_COMPRESSION
+#include "zlib.h"
+#endif
+#include "microhttpd.h"
 #include "sg_strmap.h"
 #include "sagui.h"
 
 SG__EXTERN int sg__convals_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind, const char *key, const char *val);
 
 SG__EXTERN int sg__strmap_iter(void *cls, struct sg_strmap *map);
+
+SG__EXTERN int sg__deflate(z_stream *stream, const void *src, size_t src_size, void **dest, size_t *dest_size,
+                           void *tmp);
 
 #endif /* SG_EXTRA_H */
