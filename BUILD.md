@@ -27,6 +27,7 @@ There are a few options of the Sagui building, they are:
 -DSG_BUILD_<EXAMPLE>_EXAMPLE=<ON|OFF>
 -DSG_BUILD_<TEST>_TESTING=<ON|OFF>
 -DSG_HTTPS_SUPPORT=<ON|OFF>
+-DSG_HTTP_COMPRESSION=<ON|OFF>
 -DSG_PATH_ROUTING=<ON|OFF>
 ```
 

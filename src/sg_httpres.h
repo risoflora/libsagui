@@ -28,10 +28,9 @@
 #ifndef SG_HTTPRES_H
 #define SG_HTTPRES_H
 
-#include <time.h>
+#include "sg_macros.h"
 #ifdef SG_HTTP_COMPRESSION
 #include <stdint.h>
-#include "sg_macros.h"
 #include "zlib.h"
 #endif
 #include "microhttpd.h"
