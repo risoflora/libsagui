@@ -235,7 +235,7 @@ int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const
         zbuf = sg_malloc(zsize);
         if (!zbuf)
             return ENOMEM;
-        if ((compress2(zbuf, &zsize, buf, size, Z_BEST_COMPRESSION) != Z_OK) || (zsize >= size)) {
+        if ((compress2(zbuf, (uLongf *) &zsize, buf, size, Z_BEST_COMPRESSION) != Z_OK) || (zsize >= size)) {
             zsize = size;
             memcpy(zbuf, buf, zsize);
         } else
