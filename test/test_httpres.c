@@ -185,21 +185,19 @@ static void test_httpres_download(struct sg_httpres *res) {
     FILE *file;
     char *dir;
 
-    ASSERT(sg_httpres_download(NULL, PATH, 200) == EINVAL);
-    ASSERT(sg_httpres_download(res, NULL, 200) == EINVAL);
-    ASSERT(sg_httpres_download(res, PATH, 99) == EINVAL);
-    ASSERT(sg_httpres_download(res, PATH, 600) == EINVAL);
+    ASSERT(sg_httpres_download(NULL, PATH) == EINVAL);
+    ASSERT(sg_httpres_download(res, NULL) == EINVAL);
 
 #ifdef _WIN32
-    ASSERT(sg_httpres_download(res, "", 200) == EACCES);
+    ASSERT(sg_httpres_download(res, "") == EACCES);
 #else
-    ASSERT(sg_httpres_download(res, "", 200) == ENOENT);
+    ASSERT(sg_httpres_download(res, "") == ENOENT);
 #endif
     dir = sg_tmpdir();
 #ifdef _WIN32
-    ASSERT(sg_httpres_download(res, dir, 200) == EACCES);
+    ASSERT(sg_httpres_download(res, dir) == EACCES);
 #else
-    ASSERT(sg_httpres_download(res, dir, 200) == EISDIR);
+    ASSERT(sg_httpres_download(res, dir) == EISDIR);
 #endif
     sg_free(dir);
 
@@ -209,16 +207,14 @@ static void test_httpres_download(struct sg_httpres *res) {
     ASSERT(file);
     ASSERT(fwrite(str, 1, len, file) == len);
     ASSERT(fclose(file) == 0);
-    ASSERT(sg_httpres_download(res, PATH, 200) == 0);
+    ASSERT(sg_httpres_download(res, PATH) == 0);
     ASSERT(strcmp(sg_strmap_get(*sg_httpres_headers(res), MHD_HTTP_HEADER_CONTENT_DISPOSITION),
                   "attachment; filename=\""
                    FILENAME
                    "\"") == 0);
-    ASSERT(sg_httpres_download(res, PATH, 200) == EALREADY);
+    ASSERT(sg_httpres_download(res, PATH) == EALREADY);
     sg_free(res->handle);
     res->handle = NULL;
-    ASSERT(sg_httpres_download(res, PATH, 201) == 0);
-    ASSERT(res->status == 201);
 #undef PATH
 #undef FILENAME
     sg_free(res->handle);
@@ -233,21 +229,19 @@ static void test_httpres_render(struct sg_httpres *res) {
     FILE *file;
     char *dir;
 
-    ASSERT(sg_httpres_render(NULL, PATH, 200) == EINVAL);
-    ASSERT(sg_httpres_render(res, NULL, 200) == EINVAL);
-    ASSERT(sg_httpres_render(res, PATH, 99) == EINVAL);
-    ASSERT(sg_httpres_render(res, PATH, 600) == EINVAL);
+    ASSERT(sg_httpres_render(NULL, PATH) == EINVAL);
+    ASSERT(sg_httpres_render(res, NULL) == EINVAL);
 
 #ifdef _WIN32
-    ASSERT(sg_httpres_render(res, "", 200) == EACCES);
+    ASSERT(sg_httpres_render(res, "") == EACCES);
 #else
-    ASSERT(sg_httpres_render(res, "", 200) == ENOENT);
+    ASSERT(sg_httpres_render(res, "") == ENOENT);
 #endif
     dir = sg_tmpdir();
 #ifdef _WIN32
-    ASSERT(sg_httpres_render(res, dir, 200) == EACCES);
+    ASSERT(sg_httpres_render(res, dir) == EACCES);
 #else
-    ASSERT(sg_httpres_render(res, dir, 200) == EISDIR);
+    ASSERT(sg_httpres_render(res, dir) == EISDIR);
 #endif
     sg_free(dir);
 
@@ -257,16 +251,14 @@ static void test_httpres_render(struct sg_httpres *res) {
     ASSERT(file);
     ASSERT(fwrite(str, 1, len, file) == len);
     ASSERT(fclose(file) == 0);
-    ASSERT(sg_httpres_render(res, PATH, 200) == 0);
+    ASSERT(sg_httpres_render(res, PATH) == 0);
     ASSERT(strcmp(sg_strmap_get(*sg_httpres_headers(res), MHD_HTTP_HEADER_CONTENT_DISPOSITION),
                   "inline; filename=\""
                    FILENAME
                    "\"") == 0);
-    ASSERT(sg_httpres_render(res, PATH, 200) == EALREADY);
+    ASSERT(sg_httpres_render(res, PATH) == EALREADY);
     sg_free(res->handle);
     res->handle = NULL;
-    ASSERT(sg_httpres_render(res, PATH, 201) == 0);
-    ASSERT(res->status == 201);
 #undef PATH
 #undef FILENAME
     sg_free(res->handle);

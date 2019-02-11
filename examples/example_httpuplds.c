@@ -38,29 +38,29 @@
 #define PATH_SEP '/'
 #endif
 
-#define PAGE_FORM                                                        \
-    "<html>"                                                             \
-    "<body>"                                                             \
-    "<form action=\"\" method=\"post\" enctype=\"multipart/form-data\">" \
-    "<fieldset>"                                                         \
-    "<legend>Choose the files:</legend>"                                 \
-    "File 1: <input type=\"file\" name=\"file1\"/><br>"                  \
-    "File 2: <input type=\"file\" name=\"file2\"/><br>"                  \
-    "<input type=\"submit\"/>"                                           \
-    "</fieldset>"                                                        \
-    "</form>"                                                            \
-    "</body>"                                                            \
+#define PAGE_FORM                                                                                                      \
+    "<html>"                                                                                                           \
+    "<body>"                                                                                                           \
+    "<form action=\"\" method=\"post\" enctype=\"multipart/form-data\">"                                               \
+    "<fieldset>"                                                                                                       \
+    "<legend>Choose the files:</legend>"                                                                               \
+    "File 1: <input type=\"file\" name=\"file1\"/><br>"                                                                \
+    "File 2: <input type=\"file\" name=\"file2\"/><br>"                                                                \
+    "<input type=\"submit\"/>"                                                                                         \
+    "</fieldset>"                                                                                                      \
+    "</form>"                                                                                                          \
+    "</body>"                                                                                                          \
     "</html>"
 
-#define PAGE_DONE                          \
-    "<html>"                               \
-    "<head>"                               \
-    "<title>Uploads</title>"               \
-    "</head>"                              \
-    "<body>"                               \
-    "<strong>Uploaded files:</strong><br>" \
-    "%s"                                   \
-    "</body>"                              \
+#define PAGE_DONE                                                                                                      \
+    "<html>"                                                                                                           \
+    "<head>"                                                                                                           \
+    "<title>Uploads</title>"                                                                                           \
+    "</head>"                                                                                                          \
+    "<body>"                                                                                                           \
+    "<strong>Uploaded files:</strong><br>"                                                                             \
+    "%s"                                                                                                               \
+    "</body>"                                                                                                          \
     "</html>"
 
 #define CONTENT_TYPE "text/html; charset=utf-8"
@@ -107,7 +107,7 @@ static void req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_http
             file = sg_strmap_get(*qs, "file");
             if (file) {
                 sprintf(path, "%s%c%s", sg_tmpdir(), PATH_SEP, file);
-                sg_httpres_download(res, path, 200);
+                sg_httpres_download(res, path);
             }
         } else
             sg_httpres_send(res, PAGE_FORM, CONTENT_TYPE, 200);

@@ -207,7 +207,7 @@ static void srv_req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_
     if (strcmp(sg_httpreq_path(req), "/download") == 0) {
         ASSERT(strcmp(sg_httpreq_method(req), "GET") == 0);
         snprintf(filename, sizeof(filename), "%s", sg_strmap_get(*sg_httpreq_params(req), "filename"));
-        ASSERT(sg_httpres_download(res, filename, 200) == 0);
+        ASSERT(sg_httpres_download(res, filename) == 0);
         return;
     }
 

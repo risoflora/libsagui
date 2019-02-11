@@ -883,8 +883,8 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t si
  * \retval EBADF Bad file number.
  * \retval ENOMEM Out of memory.
  */
-#define sg_httpres_download(res, filename, status) \
-    sg_httpres_sendfile((res), 0, 0, 0, (filename), false, (status))
+#define sg_httpres_download(res, filename) \
+    sg_httpres_sendfile((res), 0, 0, 0, (filename), false, (200))
 
 /**
  * Sends a file to be rendered.
@@ -898,8 +898,8 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t si
  * \retval EBADF Bad file number.
  * \retval ENOMEM Out of memory.
  */
-#define sg_httpres_render(res, filename, status) \
-    sg_httpres_sendfile((res), 0, 0, 0, (filename), true, (status))
+#define sg_httpres_render(res, filename) \
+    sg_httpres_sendfile((res), 0, 0, 0, (filename), true, (200))
 
 /**
  * Sends a file to the client.
