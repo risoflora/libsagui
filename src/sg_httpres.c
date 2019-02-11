@@ -282,8 +282,8 @@ int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb, void *han
     holder->read_cb = read_cb;
     holder->free_cb = free_cb;
     holder->handle = handle;
-    res->handle = MHD_create_response_from_callback(MHD_SIZE_UNKNOWN, SG__BLOCK_SIZE, sg__httpres_zread_cb, holder,
-                                                    sg__httpres_zfree_cb);
+    res->handle = MHD_create_response_from_callback(MHD_SIZE_UNKNOWN, SG__ZLIB_CHUNK + 128,
+                                                    sg__httpres_zread_cb, holder, sg__httpres_zfree_cb);
     if (!res->handle) {
         errnum = ENOMEM;
         goto error_res;
