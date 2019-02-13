@@ -521,6 +521,7 @@ int main(void) {
     ASSERT(curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &status) == CURLE_OK);
     ASSERT(status == 200);
     str = ftos(__FILE__);
+    ASSERT(str);
     ASSERT(strcmp(sg_str_content(res), str) == 0);
     free(str);
 

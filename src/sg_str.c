@@ -26,14 +26,18 @@
  */
 
 #include <errno.h>
-#include "sagui.h"
 #include "sg_str.h"
+#include "sagui.h"
 
 struct sg_str *sg_str_new(void) {
     struct sg_str *str = sg_alloc(sizeof(struct sg_str));
-    if (!str)
-        return NULL;
-    utstring_new(str->buf);
+    if (str) {
+        utstring_new(str->buf);
+        if (!str->buf) {
+            sg_free(str);
+            return NULL;
+        }
+    }
     return str;
 }
 
