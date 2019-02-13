@@ -73,8 +73,8 @@ extern "C" {
 #define __SG_FORMAT(...) __attribute__((format(printf, __VA_ARGS__)))
 #endif
 
-#define SG_VERSION_MAJOR 1
-#define SG_VERSION_MINOR 2
+#define SG_VERSION_MAJOR 2
+#define SG_VERSION_MINOR 0
 #define SG_VERSION_PATCH 0
 #define SG_VERSION_HEX ((SG_VERSION_MAJOR << 16) | (SG_VERSION_MINOR <<  8) | (SG_VERSION_PATCH))
 
