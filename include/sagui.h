@@ -5,7 +5,7 @@
  *  |___/\__,_|\__, |\__,_|_|
  *             |___/
  *
- *   –– cross-platform library which helps to develop web servers or frameworks.
+ * Cross-platform library which helps to develop web servers or frameworks.
  *
  * Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
  *
@@ -875,7 +875,6 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t si
  * Offer a file as download.
  * \param[in] res Response handle.
  * \param[in] filename Path of the file to be sent.
- * \param[in] status HTTP status code.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  * \retval EALREADY Operation already in progress.
@@ -890,7 +889,6 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t si
  * Sends a file to be rendered.
  * \param[in] res Response handle.
  * \param[in] filename Path of the file to be sent.
- * \param[in] status HTTP status code.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  * \retval EALREADY Operation already in progress.

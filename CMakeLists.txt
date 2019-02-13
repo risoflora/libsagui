@@ -17,7 +17,7 @@
 #  |___/\__,_|\__, |\__,_|_|
 #             |___/
 #
-#   –– cross-platform library which helps to develop web servers or frameworks.
+# Cross-platform library which helps to develop web servers or frameworks.
 #
 # Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
 #
@@ -43,7 +43,7 @@ project(sagui C)
 
 set(CMAKE_C_STANDARD 99)
 
-set(PROJECT_DESCRIPTION "–– cross-platform library which helps to develop web servers or frameworks.")
+set(PROJECT_DESCRIPTION "Cross-platform library which helps to develop web servers or frameworks.")
 set(PROJECT_VENDOR "The Sagui Library Development Team")
 set(PROJECT_URL "https://github.com/risoflora/libsagui")
 set(PROJECT_ISSUES_URL "${PROJECT_URL}/issues")

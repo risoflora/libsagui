@@ -21,7 +21,7 @@
 #  |___/\__,_|\__, |\__,_|_|
 #             |___/
 #
-#   –– cross-platform library which helps to develop web servers or frameworks.
+# Cross-platform library which helps to develop web servers or frameworks.
 #
 # Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
 #

@@ -33,7 +33,7 @@
 #  |___/\__,_|\__, |\__,_|_|
 #             |___/
 #
-#   –– cross-platform library which helps to develop web servers or frameworks.
+# Cross-platform library which helps to develop web servers or frameworks.
 #
 # Copyright (c) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
 #
@@ -69,6 +69,7 @@ if (SG_BUILD_HTML)
     find_package(Doxygen QUIET)
     if (DOXYGEN_FOUND)
         set(SG_GENERATE_HTML ON)
+        set(SG_EXTRA_CSS_INPUT_FILE ${CMAKE_SOURCE_DIR}/doxygen/sagui.css)
         set(DOXYGEN_INPUT_FILE ${CMAKE_SOURCE_DIR}/doxygen/Doxyfile.in)
         set(DOXYGEN_OUTPUT_FILE ${CMAKE_BINARY_DIR}/Doxyfile)
         set(DOXYGEN_DOCS_DIR ${CMAKE_BINARY_DIR}/docs)
