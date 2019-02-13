@@ -469,6 +469,33 @@ static void test_httpres_zsendbinary(struct sg_httpres *res) {
     res->handle = NULL;
 }
 
+static void test_httpres_zsendstream(struct sg_httpres *res) {
+    char *str;
+    int buf = 1;
+    ASSERT(sg_httpres_zsendstream(NULL, dummy_read_cb, &buf, dummy_free_cb, 200) == EINVAL);
+    ASSERT(buf == 0);
+    buf = 1;
+    ASSERT(sg_httpres_zsendstream(res, NULL, &buf, dummy_free_cb, 200) == EINVAL);
+    ASSERT(buf == 0);
+    buf = 1;
+    ASSERT(sg_httpres_zsendstream(res, dummy_read_cb, &buf, dummy_free_cb, 99) == EINVAL);
+    ASSERT(buf == 0);
+    buf = 1;
+    ASSERT(sg_httpres_zsendstream(res, dummy_read_cb, &buf, dummy_free_cb, 600) == EINVAL);
+    ASSERT(buf == 0);
+
+    str = sg_alloc(sizeof(str));
+    ASSERT(sg_httpres_zsendstream(res, dummy_read_cb, str, dummy_free_cb, 200) == 0);
+    sg_free(res->handle);
+    res->handle = NULL;
+    ASSERT(sg_httpres_zsendstream(res, dummy_read_cb, str, dummy_free_cb, 201) == 0);
+    ASSERT(res->status == 201);
+    ASSERT(sg_httpres_zsendstream(res, dummy_read_cb, str, dummy_free_cb, 200) == EALREADY);
+    sg_free(res->handle);
+    res->handle = NULL;
+    sg_free(str);
+}
+
 static void test_httpres_clear(struct sg_httpres *res) {
     struct sg_strmap **headers;
     ASSERT(sg_httpres_clear(NULL) == EINVAL);
@@ -510,6 +537,7 @@ int main(void) {
     test_httpres_sendstream(res);
     test_httpres_zsend(res);
     test_httpres_zsendbinary(res);
+    test_httpres_zsendstream(res);
     test_httpres_clear(res);
     sg__httpres_free(res);
     return EXIT_SUCCESS;

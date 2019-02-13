@@ -977,7 +977,20 @@ SG_EXTERN int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, sg_re
 SG_EXTERN int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const char *content_type,
                                      unsigned int status);
 
-/* TODO: WARNING: this function is experimental. */
+/**
+ * Compresses a stream and sends it to the client.
+ * \param[in] res Response handle.
+ * \param[in] read_cb Callback to read data from stream handle.
+ * \param[in] handle Stream handle.
+ * \param[in] free_cb Callback to free the stream handle.
+ * \param[in] status HTTP status code.
+ * \retval 0 Success.
+ * \retval EINVAL Invalid argument.
+ * \retval EALREADY Operation already in progress.
+ * \retval ENOMEM Out of memory.
+ * \retval Z_<ERROR> zlib error as negative number.
+ * \note When compression succeeds, the header `Content-Encoding: deflate` is automatically added to the response.
+ */
 SG_EXTERN int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb, void *handle, sg_free_cb free_cb,
                                      unsigned int status);
 

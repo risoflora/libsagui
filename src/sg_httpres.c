@@ -253,7 +253,6 @@ int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const
     return 0;
 }
 
-/* TODO: WARNING: this function is experimental. */
 int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb, void *handle, sg_free_cb free_cb,
                            unsigned int status) {
     struct sg__httpres_zholder *holder;

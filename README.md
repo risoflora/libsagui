@@ -74,6 +74,49 @@ int main() {
 }
 ```
 
+lastly, putting everything together:
+
+```c
+struct Holder {
+    struct sg_httpreq *req;
+    struct sg_httpres *res;
+};
+
+void route_home_cb(void *cls, struct sg_route *route) {
+    struct Holder *holder = sg_route_user_data(route);
+    sg_httpres_send(holder->res, "<html><body>Home</body></html>", "text/html", 200);
+}
+
+void route_download_cb(void *cls, struct sg_route *route) {
+    struct Holder *holder = sg_route_user_data(route);
+    sg_httpres_send(holder->res, "<html><body>Download</body></html>", "text/html", 200);
+}
+
+void req_cb(void *cls, struct sg_httpreq *req, struct sg_httpres *res) {
+    struct sg_router *router = cls;
+    struct Holder holder = {req, res};
+    if (sg_router_dispatch(router, sg_httpreq_path(req), &holder) != 0)
+        sg_httpres_send(res, "<html><body>404</body></html>", "text/html", 404);
+}
+
+int main() {
+    struct sg_route *routes = NULL;
+    struct sg_router *router;
+    struct sg_httpsrv *srv;
+    sg_routes_add(&routes, "/home", route_home_cb, NULL);
+    sg_routes_add(&routes, "/download", route_download_cb, NULL);
+    router = sg_router_new(routes);
+    srv = sg_httpsrv_new(req_cb, router);
+    sg_httpsrv_listen(srv, 8080, false);
+    printf("Server running at http://localhost:%d\n", sg_httpsrv_port(srv));
+    getchar();
+    sg_httpsrv_free(srv);
+    sg_routes_cleanup(&routes);
+    sg_router_free(router);
+    return 0;
+}
+```
+
 There are other examples available in the [`examples/`](https://github.com/risoflora/libsagui/tree/master/examples) directory.
 
 # Versioning
