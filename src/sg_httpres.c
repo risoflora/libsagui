@@ -128,15 +128,19 @@ int sg_httpres_set_cookie(struct sg_httpres *res, const char *name, const char *
 
 int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t size, const char *content_type,
                           unsigned int status) {
+    int ret;
     if (!res || !buf || ((ssize_t) size < 0) || (status < 100) || (status > 599))
         return EINVAL;
     if (res->handle)
         return EALREADY;
+    if (content_type) {
+        ret = sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_TYPE, content_type);
+        if (ret != 0)
+            return ret;
+    }
     res->handle = MHD_create_response_from_buffer(size, buf, MHD_RESPMEM_MUST_COPY);
     if (!res->handle)
         return ENOMEM;
-    if (content_type)
-        sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_TYPE, content_type);
     res->status = status;
     return 0;
 }
@@ -174,14 +178,17 @@ int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size
     cd_type = rendered ? "inline" : "attachment";
     cd_basename = basename(filename);
     fn_size = (size_t) snprintf(NULL, 0, SG__FNFMT, cd_type, cd_basename) + 1;
-    if (!(cd_header = sg_malloc(fn_size))) {
+    cd_header = sg_malloc(fn_size);
+    if (!cd_header) {
         errnum = ENOMEM;
         goto error;
     }
     snprintf(cd_header, fn_size, SG__FNFMT, cd_type, cd_basename);
 #undef SG__FNFMT
-    sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_DISPOSITION, cd_header);
+    errnum = sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_DISPOSITION, cd_header);
     sg_free(cd_header);
+    if (errnum != 0)
+        goto error;
     if (size == 0)
         size = ((uint64_t) sbuf.st_size) - offset;
     res->handle = MHD_create_response_from_fd_at_offset64(size, fd, offset);
@@ -224,8 +231,9 @@ error:
 
 int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const char *content_type,
                            unsigned int status) {
-    void *zbuf;
     size_t zsize;
+    void *zbuf;
+    int ret;
     if (!res || !buf || ((ssize_t) size < 0) || (status < 100) || (status > 599))
         return EINVAL;
     if (res->handle)
@@ -238,19 +246,28 @@ int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const
         if ((compress2(zbuf, (uLongf *) &zsize, buf, size, Z_BEST_COMPRESSION) != Z_OK) || (zsize >= size)) {
             zsize = size;
             memcpy(zbuf, buf, zsize);
-        } else
-            sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_ENCODING, "deflate");
+        } else {
+            ret = sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_ENCODING, "deflate");
+            if (ret != 0)
+                goto error;
+        }
     } else {
         zbuf = strdup("");
         zsize = 0;
     }
+    if (content_type) {
+        ret = sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_TYPE, content_type);
+        if (ret != 0)
+            goto error;
+    }
     res->handle = MHD_create_response_from_buffer(zsize, zbuf, MHD_RESPMEM_MUST_FREE);
     if (!res->handle)
         return ENOMEM;
-    if (content_type)
-        sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_TYPE, content_type);
     res->status = status;
     return 0;
+error:
+    sg_free(zbuf);
+    return ret;
 }
 
 int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb, void *handle, sg_free_cb free_cb,
@@ -278,6 +295,9 @@ int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb, void *han
         errnum = ENOMEM;
         goto error_buf;
     }
+    errnum = sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_ENCODING, "deflate");
+    if (errnum != 0)
+        goto error_res;
     holder->read_cb = read_cb;
     holder->free_cb = free_cb;
     holder->handle = handle;
@@ -287,7 +307,6 @@ int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb, void *han
         errnum = ENOMEM;
         goto error_res;
     }
-    sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_ENCODING, "deflate");
     res->status = status;
     return 0;
 error_res:

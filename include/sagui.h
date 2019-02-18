@@ -976,7 +976,8 @@ SG_EXTERN int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t s
                                      unsigned int status);
 
 /**
- * Compresses a stream and sends it to the client.
+ * Compresses a stream and sends it to the client. The compression is done by zlib library using the DEFLATE
+ * compression algorithm.
  * \param[in] res Response handle.
  * \param[in] read_cb Callback to read data from stream handle.
  * \param[in] handle Stream handle.
