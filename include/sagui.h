@@ -993,6 +993,10 @@ SG_EXTERN int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t s
 SG_EXTERN int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb, void *handle, sg_free_cb free_cb,
                                      unsigned int status);
 
+/* TODO: WARNING: this function is experimental! */
+SG_EXTERN int sg_httpres_zsendfile(struct sg_httpres *res, uint64_t max_size, uint64_t offset, const char *filename,
+                                   bool rendered, unsigned int status);
+
 #endif
 
 /**

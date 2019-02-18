@@ -78,6 +78,44 @@ static void sg__httpres_zfree_cb(void *handle) {
     sg_free(holder);
 }
 
+static ssize_t sg__httpres_zfread_cb(void *handle, __SG_UNUSED uint64_t offset, char *mem, size_t size) {
+    struct sg__httpres_zholder *holder = handle;
+    size_t have;
+    void *src, *buf;
+    src = sg_malloc(size);
+    if (!src)
+        return MHD_CONTENT_READER_END_WITH_ERROR;
+    have = (size_t) read(*((int *) holder->handle), src, size); /* TODO: 64-bit? */
+    if ((ssize_t) have < 0) {
+        have = MHD_CONTENT_READER_END_WITH_ERROR;
+        goto done;
+    }
+    if (have == 0) {
+        have = MHD_CONTENT_READER_END_OF_STREAM;
+        goto done;
+    }
+    if (sg__deflate(&holder->stream, src, have, &buf, &have, holder->buf) != 0)
+        have = MHD_CONTENT_READER_END_WITH_ERROR;
+    else {
+        memcpy(mem, buf, have);
+        sg_free(buf);
+    }
+done:
+    sg_free(src);
+    return have;
+}
+
+static void sg__httpres_zffree_cb(void *handle) {
+    struct sg__httpres_zholder *holder = handle;
+    if (!holder)
+        return;
+    deflateEnd(&holder->stream);
+    sg_free(holder->buf);
+    close(*((int *) holder->handle));
+    sg_free(holder->handle);
+    sg_free(holder);
+}
+
 #endif
 
 struct sg_httpres *sg__httpres_new(struct MHD_Connection *con) {
@@ -318,6 +356,99 @@ error_stream:
 error:
     if (free_cb)
         free_cb(handle);
+    return errnum;
+}
+
+/* TODO: WARNING: this function is experimental! */
+int sg_httpres_zsendfile(struct sg_httpres *res, uint64_t max_size, uint64_t offset, const char *filename,
+                         bool rendered, unsigned int status) {
+    struct sg__httpres_zholder *holder;
+    struct stat sbuf;
+    const char *cd_type, *cd_basename;
+    char *cd_header;
+    size_t fn_size;
+    int fd, errnum = 0;
+    if (!res || ((int64_t) max_size < 0) || ((int64_t) offset < 0) || !filename || (status < 100) || (status > 599))
+        return EINVAL;
+    if (res->handle)
+        return EALREADY;
+    fd = open(filename, O_RDONLY);
+    if ((fd == -1) || fstat(fd, &sbuf)) {
+        errnum = errno;
+        goto error;
+    }
+    if (S_ISDIR(sbuf.st_mode)) {
+        errnum = EISDIR;
+        goto error;
+    }
+    if (!S_ISREG(sbuf.st_mode)) {
+        errnum = EBADF;
+        goto error;
+    }
+    if ((max_size > 0) && ((uint64_t) sbuf.st_size > max_size)) {
+        errnum = EFBIG;
+        goto error;
+    }
+    if (lseek(fd, offset, SEEK_SET) != (__off_t) offset) { /* TODO: 64-bit? */
+        errnum = EINVAL;
+        goto error;
+    }
+#define SG__FNFMT "%s; filename=\"%s\""
+    cd_type = rendered ? "inline" : "attachment";
+    cd_basename = basename(filename);
+    fn_size = (size_t) snprintf(NULL, 0, SG__FNFMT, cd_type, cd_basename) + 1;
+    cd_header = sg_malloc(fn_size);
+    if (!cd_header) {
+        errnum = ENOMEM;
+        goto error;
+    }
+    snprintf(cd_header, fn_size, SG__FNFMT, cd_type, cd_basename);
+#undef SG__FNFMT
+    errnum = sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_DISPOSITION, cd_header);
+    sg_free(cd_header);
+    if (errnum != 0)
+        goto error;
+    holder = sg_alloc(sizeof(struct sg__httpres_zholder));
+    if (!holder) {
+        errnum = ENOMEM;
+        goto error;
+    }
+    errnum = deflateInit(&holder->stream, Z_BEST_COMPRESSION);
+    if (errnum != Z_OK)
+        goto error_stream;
+    holder->buf = sg_malloc(SG__ZLIB_CHUNK);
+    if (!holder->buf) {
+        errnum = ENOMEM;
+        goto error_buf;
+    }
+    holder->handle = sg_malloc(sizeof(int));
+    if (!holder->handle) {
+        errnum = ENOMEM;
+        goto error_pfd;
+    }
+    errnum = sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_ENCODING, "deflate");
+    if (errnum != 0)
+        goto error_res;
+    *((int *) holder->handle) = fd;
+    res->handle = MHD_create_response_from_callback(MHD_SIZE_UNKNOWN, SG__ZLIB_CHUNK + 128,
+                                                    sg__httpres_zfread_cb, holder, sg__httpres_zffree_cb);
+    if (!res->handle) {
+        errnum = ENOMEM;
+        goto error_res;
+    }
+    res->status = status;
+    return 0;
+error_res:
+    sg_free(holder->handle);
+error_pfd:
+    sg_free(holder->buf);
+error_buf:
+    deflateEnd(&holder->stream);
+error_stream:
+    sg_free(holder);
+error:
+    if ((fd != -1) && close(fd) && (errnum == 0))
+        errnum = errno;
     return errnum;
 }
 
