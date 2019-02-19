@@ -45,25 +45,20 @@
 
 #ifdef SG_HTTP_COMPRESSION
 
-static ssize_t sg__httpres_zread_cb(void *handle, __SG_UNUSED uint64_t offset, char *mem, size_t size) {
+static ssize_t sg__httpres_zread_cb(void *handle, __SG_UNUSED uint64_t offset, char *buf, size_t size) {
     struct sg__httpres_zholder *holder = handle;
     size_t have;
-    void *src, *buf;
-    src = sg_malloc(size);
-    if (!src)
-        return MHD_CONTENT_READER_END_WITH_ERROR;
-    have = (size_t) holder->read_cb(holder->handle, holder->offset, src, size);
+    void *dest;
+    have = (size_t) holder->read_cb(holder->handle, holder->offset, buf, size);
     if ((have == MHD_CONTENT_READER_END_WITH_ERROR) || (have == MHD_CONTENT_READER_END_OF_STREAM))
-        goto done;
+        return have;
     holder->offset += have;
-    if (sg__deflate(&holder->stream, src, have, &buf, &have, holder->buf) != 0)
+    if (sg__deflate(&holder->stream, buf, have, &dest, &have, holder->buf) != 0)
         have = MHD_CONTENT_READER_END_WITH_ERROR;
     else {
-        memcpy(mem, buf, have);
-        sg_free(buf);
+        memcpy(buf, dest, have);
+        sg_free(dest);
     }
-done:
-    sg_free(src);
     return have;
 }
 
