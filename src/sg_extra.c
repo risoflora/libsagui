@@ -55,6 +55,41 @@ ssize_t sg_eor(bool err) {
             err ? MHD_CONTENT_READER_END_WITH_ERROR : MHD_CONTENT_READER_END_OF_STREAM;
 }
 
+#ifdef SG_HTTP_COMPRESSION
+
+int sg__compress(Bytef *dest, uLongf *dest_size, const Bytef *src, uLong src_size, int level) {
+    const uInt max = (uInt) -1;
+    z_stream stream;
+    uLong left;
+    int errnum;
+    left = *dest_size;
+    *dest_size = 0;
+    stream.zalloc = NULL;
+    stream.zfree = NULL;
+    stream.opaque = NULL;
+    errnum = deflateInit2(&stream, level, Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY);
+    if (errnum != Z_OK)
+        return errnum;
+    stream.next_out = dest;
+    stream.avail_out = 0;
+    stream.next_in = (z_const Bytef *) src;
+    stream.avail_in = 0;
+    do {
+        if (stream.avail_out == 0) {
+            stream.avail_out = left > (uLong) max ? max : (uInt) left;
+            left -= stream.avail_out;
+        }
+        if (stream.avail_in == 0) {
+            stream.avail_in = src_size > (uLong) max ? max : (uInt) src_size;
+            src_size -= stream.avail_in;
+        }
+        errnum = deflate(&stream, src_size ? Z_NO_FLUSH : Z_FINISH);
+    } while (errnum == Z_OK);
+    *dest_size = stream.total_out;
+    deflateEnd(&stream);
+    return errnum == Z_STREAM_END ? Z_OK : errnum;
+}
+
 int sg__deflate(z_stream *stream, const void *src, size_t src_size, void **dest, size_t *dest_size, void *tmp) {
     unsigned int have;
     int flush, ret;
@@ -84,3 +119,5 @@ int sg__deflate(z_stream *stream, const void *src, size_t src_size, void **dest,
     } while (flush != Z_SYNC_FLUSH);
     return (ret == Z_OK) ? 0 : ret;
 }
+
+#endif

@@ -76,27 +76,18 @@ static void sg__httpres_zfree_cb(void *handle) {
 static ssize_t sg__httpres_zfread_cb(void *handle, __SG_UNUSED uint64_t offset, char *mem, size_t size) {
     struct sg__httpres_zholder *holder = handle;
     size_t have;
-    void *src, *buf;
-    src = sg_malloc(size);
-    if (!src)
+    void *buf;
+    have = (size_t) read(*((int *) holder->handle), mem, size); /* TODO: 64-bit? */
+    if ((ssize_t) have < 0)
         return MHD_CONTENT_READER_END_WITH_ERROR;
-    have = (size_t) read(*((int *) holder->handle), src, size); /* TODO: 64-bit? */
-    if ((ssize_t) have < 0) {
-        have = MHD_CONTENT_READER_END_WITH_ERROR;
-        goto done;
-    }
-    if (have == 0) {
-        have = MHD_CONTENT_READER_END_OF_STREAM;
-        goto done;
-    }
-    if (sg__deflate(&holder->stream, src, have, &buf, &have, holder->buf) != 0)
+    if (have == 0)
+        return MHD_CONTENT_READER_END_OF_STREAM;
+    if (sg__deflate(&holder->stream, mem, have, &buf, &have, holder->buf) != 0)
         have = MHD_CONTENT_READER_END_WITH_ERROR;
     else {
         memcpy(mem, buf, have);
         sg_free(buf);
     }
-done:
-    sg_free(src);
     return have;
 }
 
@@ -276,7 +267,7 @@ int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const
         zbuf = sg_malloc(zsize);
         if (!zbuf)
             return ENOMEM;
-        if ((compress2(zbuf, (uLongf *) &zsize, buf, size, Z_BEST_COMPRESSION) != Z_OK) || (zsize >= size)) {
+        if ((sg__compress(zbuf, (uLongf *) &zsize, buf, size, Z_BEST_COMPRESSION) != Z_OK) || (zsize >= size)) {
             zsize = size;
             memcpy(zbuf, buf, zsize);
         } else {
@@ -320,7 +311,8 @@ int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb, void *han
         errnum = ENOMEM;
         goto error;
     }
-    errnum = deflateInit(&holder->stream, Z_BEST_COMPRESSION);
+    errnum = deflateInit2(&holder->stream, Z_BEST_COMPRESSION, Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL,
+                          Z_DEFAULT_STRATEGY);
     if (errnum != Z_OK)
         goto error_stream;
     holder->buf = sg_malloc(SG__ZLIB_CHUNK);
@@ -408,7 +400,8 @@ int sg_httpres_zsendfile(struct sg_httpres *res, uint64_t max_size, uint64_t off
         errnum = ENOMEM;
         goto error;
     }
-    errnum = deflateInit(&holder->stream, Z_BEST_COMPRESSION);
+    errnum = deflateInit2(&holder->stream, Z_BEST_COMPRESSION, Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL,
+                          Z_DEFAULT_STRATEGY);
     if (errnum != Z_OK)
         goto error_stream;
     holder->buf = sg_malloc(SG__ZLIB_CHUNK);
