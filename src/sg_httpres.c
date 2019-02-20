@@ -43,6 +43,66 @@
 #include "sg_extra.h"
 #include "sg_httpres.h"
 
+static int sg__httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size, uint64_t offset,
+                                const char *filename, const char *disposition, unsigned int status) {
+    struct stat sbuf;
+    char *disp;
+    const char *fn;
+    size_t fn_size;
+    int fd, errnum = 0;
+    if (!res || ((int64_t) size < 0) || ((int64_t) max_size < 0) || ((int64_t) offset < 0) || !filename ||
+        (status < 100) || (status > 599))
+        return EINVAL;
+    if (res->handle)
+        return EALREADY;
+    fd = open(filename, O_RDONLY);
+    if ((fd == -1) || fstat(fd, &sbuf)) {
+        errnum = errno;
+        goto error;
+    }
+    if (S_ISDIR(sbuf.st_mode)) {
+        errnum = EISDIR;
+        goto error;
+    }
+    if (!S_ISREG(sbuf.st_mode)) {
+        errnum = EBADF;
+        goto error;
+    }
+    if ((max_size > 0) && ((uint64_t) sbuf.st_size > max_size)) {
+        errnum = EFBIG;
+        goto error;
+    }
+    if (disposition) {
+#define SG__FNFMT "%s; filename=\"%s\""
+        fn = basename(filename);
+        fn_size = (size_t) snprintf(NULL, 0, SG__FNFMT, disposition, fn) + 1;
+        disp = sg_malloc(fn_size);
+        if (!disp) {
+            errnum = ENOMEM;
+            goto error;
+        }
+        snprintf(disp, fn_size, SG__FNFMT, disposition, fn);
+#undef SG__FNFMT
+        errnum = sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_DISPOSITION, disp);
+        sg_free(disp);
+        if (errnum != 0)
+            goto error;
+    }
+    if (size == 0)
+        size = ((uint64_t) sbuf.st_size) - offset;
+    res->handle = MHD_create_response_from_fd_at_offset64(size, fd, offset);
+    if (!res->handle) {
+        errnum = ENOMEM;
+        goto error;
+    }
+    res->status = status;
+    return 0;
+error:
+    if ((fd != -1) && close(fd) && (errnum == 0))
+        errnum = errno;
+    return errnum;
+}
+
 #ifdef SG_HTTP_COMPRESSION
 
 static ssize_t sg__httpres_zread_cb(void *handle, __SG_UNUSED uint64_t offset, char *buf, size_t size) {
@@ -169,63 +229,17 @@ int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t size, const 
     return 0;
 }
 
+int sg_httpres_download(struct sg_httpres *res, const char *filename) {
+    return sg__httpres_sendfile(res, 0, 0, 0, filename, "attachment", 200);
+}
+
+int sg_httpres_render(struct sg_httpres *res, const char *filename) {
+    return sg__httpres_sendfile(res, 0, 0, 0, filename, "inline", 200);
+}
+
 int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size, uint64_t offset,
-                        const char *filename, bool rendered, unsigned int status) {
-    struct stat sbuf;
-    char *cd_header;
-    const char *cd_type, *cd_basename;
-    size_t fn_size;
-    int fd, errnum = 0;
-    if (!res || ((int64_t) size < 0) || ((int64_t) max_size < 0) || ((int64_t) offset < 0) || !filename ||
-        (status < 100) || (status > 599))
-        return EINVAL;
-    if (res->handle)
-        return EALREADY;
-    fd = open(filename, O_RDONLY);
-    if ((fd == -1) || fstat(fd, &sbuf)) {
-        errnum = errno;
-        goto error;
-    }
-    if (S_ISDIR(sbuf.st_mode)) {
-        errnum = EISDIR;
-        goto error;
-    }
-    if (!S_ISREG(sbuf.st_mode)) {
-        errnum = EBADF;
-        goto error;
-    }
-    if ((max_size > 0) && ((uint64_t) sbuf.st_size > max_size)) {
-        errnum = EFBIG;
-        goto error;
-    }
-#define SG__FNFMT "%s; filename=\"%s\""
-    cd_type = rendered ? "inline" : "attachment";
-    cd_basename = basename(filename);
-    fn_size = (size_t) snprintf(NULL, 0, SG__FNFMT, cd_type, cd_basename) + 1;
-    cd_header = sg_malloc(fn_size);
-    if (!cd_header) {
-        errnum = ENOMEM;
-        goto error;
-    }
-    snprintf(cd_header, fn_size, SG__FNFMT, cd_type, cd_basename);
-#undef SG__FNFMT
-    errnum = sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_DISPOSITION, cd_header);
-    sg_free(cd_header);
-    if (errnum != 0)
-        goto error;
-    if (size == 0)
-        size = ((uint64_t) sbuf.st_size) - offset;
-    res->handle = MHD_create_response_from_fd_at_offset64(size, fd, offset);
-    if (!res->handle) {
-        errnum = ENOMEM;
-        goto error;
-    }
-    res->status = status;
-    return 0;
-error:
-    if ((fd != -1) && close(fd) && (errnum == 0))
-        errnum = errno;
-    return errnum;
+                        const char *filename, bool downloaded, unsigned int status) {
+    return sg__httpres_sendfile(res, size, max_size, offset, filename, (downloaded ? "attachment" : NULL), status);
 }
 
 int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, sg_read_cb read_cb, void *handle, sg_free_cb free_cb,

@@ -306,7 +306,7 @@ static void test_httpres_sendfile(struct sg_httpres *res) {
 
     ASSERT(sg_httpres_sendfile(res, size, len, offset, PATH, true, 200) == 0);
     ASSERT(strcmp(sg_strmap_get(*sg_httpres_headers(res), MHD_HTTP_HEADER_CONTENT_DISPOSITION),
-                  "inline; filename=\""
+                  "attachment; filename=\""
                    FILENAME
                    "\"") == 0);
 
@@ -314,11 +314,9 @@ static void test_httpres_sendfile(struct sg_httpres *res) {
 
     sg_free(res->handle);
     res->handle = NULL;
+    sg_strmap_cleanup(sg_httpres_headers(res));
     ASSERT(sg_httpres_sendfile(res, size, len, offset, PATH, false, 201) == 0);
-    ASSERT(strcmp(sg_strmap_get(*sg_httpres_headers(res), MHD_HTTP_HEADER_CONTENT_DISPOSITION),
-                  "attachment; filename=\""
-                   FILENAME
-                   "\"") == 0);
+    ASSERT(!sg_strmap_get(*sg_httpres_headers(res), MHD_HTTP_HEADER_CONTENT_DISPOSITION));
     ASSERT(res->status == 201);
 #undef PATH
 #undef FILENAME

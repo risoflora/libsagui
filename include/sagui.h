@@ -74,8 +74,8 @@ extern "C" {
 #endif
 
 #define SG_VERSION_MAJOR 2
-#define SG_VERSION_MINOR 1
-#define SG_VERSION_PATCH 2
+#define SG_VERSION_MINOR 2
+#define SG_VERSION_PATCH 0
 #define SG_VERSION_HEX ((SG_VERSION_MAJOR << 16) | (SG_VERSION_MINOR <<  8) | (SG_VERSION_PATCH))
 
 #define SG_ERR_SIZE 256
@@ -882,8 +882,7 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t si
  * \retval EBADF Bad file number.
  * \retval ENOMEM Out of memory.
  */
-#define sg_httpres_download(res, filename) \
-    sg_httpres_sendfile((res), 0, 0, 0, (filename), false, (200))
+SG_EXTERN int sg_httpres_download(struct sg_httpres *res, const char *filename);
 
 /**
  * Sends a file to be rendered.
@@ -896,8 +895,7 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t si
  * \retval EBADF Bad file number.
  * \retval ENOMEM Out of memory.
  */
-#define sg_httpres_render(res, filename) \
-    sg_httpres_sendfile((res), 0, 0, 0, (filename), true, (200))
+SG_EXTERN int sg_httpres_render(struct sg_httpres *res, const char *filename);
 
 /**
  * Sends a file to the client.
@@ -906,7 +904,7 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t si
  * \param[in] max_size Maximum allowed file size. Use zero for no limit.
  * \param[in] offset Offset to start reading from in the file to be sent.
  * \param[in] filename Path of the file to be sent.
- * \param[in] rendered If `true` the file is rendered, otherwise downloaded.
+ * \param[in] downloaded If `true` it offer the file as download.
  * \param[in] status HTTP status code.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
@@ -917,7 +915,7 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t si
  * \retval ENOMEM Out of memory.
  */
 SG_EXTERN int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size, uint64_t offset,
-                                  const char *filename, bool rendered, unsigned int status);
+                                  const char *filename, bool downloaded, unsigned int status);
 
 /**
  * Sends a stream to the client.
