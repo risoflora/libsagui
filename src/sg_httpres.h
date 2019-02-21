@@ -55,6 +55,21 @@ struct sg__httpres_zholder {
     void *buf;
 };
 
+enum sg__httpres_gzip_status {
+    SG__HTTPRES_GZ_NONE = 0,
+    SG__HTTPRES_GZ_STARDED = 1,
+    SG__HTTPRES_GZ_FINISHING = 2
+};
+
+struct sg__httpres_gzholder {
+    z_stream stream;
+    uint64_t offset;
+    uLong crc;
+    void *handle;
+    void *buf;
+    enum sg__httpres_gzip_status status;
+};
+
 #endif
 
 SG__EXTERN struct sg_httpres *sg__httpres_new(struct MHD_Connection *con);

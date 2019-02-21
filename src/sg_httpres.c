@@ -74,14 +74,42 @@ static void sg__httpres_zfree_cb(void *handle) {
 }
 
 static ssize_t sg__httpres_zfread_cb(void *handle, __SG_UNUSED uint64_t offset, char *mem, size_t size) {
-    struct sg__httpres_zholder *holder = handle;
+    struct sg__httpres_gzholder *holder = handle;
     size_t have;
     void *buf;
+    if (holder->status == SG__HTTPRES_GZ_NONE) {
+        holder->status = SG__HTTPRES_GZ_STARDED;
+        memset(mem, 0, 10);
+        mem[0] = (unsigned char) 0x1f;
+        mem[1] = (unsigned char) 0x8b;
+        mem[2] = (unsigned char) 0x08;
+#ifdef _WIN32
+        mem[9] = (unsigned char) 0x0b;
+#else
+        mem[9] = (unsigned char) 0x03;
+#endif
+        holder->crc = crc32(0L, Z_NULL, 0);
+        return 10;
+    }
+    if (holder->status == SG__HTTPRES_GZ_FINISHING)
+        return MHD_CONTENT_READER_END_OF_STREAM;
     have = (size_t) read(*((int *) holder->handle), mem, size); /* TODO: 64-bit? */
     if ((ssize_t) have < 0)
         return MHD_CONTENT_READER_END_WITH_ERROR;
-    if (have == 0)
-        return MHD_CONTENT_READER_END_OF_STREAM;
+    if (have == 0) {
+        holder->status = SG__HTTPRES_GZ_FINISHING;
+        mem[0] = (unsigned char) holder->crc;
+        mem[1] = (unsigned char) holder->crc >> 8;
+        mem[2] = (unsigned char) holder->crc >> 16;
+        mem[3] = (unsigned char) holder->crc >> 24;
+        mem[4] = (unsigned char) holder->offset;
+        mem[5] = (unsigned char) holder->offset >> 8;
+        mem[6] = (unsigned char) holder->offset >> 16;
+        mem[7] = (unsigned char) holder->offset >> 24;
+        return 8;
+    }
+    holder->offset += have;
+    holder->crc = crc32(holder->crc, (const Bytef *) mem, (uInt) have);
     if (sg__deflate(&holder->stream, mem, have, &buf, &have, holder->buf) != 0)
         have = MHD_CONTENT_READER_END_WITH_ERROR;
     else {
@@ -92,7 +120,7 @@ static ssize_t sg__httpres_zfread_cb(void *handle, __SG_UNUSED uint64_t offset, 
 }
 
 static void sg__httpres_zffree_cb(void *handle) {
-    struct sg__httpres_zholder *holder = handle;
+    struct sg__httpres_gzholder *holder = handle;
     if (!holder)
         return;
     deflateEnd(&holder->stream);
@@ -355,7 +383,7 @@ error:
 /* TODO: WARNING: this function is experimental! */
 static int sg__httpres_zsendfile2(struct sg_httpres *res, uint64_t max_size, uint64_t offset, const char *filename,
                                   const char *disposition, unsigned int status) {
-    struct sg__httpres_zholder *holder;
+    struct sg__httpres_gzholder *holder;
     struct stat sbuf;
     size_t fn_size;
     const char *fn;
@@ -383,24 +411,26 @@ static int sg__httpres_zsendfile2(struct sg_httpres *res, uint64_t max_size, uin
         goto error;
     }
     if (lseek(fd, offset, SEEK_SET) != (__off_t) offset) { /* TODO: 64-bit? */
-        errnum = EINVAL;
+        errnum = errno;
         goto error;
     }
+    if (disposition) {
 #define SG__FNFMT "%s; filename=\"%s\""
-    fn = basename(filename);
-    fn_size = (size_t) snprintf(NULL, 0, SG__FNFMT, disposition, fn) + 1;
-    disp = sg_malloc(fn_size);
-    if (!disp) {
-        errnum = ENOMEM;
-        goto error;
-    }
-    snprintf(disp, fn_size, SG__FNFMT, disposition, fn);
+        fn = basename(filename);
+        fn_size = (size_t) snprintf(NULL, 0, SG__FNFMT, disposition, fn) + 1;
+        disp = sg_malloc(fn_size);
+        if (!disp) {
+            errnum = ENOMEM;
+            goto error;
+        }
+        snprintf(disp, fn_size, SG__FNFMT, disposition, fn);
 #undef SG__FNFMT
-    errnum = sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_DISPOSITION, disp);
-    sg_free(disp);
-    if (errnum != 0)
-        goto error;
-    holder = sg_alloc(sizeof(struct sg__httpres_zholder));
+        errnum = sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_DISPOSITION, disp);
+        sg_free(disp);
+        if (errnum != 0)
+            goto error;
+    }
+    holder = sg_alloc(sizeof(struct sg__httpres_gzholder));
     if (!holder) {
         errnum = ENOMEM;
         goto error;
@@ -419,7 +449,7 @@ static int sg__httpres_zsendfile2(struct sg_httpres *res, uint64_t max_size, uin
         errnum = ENOMEM;
         goto error_pfd;
     }
-    errnum = sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_ENCODING, "deflate");
+    errnum = sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_ENCODING, "gzip");
     if (errnum != 0)
         goto error_res;
     *((int *) holder->handle) = fd;
