@@ -882,7 +882,8 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t si
  * \retval EBADF Bad file number.
  * \retval ENOMEM Out of memory.
  */
-SG_EXTERN int sg_httpres_download(struct sg_httpres *res, const char *filename);
+#define sg_httpres_download(res, filename) \
+    sg_httpres_sendfile2((res), 0, 0, 0, (filename), "attachment", 200)
 
 /**
  * Sends a file to be rendered.
@@ -895,7 +896,30 @@ SG_EXTERN int sg_httpres_download(struct sg_httpres *res, const char *filename);
  * \retval EBADF Bad file number.
  * \retval ENOMEM Out of memory.
  */
-SG_EXTERN int sg_httpres_render(struct sg_httpres *res, const char *filename);
+#define sg_httpres_render(res, filename) \
+    sg_httpres_sendfile2((res), 0, 0, 0, (filename), "inline", 200)
+
+/**
+* Sends a file to the client.
+* \param[in] res Response handle.
+* \param[in] size Size of the file to be sent. Use zero to calculate automatically.
+* \param[in] max_size Maximum allowed file size. Use zero for no limit.
+* \param[in] offset Offset to start reading from in the file to be sent.
+* \param[in] filename Path of the file to be sent.
+* \param[in] disposition Content disposition as null-terminated string (attachment or inline).
+* \param[in] status HTTP status code.
+* \retval 0 Success.
+* \retval EINVAL Invalid argument.
+* \retval EALREADY Operation already in progress.
+* \retval EISDIR Is a directory.
+* \retval EBADF Bad file number.
+* \retval EFBIG File too large.
+* \retval ENOMEM Out of memory.
+* \warning The parameter `disposition` is not checked internally, thus any non-`NULL` value is passed directly to the
+* header `Content-Disposition`.
+*/
+SG_EXTERN int sg_httpres_sendfile2(struct sg_httpres *res, uint64_t size, uint64_t max_size, uint64_t offset,
+                                   const char *filename, const char *disposition, unsigned int status);
 
 /**
  * Sends a file to the client.
@@ -992,8 +1016,12 @@ SG_EXTERN int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb,
                                      unsigned int status);
 
 /* TODO: WARNING: this function is experimental! */
+SG_EXTERN int sg_httpres_zsendfile2(struct sg_httpres *res, uint64_t max_size, uint64_t offset,
+                                    const char *filename, const char *disposition, unsigned int status);
+
+/* TODO: WARNING: this function is experimental! */
 SG_EXTERN int sg_httpres_zsendfile(struct sg_httpres *res, uint64_t max_size, uint64_t offset, const char *filename,
-                                   bool rendered, unsigned int status);
+                                   bool downloaded, unsigned int status);
 
 #endif
 
