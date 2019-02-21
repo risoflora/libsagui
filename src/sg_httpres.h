@@ -65,8 +65,8 @@ struct sg__httpres_gzholder {
     z_stream stream;
     uint64_t offset;
     uLong crc;
-    void *handle;
     void *buf;
+    int *handle;
     enum sg__httpres_gzip_status status;
 };
 

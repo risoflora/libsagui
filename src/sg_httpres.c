@@ -43,6 +43,44 @@
 #include "sg_extra.h"
 #include "sg_httpres.h"
 
+static void sg__httpres_openfile(struct sg_httpres *res, const char *filename, const char *disposition, size_t max_size,
+                                 int *fd, struct stat *sbuf, int *errnum) {
+    const char *fn;
+    size_t fn_size;
+    char *disp;
+    *fd = open(filename, O_RDONLY);
+    if ((*fd == -1) || fstat(*fd, sbuf)) {
+        *errnum = errno;
+        return;
+    }
+    if (S_ISDIR(sbuf->st_mode)) {
+        *errnum = EISDIR;
+        return;
+    }
+    if (!S_ISREG(sbuf->st_mode)) {
+        *errnum = EBADF;
+        return;
+    }
+    if ((max_size > 0) && ((uint64_t) sbuf->st_size > max_size)) {
+        *errnum = EFBIG;
+        return;
+    }
+    if (disposition) {
+#define SG__FNFMT "%s; filename=\"%s\""
+        fn = basename(filename);
+        fn_size = (size_t) snprintf(NULL, 0, SG__FNFMT, disposition, fn) + 1;
+        disp = sg_malloc(fn_size);
+        if (!disp) {
+            *errnum = ENOMEM;
+            return;
+        }
+        snprintf(disp, fn_size, SG__FNFMT, disposition, fn);
+#undef SG__FNFMT
+        *errnum = sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_DISPOSITION, disp);
+        sg_free(disp);
+    }
+}
+
 #ifdef SG_HTTP_COMPRESSION
 
 static ssize_t sg__httpres_zread_cb(void *handle, __SG_UNUSED uint64_t offset, char *buf, size_t size) {
@@ -93,7 +131,7 @@ static ssize_t sg__httpres_zfread_cb(void *handle, __SG_UNUSED uint64_t offset, 
     }
     if (holder->status == SG__HTTPRES_GZ_FINISHING)
         return MHD_CONTENT_READER_END_OF_STREAM;
-    have = (size_t) read(*((int *) holder->handle), mem, size); /* TODO: 64-bit? */
+    have = (size_t) read(*holder->handle, mem, size); /* TODO: 64-bit? */
     if ((ssize_t) have < 0)
         return MHD_CONTENT_READER_END_WITH_ERROR;
     if (have == 0) {
@@ -125,7 +163,7 @@ static void sg__httpres_zffree_cb(void *handle) {
         return;
     deflateEnd(&holder->stream);
     sg_free(holder->buf);
-    close(*((int *) holder->handle));
+    close(*holder->handle);
     sg_free(holder->handle);
     sg_free(holder);
 }
@@ -200,48 +238,15 @@ int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t size, const 
 int sg_httpres_sendfile2(struct sg_httpres *res, uint64_t size, uint64_t max_size, uint64_t offset,
                          const char *filename, const char *disposition, unsigned int status) {
     struct stat sbuf;
-    size_t fn_size;
-    const char *fn;
-    char *disp;
     int fd, errnum = 0;
     if (!res || ((int64_t) size < 0) || ((int64_t) max_size < 0) || ((int64_t) offset < 0) || !filename ||
         (status < 100) || (status > 599))
         return EINVAL;
     if (res->handle)
         return EALREADY;
-    fd = open(filename, O_RDONLY);
-    if ((fd == -1) || fstat(fd, &sbuf)) {
-        errnum = errno;
+    sg__httpres_openfile(res, filename, disposition, max_size, &fd, &sbuf, &errnum);
+    if (errnum != 0)
         goto error;
-    }
-    if (S_ISDIR(sbuf.st_mode)) {
-        errnum = EISDIR;
-        goto error;
-    }
-    if (!S_ISREG(sbuf.st_mode)) {
-        errnum = EBADF;
-        goto error;
-    }
-    if ((max_size > 0) && ((uint64_t) sbuf.st_size > max_size)) {
-        errnum = EFBIG;
-        goto error;
-    }
-    if (disposition) {
-#define SG__FNFMT "%s; filename=\"%s\""
-        fn = basename(filename);
-        fn_size = (size_t) snprintf(NULL, 0, SG__FNFMT, disposition, fn) + 1;
-        disp = sg_malloc(fn_size);
-        if (!disp) {
-            errnum = ENOMEM;
-            goto error;
-        }
-        snprintf(disp, fn_size, SG__FNFMT, disposition, fn);
-#undef SG__FNFMT
-        errnum = sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_DISPOSITION, disp);
-        sg_free(disp);
-        if (errnum != 0)
-            goto error;
-    }
     if (size == 0)
         size = ((uint64_t) sbuf.st_size) - offset;
     res->handle = MHD_create_response_from_fd_at_offset64(size, fd, offset);
@@ -385,50 +390,17 @@ static int sg__httpres_zsendfile2(struct sg_httpres *res, uint64_t max_size, uin
                                   const char *disposition, unsigned int status) {
     struct sg__httpres_gzholder *holder;
     struct stat sbuf;
-    size_t fn_size;
-    const char *fn;
-    char *disp;
     int fd, errnum = 0;
     if (!res || ((int64_t) max_size < 0) || ((int64_t) offset < 0) || !filename || (status < 100) || (status > 599))
         return EINVAL;
     if (res->handle)
         return EALREADY;
-    fd = open(filename, O_RDONLY);
-    if ((fd == -1) || fstat(fd, &sbuf)) {
-        errnum = errno;
+    sg__httpres_openfile(res, filename, disposition, max_size, &fd, &sbuf, &errnum);
+    if (errnum != 0)
         goto error;
-    }
-    if (S_ISDIR(sbuf.st_mode)) {
-        errnum = EISDIR;
-        goto error;
-    }
-    if (!S_ISREG(sbuf.st_mode)) {
-        errnum = EBADF;
-        goto error;
-    }
-    if ((max_size > 0) && ((uint64_t) sbuf.st_size > max_size)) {
-        errnum = EFBIG;
-        goto error;
-    }
     if (lseek(fd, offset, SEEK_SET) != (__off_t) offset) { /* TODO: 64-bit? */
         errnum = errno;
         goto error;
-    }
-    if (disposition) {
-#define SG__FNFMT "%s; filename=\"%s\""
-        fn = basename(filename);
-        fn_size = (size_t) snprintf(NULL, 0, SG__FNFMT, disposition, fn) + 1;
-        disp = sg_malloc(fn_size);
-        if (!disp) {
-            errnum = ENOMEM;
-            goto error;
-        }
-        snprintf(disp, fn_size, SG__FNFMT, disposition, fn);
-#undef SG__FNFMT
-        errnum = sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_DISPOSITION, disp);
-        sg_free(disp);
-        if (errnum != 0)
-            goto error;
     }
     holder = sg_alloc(sizeof(struct sg__httpres_gzholder));
     if (!holder) {
@@ -452,7 +424,7 @@ static int sg__httpres_zsendfile2(struct sg_httpres *res, uint64_t max_size, uin
     errnum = sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_ENCODING, "gzip");
     if (errnum != 0)
         goto error_res;
-    *((int *) holder->handle) = fd;
+    *holder->handle = fd;
     res->handle = MHD_create_response_from_callback(MHD_SIZE_UNKNOWN, SG__ZLIB_CHUNK + 128,
                                                     sg__httpres_zfread_cb, holder, sg__httpres_zffree_cb);
     if (!res->handle) {
