@@ -57,7 +57,7 @@ ssize_t sg_eor(bool err) {
 
 #ifdef SG_HTTP_COMPRESSION
 
-int sg__compress(Bytef *dest, uLongf *dest_size, const Bytef *src, uLong src_size, int level) {
+int sg__compress(const Bytef *src, uLong src_size, Bytef *dest, uLongf *dest_size, int level) {
     const uInt max = (uInt) -1;
     z_stream stream;
     uLong left;

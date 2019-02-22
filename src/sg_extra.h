@@ -42,10 +42,10 @@ SG__EXTERN int sg__strmap_iter(void *cls, struct sg_strmap *map);
 
 #ifdef SG_HTTP_COMPRESSION
 
+SG__EXTERN int sg__compress(const Bytef *src, uLong src_size, Bytef *dest, uLongf *dest_size, int level);
+
 SG__EXTERN int sg__deflate(z_stream *stream, const void *src, size_t src_size, void **dest, size_t *dest_size,
                            void *tmp);
-
-SG__EXTERN int sg__compress(Bytef *dest, uLongf *dest_size, const Bytef *src, uLong src_size, int level);
 
 #endif
 

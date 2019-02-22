@@ -136,14 +136,14 @@ static ssize_t sg__httpres_zfread_cb(void *handle, __SG_UNUSED uint64_t offset, 
         return MHD_CONTENT_READER_END_WITH_ERROR;
     if (have == 0) {
         holder->status = SG__HTTPRES_GZ_FINISHING;
-        mem[0] = (unsigned char) holder->crc;
-        mem[1] = (unsigned char) holder->crc >> 8;
-        mem[2] = (unsigned char) holder->crc >> 16;
-        mem[3] = (unsigned char) holder->crc >> 24;
-        mem[4] = (unsigned char) holder->offset;
-        mem[5] = (unsigned char) holder->offset >> 8;
-        mem[6] = (unsigned char) holder->offset >> 16;
-        mem[7] = (unsigned char) holder->offset >> 24;
+        mem[0] = (unsigned char) (holder->crc & 0xff);
+        mem[1] = (unsigned char) ((holder->crc >> 8) & 0xff);
+        mem[2] = (unsigned char) ((holder->crc >> 16) & 0xff);
+        mem[3] = (unsigned char) ((holder->crc >> 24) & 0xff);
+        mem[4] = (unsigned char) ((holder->offset) & 0xff);
+        mem[5] = (unsigned char) ((holder->offset >> 8) & 0xff);
+        mem[6] = (unsigned char) ((holder->offset >> 16) & 0xff);
+        mem[7] = (unsigned char) ((holder->offset >> 24) & 0xff);
         return 8;
     }
     holder->offset += have;
@@ -306,7 +306,7 @@ int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const
         zbuf = sg_malloc(zsize);
         if (!zbuf)
             return ENOMEM;
-        if ((sg__compress(zbuf, (uLongf *) &zsize, buf, size, Z_BEST_COMPRESSION) != Z_OK) || (zsize >= size)) {
+        if ((sg__compress(buf, size, zbuf, (uLongf *) &zsize, Z_BEST_COMPRESSION) != Z_OK) || (zsize >= size)) {
             zsize = size;
             memcpy(zbuf, buf, zsize);
         } else {
