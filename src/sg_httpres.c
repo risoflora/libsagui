@@ -116,7 +116,7 @@ static ssize_t sg__httpres_zfread_cb(void *handle, __SG_UNUSED uint64_t offset, 
     size_t have;
     void *buf;
     if (holder->status == SG__HTTPRES_GZ_NONE) {
-        holder->status = SG__HTTPRES_GZ_STARDED;
+        holder->status = SG__HTTPRES_GZ_PROCESSING;
         memset(mem, 0, 10);
         mem[0] = (unsigned char) 0x1f;
         mem[1] = (unsigned char) 0x8b;
@@ -129,13 +129,8 @@ static ssize_t sg__httpres_zfread_cb(void *handle, __SG_UNUSED uint64_t offset, 
         holder->crc = crc32(0L, Z_NULL, 0);
         return 10;
     }
-    if (holder->status == SG__HTTPRES_GZ_FINISHING)
-        return MHD_CONTENT_READER_END_OF_STREAM;
-    have = (size_t) read(*holder->handle, mem, size); /* TODO: 64-bit? */
-    if ((ssize_t) have < 0)
-        return MHD_CONTENT_READER_END_WITH_ERROR;
-    if (have == 0) {
-        holder->status = SG__HTTPRES_GZ_FINISHING;
+    if (holder->status == SG__HTTPRES_GZ_FINISHING) {
+        holder->status = SG__HTTPRES_GZ_FINISHED;
         mem[0] = (unsigned char) (holder->crc & 0xff);
         mem[1] = (unsigned char) ((holder->crc >> 8) & 0xff);
         mem[2] = (unsigned char) ((holder->crc >> 16) & 0xff);
@@ -146,9 +141,18 @@ static ssize_t sg__httpres_zfread_cb(void *handle, __SG_UNUSED uint64_t offset, 
         mem[7] = (unsigned char) ((holder->offset >> 24) & 0xff);
         return 8;
     }
-    holder->offset += have;
-    holder->crc = crc32(holder->crc, (const Bytef *) mem, (uInt) have);
-    if (sg__deflate(&holder->stream, mem, have, &buf, &have, holder->buf) != 0)
+    if (holder->status == SG__HTTPRES_GZ_FINISHED)
+        return MHD_CONTENT_READER_END_OF_STREAM;
+    have = (size_t) read(*holder->handle, mem, size);
+    if ((ssize_t) have < 0)
+        return MHD_CONTENT_READER_END_WITH_ERROR;
+    if (have == 0)
+        holder->status = SG__HTTPRES_GZ_FINISHING;
+    else {
+        holder->offset += have;
+        holder->crc = crc32(holder->crc, (z_const Bytef *) mem, (uInt) have);
+    }
+    if (sg__gzdeflate(&holder->stream, mem, have, &buf, &have, holder->buf) != 0)
         have = MHD_CONTENT_READER_END_WITH_ERROR;
     else {
         memcpy(mem, buf, have);
@@ -419,7 +423,7 @@ static int sg__httpres_zsendfile2(struct sg_httpres *res, uint64_t max_size, uin
     holder->handle = sg_malloc(sizeof(int));
     if (!holder->handle) {
         errnum = ENOMEM;
-        goto error_pfd;
+        goto error_handle;
     }
     errnum = sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_ENCODING, "gzip");
     if (errnum != 0)
@@ -435,7 +439,7 @@ static int sg__httpres_zsendfile2(struct sg_httpres *res, uint64_t max_size, uin
     return 0;
 error_res:
     sg_free(holder->handle);
-error_pfd:
+error_handle:
     sg_free(holder->buf);
 error_buf:
     deflateEnd(&holder->stream);

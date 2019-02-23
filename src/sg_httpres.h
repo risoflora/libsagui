@@ -57,8 +57,9 @@ struct sg__httpres_zholder {
 
 enum sg__httpres_gzip_status {
     SG__HTTPRES_GZ_NONE = 0,
-    SG__HTTPRES_GZ_STARDED = 1,
-    SG__HTTPRES_GZ_FINISHING = 2
+    SG__HTTPRES_GZ_PROCESSING = 1,
+    SG__HTTPRES_GZ_FINISHING = 2,
+    SG__HTTPRES_GZ_FINISHED = 3
 };
 
 struct sg__httpres_gzholder {

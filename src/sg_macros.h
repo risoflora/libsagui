@@ -40,7 +40,7 @@
 # ifndef PCRE2_CODE_UNIT_WIDTH
 #  define PCRE2_CODE_UNIT_WIDTH 8
 # endif
-#include <pcre2.h>
+#include "pcre2.h"
 #endif
 
 #ifndef SG__EXTERN
