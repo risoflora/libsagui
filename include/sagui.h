@@ -982,6 +982,26 @@ SG_EXTERN int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, sg_re
  * Compresses a binary content and sends it to the client. The compression is done by zlib library using the
  * DEFLATE compression algorithm.
  * \param[in] res Response handle.
+ * \param[in] level Compression level (1..9 or -1 for default).
+ * \param[in] buf Binary content.
+ * \param[in] size Content size.
+ * \param[in] content_type Content type.
+ * \param[in] status HTTP status code.
+ * \retval 0 Success.
+ * \retval EINVAL Invalid argument.
+ * \retval ENOMEM Out of memory.
+ * \retval ENOBUFS No buffer space available.
+ * \retval EALREADY Operation already in progress.
+ * \retval Z_<ERROR> zlib error as negative number.
+ * \note When compression succeeds, the header `Content-Encoding: deflate` is automatically added to the response.
+ */
+SG_EXTERN int sg_httpres_zsendbinary2(struct sg_httpres *res, int level, void *buf, size_t size,
+                                      const char *content_type, unsigned int status);
+
+/**
+ * Compresses a binary content and sends it to the client. The compression is done by zlib library using the
+ * DEFLATE compression algorithm.
+ * \param[in] res Response handle.
  * \param[in] buf Binary content.
  * \param[in] size Content size.
  * \param[in] content_type Content type.
@@ -996,6 +1016,25 @@ SG_EXTERN int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, sg_re
  */
 SG_EXTERN int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const char *content_type,
                                      unsigned int status);
+
+/**
+ * Compresses a stream and sends it to the client. The compression is done by zlib library using the DEFLATE
+ * compression algorithm.
+ * \param[in] res Response handle.
+ * \param[in] level Compression level (1..9 or -1 for default).
+ * \param[in] read_cb Callback to read data from stream handle.
+ * \param[in] handle Stream handle.
+ * \param[in] free_cb Callback to free the stream handle.
+ * \param[in] status HTTP status code.
+ * \retval 0 Success.
+ * \retval EINVAL Invalid argument.
+ * \retval EALREADY Operation already in progress.
+ * \retval ENOMEM Out of memory.
+ * \retval Z_<ERROR> zlib error as negative number.
+ * \note When compression succeeds, the header `Content-Encoding: deflate` is automatically added to the response.
+ */
+SG_EXTERN int sg_httpres_zsendstream2(struct sg_httpres *res, int level, sg_read_cb read_cb, void *handle,
+                                      sg_free_cb free_cb, unsigned int status);
 
 /**
  * Compresses a stream and sends it to the client. The compression is done by zlib library using the DEFLATE
@@ -1016,12 +1055,12 @@ SG_EXTERN int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb,
                                      unsigned int status);
 
 /* TODO: WARNING: this function is experimental! */
-SG_EXTERN int sg_httpres_zsendfile2(struct sg_httpres *res, uint64_t max_size, uint64_t offset,
+SG_EXTERN int sg_httpres_zsendfile2(struct sg_httpres *res, int level, uint64_t max_size, uint64_t offset,
                                     const char *filename, const char *disposition, unsigned int status);
 
 /* TODO: WARNING: this function is experimental! */
-SG_EXTERN int sg_httpres_zsendfile(struct sg_httpres *res, uint64_t max_size, uint64_t offset, const char *filename,
-                                   bool downloaded, unsigned int status);
+SG_EXTERN int sg_httpres_zsendfile(struct sg_httpres *res, uint64_t max_size, uint64_t offset,
+                                   const char *filename, bool downloaded, unsigned int status);
 
 #endif
 
