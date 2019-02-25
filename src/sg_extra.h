@@ -47,8 +47,8 @@ SG__EXTERN int sg__compress(const Bytef *src, uLong src_size, Bytef *dest, uLong
 SG__EXTERN int sg__deflate(z_stream *stream, const void *src, size_t src_size, void **dest, size_t *dest_size,
                            void *tmp);
 
-SG__EXTERN int sg__gzdeflate(z_stream *stream, const void *src, size_t src_size, void **dest, size_t *dest_size,
-                             void *tmp);
+SG__EXTERN int sg__gzdeflate(z_stream *stream, Bytef *zbuf, int flush, z_const Bytef *src, uInt src_size,
+                             Bytef **dest, z_size_t *dest_size);
 
 #endif
 

@@ -120,37 +120,30 @@ int sg__deflate(z_stream *stream, const void *src, size_t src_size, void **dest,
     return (ret == Z_OK) ? 0 : ret;
 }
 
-int sg__gzdeflate(z_stream *stream, const void *src, size_t src_size, void **dest, size_t *dest_size, void *tmp) {
+int sg__gzdeflate(z_stream *stream, Bytef *zbuf, int flush, z_const Bytef *src, uInt src_size,
+                  Bytef **dest, z_size_t *dest_size) {
     unsigned int have;
-    int flush, ret;
+    int errnum;
+    stream->avail_in = src_size;
+    stream->next_in = src;
     *dest = NULL;
     *dest_size = 0;
     do {
-        if (src_size == 0) {
-            stream->avail_in = 0;
-            flush = Z_FINISH;
-        } else if (src_size > SG__ZLIB_CHUNK) {
-            stream->avail_in = SG__ZLIB_CHUNK;
-            src_size -= SG__ZLIB_CHUNK;
-            flush = Z_NO_FLUSH;
-        } else {
-            stream->avail_in = (uInt) src_size;
-            flush = Z_SYNC_FLUSH;
+        stream->avail_out = SG__ZLIB_CHUNK;
+        stream->next_out = zbuf;
+        errnum = deflate(stream, flush);
+        if (errnum < Z_OK) {
+            sg_free(*dest);
+            return errnum;
         }
-        stream->next_in = (Bytef *) src;
-        do {
-            stream->avail_out = SG__ZLIB_CHUNK;
-            stream->next_out = tmp;
-            ret = deflate(stream, flush);
-            have = SG__ZLIB_CHUNK - stream->avail_out;
-            *dest_size += have;
-            *dest = sg_realloc(*dest, *dest_size);
-            if (!*dest)
-                return ENOMEM;
-            memcpy((Bytef *) *dest + (*dest_size - have), tmp, have);
-        } while (stream->avail_out == 0);
-    } while (flush == Z_NO_FLUSH);
-    return (ret < Z_OK) ? ret : 0;
+        have = SG__ZLIB_CHUNK - stream->avail_out;
+        *dest_size += have;
+        *dest = sg_realloc(*dest, *dest_size);
+        if (!*dest)
+            return ENOMEM;
+        memcpy(*dest + (*dest_size - have), zbuf, have);
+    } while (stream->avail_out == 0);
+    return 0;
 }
 
 #endif

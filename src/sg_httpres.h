@@ -58,15 +58,19 @@ struct sg__httpres_zholder {
 enum sg__httpres_gzip_status {
     SG__HTTPRES_GZ_NONE = 0,
     SG__HTTPRES_GZ_PROCESSING = 1,
-    SG__HTTPRES_GZ_FINISHING = 2,
-    SG__HTTPRES_GZ_FINISHED = 3
+    SG__HTTPRES_GZ_WRITING = 2,
+    SG__HTTPRES_GZ_FINISHING = 3,
+    SG__HTTPRES_GZ_FINISHED = 4
 };
 
 struct sg__httpres_gzholder {
     z_stream stream;
-    uint64_t offset;
+    uint64_t size_out;
+    uint64_t offset_in;
+    uint64_t offset_out;
+    Bytef *buf_in;
+    Bytef *buf_out;
     uLong crc;
-    void *buf;
     int *handle;
     enum sg__httpres_gzip_status status;
 };
