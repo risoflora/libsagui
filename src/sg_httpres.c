@@ -162,10 +162,8 @@ static ssize_t sg__httpres_zfread_cb(void *handle, __SG_UNUSED uint64_t offset, 
             holder->size_out = have;
             holder->offset_out = 0;
             return 0;
-        } else {
+        } else
             memcpy(mem, holder->buf_out, have);
-            sg_free(holder->buf_out);
-        }
     } else {
         have = size;
         holder->offset_out += have;
@@ -175,12 +173,14 @@ static ssize_t sg__httpres_zfread_cb(void *handle, __SG_UNUSED uint64_t offset, 
                 holder->offset_out -= have;
                 have = holder->size_out - holder->offset_out;
                 memcpy(mem, holder->buf_out + holder->offset_out, have);
-            } else
-                memcpy(mem, holder->buf_out + (holder->offset_out - have), have);
-            sg_free(holder->buf_out);
-        } else
-            memcpy(mem, holder->buf_out + (holder->offset_out - have), have);
+                goto done;
+            }
+        }
+        memcpy(mem, holder->buf_out + (holder->offset_out - have), have);
     }
+done:
+    if (holder->status != SG__HTTPRES_GZ_WRITING)
+        sg_free(holder->buf_out);
     return have;
 }
 
