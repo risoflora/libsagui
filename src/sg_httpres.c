@@ -174,8 +174,9 @@ static ssize_t sg__httpres_zfread_cb(void *handle, __SG_UNUSED uint64_t offset, 
             if (holder->offset_out > holder->size_out) {
                 holder->offset_out -= have;
                 have = holder->size_out - holder->offset_out;
-            }
-            memcpy(mem, holder->buf_out + holder->offset_out, have);
+                memcpy(mem, holder->buf_out + holder->offset_out, have);
+            } else
+                memcpy(mem, holder->buf_out + (holder->offset_out - have), have);
             sg_free(holder->buf_out);
         } else
             memcpy(mem, holder->buf_out + (holder->offset_out - have), have);
