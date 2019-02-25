@@ -65,6 +65,7 @@ enum sg__httpres_gzip_status {
 
 struct sg__httpres_gzholder {
     z_stream stream;
+    uint64_t size_in;
     uint64_t size_out;
     uint64_t offset_in;
     uint64_t offset_out;

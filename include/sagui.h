@@ -1022,6 +1022,7 @@ SG_EXTERN int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t s
  * compression algorithm.
  * \param[in] res Response handle.
  * \param[in] level Compression level (1..9 or -1 for default).
+ * \param[in] size Size of the stream.
  * \param[in] read_cb Callback to read data from stream handle.
  * \param[in] handle Stream handle.
  * \param[in] free_cb Callback to free the stream handle.
@@ -1033,7 +1034,7 @@ SG_EXTERN int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t s
  * \retval Z_<ERROR> zlib error as negative number.
  * \note When compression succeeds, the header `Content-Encoding: deflate` is automatically added to the response.
  */
-SG_EXTERN int sg_httpres_zsendstream2(struct sg_httpres *res, int level, sg_read_cb read_cb, void *handle,
+SG_EXTERN int sg_httpres_zsendstream2(struct sg_httpres *res, int level, size_t size, sg_read_cb read_cb, void *handle,
                                       sg_free_cb free_cb, unsigned int status);
 
 /**
@@ -1055,11 +1056,12 @@ SG_EXTERN int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb,
                                      unsigned int status);
 
 /* TODO: WARNING: this function is experimental! */
-SG_EXTERN int sg_httpres_zsendfile2(struct sg_httpres *res, int level, uint64_t max_size, uint64_t offset,
-                                    const char *filename, const char *disposition, unsigned int status);
+SG_EXTERN int sg_httpres_zsendfile2(struct sg_httpres *res, int level, uint64_t size, uint64_t max_size,
+                                    uint64_t offset, const char *filename, const char *disposition,
+                                    unsigned int status);
 
 /* TODO: WARNING: this function is experimental! */
-SG_EXTERN int sg_httpres_zsendfile(struct sg_httpres *res, uint64_t max_size, uint64_t offset,
+SG_EXTERN int sg_httpres_zsendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size, uint64_t offset,
                                    const char *filename, bool downloaded, unsigned int status);
 
 #endif

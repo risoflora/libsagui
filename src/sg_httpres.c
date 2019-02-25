@@ -151,8 +151,15 @@ static ssize_t sg__httpres_zfread_cb(void *handle, __SG_UNUSED uint64_t offset, 
             flush = Z_FINISH;
         } else {
             holder->offset_in += have;
-            holder->crc = crc32(holder->crc, (z_const Bytef *) mem, (uInt) have);
-            flush = Z_NO_FLUSH;
+            if ((holder->size_in > 0) && (holder->offset_in > holder->size_in)) {
+                holder->status = SG__HTTPRES_GZ_FINISHING;
+                holder->offset_in -= have;
+                have = 0;
+                flush = Z_FINISH;
+            } else {
+                holder->crc = crc32(holder->crc, (z_const Bytef *) mem, (uInt) have);
+                flush = Z_NO_FLUSH;
+            }
         }
         if (sg__gzdeflate(&holder->stream, holder->buf_in, flush, (Bytef *) mem, (uInt) have,
                           &holder->buf_out, &have) != 0)
@@ -365,8 +372,8 @@ int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const
     return sg_httpres_zsendbinary2(res, Z_BEST_SPEED, buf, size, content_type, status);
 }
 
-int sg_httpres_zsendstream2(struct sg_httpres *res, int level, sg_read_cb read_cb, void *handle, sg_free_cb free_cb,
-                            unsigned int status) {
+int sg_httpres_zsendstream2(struct sg_httpres *res, int level, size_t size, sg_read_cb read_cb, void *handle,
+                            sg_free_cb free_cb, unsigned int status) {
     struct sg__httpres_zholder *holder;
     int errnum;
     if (!res || !read_cb || (status < 100) || (status > 599)) {
@@ -396,6 +403,7 @@ int sg_httpres_zsendstream2(struct sg_httpres *res, int level, sg_read_cb read_c
     holder->read_cb = read_cb;
     holder->free_cb = free_cb;
     holder->handle = handle;
+    (void) size; /* FIXME! */
     res->handle = MHD_create_response_from_callback(MHD_SIZE_UNKNOWN, SG__ZLIB_CHUNK + 128,
                                                     sg__httpres_zread_cb, holder, sg__httpres_zfree_cb);
     if (!res->handle) {
@@ -418,11 +426,11 @@ error:
 
 int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb, void *handle, sg_free_cb free_cb,
                            unsigned int status) {
-    return sg_httpres_zsendstream2(res, Z_BEST_SPEED, read_cb, handle, free_cb, status);
+    return sg_httpres_zsendstream2(res, Z_BEST_SPEED, MHD_SIZE_UNKNOWN, read_cb, handle, free_cb, status);
 }
 
 /* TODO: WARNING: this function is experimental! */
-static int sg__httpres_zsendfile2(struct sg_httpres *res, int level, uint64_t max_size, uint64_t offset,
+static int sg__httpres_zsendfile2(struct sg_httpres *res, int level, uint64_t size, uint64_t max_size, uint64_t offset,
                                   const char *filename, const char *disposition, unsigned int status) {
     struct sg__httpres_gzholder *holder;
     struct stat sbuf;
@@ -460,6 +468,7 @@ static int sg__httpres_zsendfile2(struct sg_httpres *res, int level, uint64_t ma
     if (errnum != 0)
         goto error_res;
     *holder->handle = fd;
+    holder->size_in = size;
     res->handle = MHD_create_response_from_callback(MHD_SIZE_UNKNOWN, SG__BLOCK_SIZE,
                                                     sg__httpres_zfread_cb, holder, sg__httpres_zffree_cb);
     if (!res->handle) {
@@ -483,9 +492,9 @@ error:
 }
 
 /* TODO: WARNING: this function is experimental! */
-int sg_httpres_zsendfile(struct sg_httpres *res, uint64_t max_size, uint64_t offset, const char *filename,
-                         bool downloaded, unsigned int status) {
-    return sg__httpres_zsendfile2(res, Z_BEST_SPEED, max_size, offset, filename,
+int sg_httpres_zsendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size, uint64_t offset,
+                         const char *filename, bool downloaded, unsigned int status) {
+    return sg__httpres_zsendfile2(res, Z_BEST_SPEED, size, max_size, offset, filename,
                                   (downloaded ? "attachment" : NULL), status);
 }
 
