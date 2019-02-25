@@ -126,7 +126,7 @@ int sg__gzdeflate(z_stream *stream, Bytef *zbuf, int flush, z_const Bytef *src, 
     int errnum;
     stream->avail_in = src_size;
     stream->next_in = src;
-    *dest = NULL;
+    *dest = Z_NULL;
     *dest_size = 0;
     do {
         stream->avail_out = SG__ZLIB_CHUNK;
@@ -134,6 +134,7 @@ int sg__gzdeflate(z_stream *stream, Bytef *zbuf, int flush, z_const Bytef *src, 
         errnum = deflate(stream, flush);
         if (errnum < Z_OK) {
             sg_free(*dest);
+            *dest = Z_NULL;
             return errnum;
         }
         have = SG__ZLIB_CHUNK - stream->avail_out;
