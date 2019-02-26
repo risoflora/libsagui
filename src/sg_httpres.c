@@ -32,6 +32,8 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include "sg_macros.h"
 #ifdef SG_HTTP_COMPRESSION
 #include "zlib.h"
@@ -480,7 +482,7 @@ static int sg__httpres_zsendfile2(struct sg_httpres *res, int level, uint64_t si
     sg__httpres_openfile(res, filename, disposition, max_size, &fd, &sbuf, &errnum);
     if (errnum != 0)
         goto error;
-    if (lseek(fd, offset, SEEK_SET) != (__off_t) offset) { /* TODO: 64-bit? */
+    if (sg__lseek(fd, offset, SEEK_SET) != (sg__off_t) offset) {
         errnum = errno;
         goto error;
     }

@@ -70,6 +70,26 @@
 #endif
 #endif
 
+#ifndef sg__off_t
+#ifdef _WIN64
+#define sg__off_t off64_t
+#else
+#define sg__off_t off_t
+#endif
+#endif
+
+#ifndef sg__lseek
+#ifdef _WIN32
+#ifdef _WIN64
+#define sg__lseek _lseeki64
+#else
+#define sg__lseek _lseek
+#endif
+#else
+#define sg__lseek lseek
+#endif
+#endif
+
 #ifndef SG__ZLIB_CHUNK
 #define SG__ZLIB_CHUNK 16384 /* 16k */
 #endif
