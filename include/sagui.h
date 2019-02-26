@@ -1034,8 +1034,8 @@ SG_EXTERN int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t s
  * \retval Z_<ERROR> zlib error as negative number.
  * \note When compression succeeds, the header `Content-Encoding: deflate` is automatically added to the response.
  */
-SG_EXTERN int sg_httpres_zsendstream2(struct sg_httpres *res, int level, size_t size, sg_read_cb read_cb, void *handle,
-                                      sg_free_cb free_cb, unsigned int status);
+SG_EXTERN int sg_httpres_zsendstream2(struct sg_httpres *res, int level, uint64_t size, sg_read_cb read_cb,
+                                      void *handle, sg_free_cb free_cb, unsigned int status);
 
 /**
  * Compresses a stream and sends it to the client. The compression is done by zlib library using the DEFLATE

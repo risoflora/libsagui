@@ -45,8 +45,8 @@
 #include "sg_extra.h"
 #include "sg_httpres.h"
 
-static void sg__httpres_openfile(struct sg_httpres *res, const char *filename, const char *disposition, size_t max_size,
-                                 int *fd, struct stat *sbuf, int *errnum) {
+static void sg__httpres_openfile(struct sg_httpres *res, const char *filename, const char *disposition,
+                                 uint64_t max_size, int *fd, struct stat *sbuf, int *errnum) {
     const char *fn;
     size_t fn_size;
     char *disp;
@@ -87,7 +87,7 @@ static void sg__httpres_openfile(struct sg_httpres *res, const char *filename, c
 
 static ssize_t sg__httpres_zread_cb(void *handle, __SG_UNUSED uint64_t offset, char *mem, size_t size) {
     struct sg__httpres_zholder *holder = handle;
-    size_t have;
+    z_size_t have;
     int flush;
     if (holder->status == SG__HTTPRES_ZFINISHED)
         return MHD_CONTENT_READER_END_OF_STREAM;
@@ -152,7 +152,7 @@ static void sg__httpres_zfree_cb(void *handle) {
 
 static ssize_t sg__httpres_gzread_cb(void *handle, __SG_UNUSED uint64_t offset, char *mem, size_t size) {
     struct sg__httpres_gzholder *holder = handle;
-    size_t have;
+    z_size_t have;
     int flush;
     if (holder->status == SG__HTTPRES_GZNONE) {
         holder->status = SG__HTTPRES_GZPROCESSING;
@@ -343,7 +343,7 @@ int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size
 int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, sg_read_cb read_cb, void *handle, sg_free_cb free_cb,
                           unsigned int status) {
     int errnum;
-    if (!res || !read_cb || (status < 100) || (status > 599)) {
+    if (!res || ((int64_t) size < 0) || !read_cb || (status < 100) || (status > 599)) {
         errnum = EINVAL;
         goto error;
     }
@@ -411,11 +411,11 @@ int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const
     return sg_httpres_zsendbinary2(res, Z_BEST_SPEED, buf, size, content_type, status);
 }
 
-int sg_httpres_zsendstream2(struct sg_httpres *res, int level, size_t size, sg_read_cb read_cb, void *handle,
+int sg_httpres_zsendstream2(struct sg_httpres *res, int level, uint64_t size, sg_read_cb read_cb, void *handle,
                             sg_free_cb free_cb, unsigned int status) {
     struct sg__httpres_zholder *holder;
     int errnum;
-    if (!res || !read_cb || ((ssize_t) size < 0) || (status < 100) || (status > 599)) {
+    if (!res || !read_cb || ((int64_t) size < 0) || (status < 100) || (status > 599)) {
         errnum = EINVAL;
         goto error;
     }
@@ -474,7 +474,7 @@ static int sg__httpres_zsendfile2(struct sg_httpres *res, int level, uint64_t si
     struct sg__httpres_gzholder *holder;
     struct stat sbuf;
     int fd, errnum = 0;
-    if (!res || ((ssize_t) size < 0) || ((int64_t) max_size < 0) || ((int64_t) offset < 0) || !filename ||
+    if (!res || ((int64_t) size < 0) || ((int64_t) max_size < 0) || ((int64_t) offset < 0) || !filename ||
         (status < 100) || (status > 599))
         return EINVAL;
     if (res->handle)
