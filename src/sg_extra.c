@@ -57,22 +57,22 @@ ssize_t sg_eor(bool err) {
 
 #ifdef SG_HTTP_COMPRESSION
 
-int sg__compress(const Bytef *src, uLong src_size, Bytef *dest, uLongf *dest_size, int level) {
-    const uInt max = (uInt) -1;
+int sg__zcompress(z_const Bytef *src, uLong src_size, Bytef *dest, uLongf *dest_size, int level) {
+    z_const uInt max = (uInt) -1;
     z_stream stream;
     uLong left;
     int errnum;
     left = *dest_size;
     *dest_size = 0;
-    stream.zalloc = NULL;
-    stream.zfree = NULL;
-    stream.opaque = NULL;
+    stream.zalloc = Z_NULL;
+    stream.zfree = Z_NULL;
+    stream.opaque = Z_NULL;
     errnum = deflateInit2(&stream, level, Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY);
     if (errnum != Z_OK)
         return errnum;
     stream.next_out = dest;
     stream.avail_out = 0;
-    stream.next_in = (z_const Bytef *) src;
+    stream.next_in = src;
     stream.avail_in = 0;
     do {
         if (stream.avail_out == 0) {
@@ -90,39 +90,9 @@ int sg__compress(const Bytef *src, uLong src_size, Bytef *dest, uLongf *dest_siz
     return errnum == Z_STREAM_END ? Z_OK : errnum;
 }
 
-int sg__deflate(z_stream *stream, const void *src, size_t src_size, void **dest, size_t *dest_size, void *tmp) {
-    unsigned int have;
-    int flush, ret;
-    *dest = NULL;
-    *dest_size = 0;
-    do {
-        if (src_size > SG__ZLIB_CHUNK) {
-            stream->avail_in = SG__ZLIB_CHUNK;
-            src_size -= SG__ZLIB_CHUNK;
-            flush = Z_NO_FLUSH;
-        } else {
-            stream->avail_in = (uInt) src_size;
-            flush = Z_SYNC_FLUSH;
-        }
-        stream->next_in = (Bytef *) src;
-        do {
-            stream->avail_out = SG__ZLIB_CHUNK;
-            stream->next_out = tmp;
-            ret = deflate(stream, flush);
-            have = SG__ZLIB_CHUNK - stream->avail_out;
-            *dest_size += have;
-            *dest = sg_realloc(*dest, *dest_size);
-            if (!*dest)
-                return ENOMEM;
-            memcpy((Bytef *) *dest + (*dest_size - have), tmp, have);
-        } while (stream->avail_out == 0);
-    } while (flush != Z_SYNC_FLUSH);
-    return (ret == Z_OK) ? 0 : ret;
-}
-
-int sg__gzdeflate(z_stream *stream, Bytef *zbuf, int flush, z_const Bytef *src, uInt src_size,
-                  Bytef **dest, z_size_t *dest_size) {
-    unsigned int have;
+int sg__zdeflate(z_stream *stream, Bytef *zbuf, int flush, z_const Bytef *src, uInt src_size,
+                 Bytef **dest, z_size_t *dest_size) {
+    uLong have;
     int errnum;
     stream->avail_in = src_size;
     stream->next_in = src;

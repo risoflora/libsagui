@@ -46,34 +46,45 @@ struct sg_httpres {
 
 #ifdef SG_HTTP_COMPRESSION
 
+enum sg__httpres_zstatus {
+    SG__HTTPRES_ZPROCESSING = 0,
+    SG__HTTPRES_ZWRITING = 1,
+    SG__HTTPRES_ZFINISHED = 2
+};
+
 struct sg__httpres_zholder {
     z_stream stream;
     sg_read_cb read_cb;
     sg_free_cb free_cb;
-    uint64_t offset;
-    void *handle;
-    void *buf;
-};
-
-enum sg__httpres_gzip_status {
-    SG__HTTPRES_GZ_NONE = 0,
-    SG__HTTPRES_GZ_PROCESSING = 1,
-    SG__HTTPRES_GZ_WRITING = 2,
-    SG__HTTPRES_GZ_FINISHING = 3,
-    SG__HTTPRES_GZ_FINISHED = 4
-};
-
-struct sg__httpres_gzholder {
-    z_stream stream;
+    Bytef *buf_in;
+    Bytef *buf_out;
     uint64_t size_in;
     uint64_t size_out;
     uint64_t offset_in;
     uint64_t offset_out;
+    void *handle;
+    enum sg__httpres_zstatus status;
+};
+
+enum sg__httpres_gzstatus {
+    SG__HTTPRES_GZNONE = 0,
+    SG__HTTPRES_GZPROCESSING = 1,
+    SG__HTTPRES_GZWRITING = 2,
+    SG__HTTPRES_GZFINISHING = 3,
+    SG__HTTPRES_GZFINISHED = 4
+};
+
+struct sg__httpres_gzholder {
+    z_stream stream;
     Bytef *buf_in;
     Bytef *buf_out;
+    uint64_t size_in;
+    uint64_t size_out;
+    uint64_t offset_in;
+    uint64_t offset_out;
     uLong crc;
     int *handle;
-    enum sg__httpres_gzip_status status;
+    enum sg__httpres_gzstatus status;
 };
 
 #endif

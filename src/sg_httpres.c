@@ -83,20 +83,57 @@ static void sg__httpres_openfile(struct sg_httpres *res, const char *filename, c
 
 #ifdef SG_HTTP_COMPRESSION
 
-static ssize_t sg__httpres_zread_cb(void *handle, __SG_UNUSED uint64_t offset, char *buf, size_t size) {
+static ssize_t sg__httpres_zread_cb(void *handle, __SG_UNUSED uint64_t offset, char *mem, size_t size) {
     struct sg__httpres_zholder *holder = handle;
     size_t have;
-    void *dest;
-    have = (size_t) holder->read_cb(holder->handle, holder->offset, buf, size);
-    if ((have == MHD_CONTENT_READER_END_WITH_ERROR) || (have == MHD_CONTENT_READER_END_OF_STREAM))
-        return have;
-    holder->offset += have;
-    if (sg__deflate(&holder->stream, buf, have, &dest, &have, holder->buf) != 0)
-        have = MHD_CONTENT_READER_END_WITH_ERROR;
-    else {
-        memcpy(buf, dest, have);
-        sg_free(dest);
+    int flush;
+    if (holder->status == SG__HTTPRES_ZFINISHED)
+        return MHD_CONTENT_READER_END_OF_STREAM;
+    if (holder->status != SG__HTTPRES_ZWRITING) {
+        have = (size_t) holder->read_cb(holder->handle, holder->offset_in, mem, size);
+        if (have == MHD_CONTENT_READER_END_WITH_ERROR)
+            return MHD_CONTENT_READER_END_WITH_ERROR;
+        if (have == MHD_CONTENT_READER_END_OF_STREAM) {
+            holder->status = SG__HTTPRES_ZFINISHED;
+            have = 0;
+            flush = Z_FINISH;
+        } else {
+            holder->offset_in += have;
+            if ((holder->size_in > 0) && (holder->offset_in > holder->size_in)) {
+                holder->status = SG__HTTPRES_ZFINISHED;
+                holder->offset_in -= have;
+                have = 0;
+                flush = Z_FINISH;
+            } else
+                flush = Z_NO_FLUSH;
+        }
+        if (sg__zdeflate(&holder->stream, holder->buf_in, flush, (Bytef *) mem, (uInt) have,
+                         &holder->buf_out, &have) != 0)
+            return MHD_CONTENT_READER_END_WITH_ERROR;
+        if (have > size) {
+            holder->status = SG__HTTPRES_ZWRITING;
+            holder->size_out = have;
+            holder->offset_out = 0;
+            return 0;
+        } else
+            memcpy(mem, holder->buf_out, have);
+    } else {
+        have = size;
+        holder->offset_out += have;
+        if (holder->offset_out >= holder->size_out) {
+            holder->status = SG__HTTPRES_ZPROCESSING;
+            if (holder->offset_out > holder->size_out) {
+                holder->offset_out -= have;
+                have = holder->size_out - holder->offset_out;
+                memcpy(mem, holder->buf_out + holder->offset_out, have);
+                goto done;
+            }
+        }
+        memcpy(mem, holder->buf_out + (holder->offset_out - have), have);
     }
+done:
+    if (holder->status != SG__HTTPRES_ZWRITING)
+        sg_free(holder->buf_out);
     return have;
 }
 
@@ -105,18 +142,18 @@ static void sg__httpres_zfree_cb(void *handle) {
     if (!holder)
         return;
     deflateEnd(&holder->stream);
-    sg_free(holder->buf);
+    sg_free(holder->buf_in);
     if (holder->free_cb)
         holder->free_cb(holder->handle);
     sg_free(holder);
 }
 
-static ssize_t sg__httpres_zfread_cb(void *handle, __SG_UNUSED uint64_t offset, char *mem, size_t size) {
+static ssize_t sg__httpres_gzread_cb(void *handle, __SG_UNUSED uint64_t offset, char *mem, size_t size) {
     struct sg__httpres_gzholder *holder = handle;
     size_t have;
     int flush;
-    if (holder->status == SG__HTTPRES_GZ_NONE) {
-        holder->status = SG__HTTPRES_GZ_PROCESSING;
+    if (holder->status == SG__HTTPRES_GZNONE) {
+        holder->status = SG__HTTPRES_GZPROCESSING;
         mem[0] = (unsigned char) 0x1f;
         mem[1] = (unsigned char) 0x8b;
         mem[2] = (unsigned char) 0x08;
@@ -128,8 +165,8 @@ static ssize_t sg__httpres_zfread_cb(void *handle, __SG_UNUSED uint64_t offset, 
         holder->crc = crc32(0L, Z_NULL, 0);
         return 10;
     }
-    if (holder->status == SG__HTTPRES_GZ_FINISHING) {
-        holder->status = SG__HTTPRES_GZ_FINISHED;
+    if (holder->status == SG__HTTPRES_GZFINISHING) {
+        holder->status = SG__HTTPRES_GZFINISHED;
         mem[0] = (unsigned char) (holder->crc & 0xff);
         mem[1] = (unsigned char) ((holder->crc >> 8) & 0xff);
         mem[2] = (unsigned char) ((holder->crc >> 16) & 0xff);
@@ -140,19 +177,19 @@ static ssize_t sg__httpres_zfread_cb(void *handle, __SG_UNUSED uint64_t offset, 
         mem[7] = (unsigned char) ((holder->offset_in >> 24) & 0xff);
         return 8;
     }
-    if (holder->status == SG__HTTPRES_GZ_FINISHED)
+    if (holder->status == SG__HTTPRES_GZFINISHED)
         return MHD_CONTENT_READER_END_OF_STREAM;
-    if (holder->status != SG__HTTPRES_GZ_WRITING) {
+    if (holder->status != SG__HTTPRES_GZWRITING) {
         have = (size_t) read(*holder->handle, mem, size);
         if ((ssize_t) have < 0)
             return MHD_CONTENT_READER_END_WITH_ERROR;
         if (have == 0) {
-            holder->status = SG__HTTPRES_GZ_FINISHING;
+            holder->status = SG__HTTPRES_GZFINISHING;
             flush = Z_FINISH;
         } else {
             holder->offset_in += have;
             if ((holder->size_in > 0) && (holder->offset_in > holder->size_in)) {
-                holder->status = SG__HTTPRES_GZ_FINISHING;
+                holder->status = SG__HTTPRES_GZFINISHING;
                 holder->offset_in -= have;
                 have = 0;
                 flush = Z_FINISH;
@@ -161,11 +198,11 @@ static ssize_t sg__httpres_zfread_cb(void *handle, __SG_UNUSED uint64_t offset, 
                 flush = Z_NO_FLUSH;
             }
         }
-        if (sg__gzdeflate(&holder->stream, holder->buf_in, flush, (Bytef *) mem, (uInt) have,
-                          &holder->buf_out, &have) != 0)
+        if (sg__zdeflate(&holder->stream, holder->buf_in, flush, (Bytef *) mem, (uInt) have,
+                         &holder->buf_out, &have) != 0)
             return MHD_CONTENT_READER_END_WITH_ERROR;
         if (have > size) {
-            holder->status = SG__HTTPRES_GZ_WRITING;
+            holder->status = SG__HTTPRES_GZWRITING;
             holder->size_out = have;
             holder->offset_out = 0;
             return 0;
@@ -175,7 +212,7 @@ static ssize_t sg__httpres_zfread_cb(void *handle, __SG_UNUSED uint64_t offset, 
         have = size;
         holder->offset_out += have;
         if (holder->offset_out >= holder->size_out) {
-            holder->status = SG__HTTPRES_GZ_PROCESSING;
+            holder->status = SG__HTTPRES_GZPROCESSING;
             if (holder->offset_out > holder->size_out) {
                 holder->offset_out -= have;
                 have = holder->size_out - holder->offset_out;
@@ -186,12 +223,12 @@ static ssize_t sg__httpres_zfread_cb(void *handle, __SG_UNUSED uint64_t offset, 
         memcpy(mem, holder->buf_out + (holder->offset_out - have), have);
     }
 done:
-    if (holder->status != SG__HTTPRES_GZ_WRITING)
+    if (holder->status != SG__HTTPRES_GZWRITING)
         sg_free(holder->buf_out);
     return have;
 }
 
-static void sg__httpres_zffree_cb(void *handle) {
+static void sg__httpres_gzfree_cb(void *handle) {
     struct sg__httpres_gzholder *holder = handle;
     if (!holder)
         return;
@@ -340,7 +377,7 @@ int sg_httpres_zsendbinary2(struct sg_httpres *res, int level, void *buf, size_t
         zbuf = sg_malloc(zsize);
         if (!zbuf)
             return ENOMEM;
-        if ((sg__compress(buf, size, zbuf, (uLongf *) &zsize, level) != Z_OK) || (zsize >= size)) {
+        if ((sg__zcompress(buf, size, zbuf, (uLongf *) &zsize, level) != Z_OK) || (zsize >= size)) {
             zsize = size;
             memcpy(zbuf, buf, zsize);
         } else {
@@ -376,7 +413,7 @@ int sg_httpres_zsendstream2(struct sg_httpres *res, int level, size_t size, sg_r
                             sg_free_cb free_cb, unsigned int status) {
     struct sg__httpres_zholder *holder;
     int errnum;
-    if (!res || !read_cb || (status < 100) || (status > 599)) {
+    if (!res || !read_cb || ((ssize_t) size < 0) || (status < 100) || (status > 599)) {
         errnum = EINVAL;
         goto error;
     }
@@ -389,13 +426,13 @@ int sg_httpres_zsendstream2(struct sg_httpres *res, int level, size_t size, sg_r
         errnum = ENOMEM;
         goto error;
     }
-    errnum = deflateInit2(&holder->stream, level, Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY);
+    errnum = deflateInit2(&holder->stream, level, Z_DEFLATED, MAX_WBITS, MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY);
     if (errnum != Z_OK)
         goto error_stream;
-    holder->buf = sg_malloc(SG__ZLIB_CHUNK);
-    if (!holder->buf) {
+    holder->buf_in = sg_malloc(SG__ZLIB_CHUNK);
+    if (!holder->buf_in) {
         errnum = ENOMEM;
-        goto error_buf;
+        goto error_buf_in;
     }
     errnum = sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_ENCODING, "deflate");
     if (errnum != 0)
@@ -403,8 +440,8 @@ int sg_httpres_zsendstream2(struct sg_httpres *res, int level, size_t size, sg_r
     holder->read_cb = read_cb;
     holder->free_cb = free_cb;
     holder->handle = handle;
-    (void) size; /* FIXME! */
-    res->handle = MHD_create_response_from_callback(MHD_SIZE_UNKNOWN, SG__ZLIB_CHUNK + 128,
+    holder->size_in = size;
+    res->handle = MHD_create_response_from_callback(MHD_SIZE_UNKNOWN, SG__BLOCK_SIZE,
                                                     sg__httpres_zread_cb, holder, sg__httpres_zfree_cb);
     if (!res->handle) {
         errnum = ENOMEM;
@@ -413,8 +450,8 @@ int sg_httpres_zsendstream2(struct sg_httpres *res, int level, size_t size, sg_r
     res->status = status;
     return 0;
 error_res:
-    sg_free(holder->buf);
-error_buf:
+    sg_free(holder->buf_in);
+error_buf_in:
     deflateEnd(&holder->stream);
 error_stream:
     sg_free(holder);
@@ -426,7 +463,7 @@ error:
 
 int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb, void *handle, sg_free_cb free_cb,
                            unsigned int status) {
-    return sg_httpres_zsendstream2(res, Z_BEST_SPEED, MHD_SIZE_UNKNOWN, read_cb, handle, free_cb, status);
+    return sg_httpres_zsendstream2(res, Z_BEST_SPEED, 0, read_cb, handle, free_cb, status);
 }
 
 /* TODO: WARNING: this function is experimental! */
@@ -435,7 +472,8 @@ static int sg__httpres_zsendfile2(struct sg_httpres *res, int level, uint64_t si
     struct sg__httpres_gzholder *holder;
     struct stat sbuf;
     int fd, errnum = 0;
-    if (!res || ((int64_t) max_size < 0) || ((int64_t) offset < 0) || !filename || (status < 100) || (status > 599))
+    if (!res || ((ssize_t) size < 0) || ((int64_t) max_size < 0) || ((int64_t) offset < 0) || !filename ||
+        (status < 100) || (status > 599))
         return EINVAL;
     if (res->handle)
         return EALREADY;
@@ -457,7 +495,7 @@ static int sg__httpres_zsendfile2(struct sg_httpres *res, int level, uint64_t si
     holder->buf_in = sg_malloc(SG__ZLIB_CHUNK);
     if (!holder->buf_in) {
         errnum = ENOMEM;
-        goto error_in;
+        goto error_buf_in;
     }
     holder->handle = sg_malloc(sizeof(int));
     if (!holder->handle) {
@@ -470,7 +508,7 @@ static int sg__httpres_zsendfile2(struct sg_httpres *res, int level, uint64_t si
     *holder->handle = fd;
     holder->size_in = size;
     res->handle = MHD_create_response_from_callback(MHD_SIZE_UNKNOWN, SG__BLOCK_SIZE,
-                                                    sg__httpres_zfread_cb, holder, sg__httpres_zffree_cb);
+                                                    sg__httpres_gzread_cb, holder, sg__httpres_gzfree_cb);
     if (!res->handle) {
         errnum = ENOMEM;
         goto error_res;
@@ -481,7 +519,7 @@ error_res:
     sg_free(holder->handle);
 error_handle:
     sg_free(holder->buf_in);
-error_in:
+error_buf_in:
     deflateEnd(&holder->stream);
 error_stream:
     sg_free(holder);
