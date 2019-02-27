@@ -17,8 +17,8 @@ Sagui is a cross-platform C library which helps to develop web servers or framew
   * Just-in-time optimization ([JIT](https://www.pcre.org/current/doc/html/pcre2jit.html)).
   * Binary search in path entry-points.
 * **HTTP compression:**
-  * [Deflate](https://en.wikipedia.org/wiki/DEFLATE) compression for static contents and streams.
-  * [Gzip](https://en.wikipedia.org/wiki/Gzip) compression for files.
+  * [Deflate](https://en.wikipedia.org/wiki/DEFLATE) for static contents and streams compression.
+  * [Gzip](https://en.wikipedia.org/wiki/Gzip) for files compression.
 * **HTTPS support:**
   * TLS 1.3 through [GnuTLS](https://www.gnutls.org) library.
 * **Basic authentication:**
