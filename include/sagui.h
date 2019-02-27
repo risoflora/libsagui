@@ -900,24 +900,24 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t si
     sg_httpres_sendfile2((res), 0, 0, 0, (filename), "inline", 200)
 
 /**
-* Sends a file to the client.
-* \param[in] res Response handle.
-* \param[in] size Size of the file to be sent. Use zero to calculate automatically.
-* \param[in] max_size Maximum allowed file size. Use zero for no limit.
-* \param[in] offset Offset to start reading from in the file to be sent.
-* \param[in] filename Path of the file to be sent.
-* \param[in] disposition Content disposition as null-terminated string (attachment or inline).
-* \param[in] status HTTP status code.
-* \retval 0 Success.
-* \retval EINVAL Invalid argument.
-* \retval EALREADY Operation already in progress.
-* \retval EISDIR Is a directory.
-* \retval EBADF Bad file number.
-* \retval EFBIG File too large.
-* \retval ENOMEM Out of memory.
-* \warning The parameter `disposition` is not checked internally, thus any non-`NULL` value is passed directly to the
-* header `Content-Disposition`.
-*/
+ * Sends a file to the client.
+ * \param[in] res Response handle.
+ * \param[in] size Size of the file to be sent. Use zero to calculate automatically.
+ * \param[in] max_size Maximum allowed file size. Use zero for no limit.
+ * \param[in] offset Offset to start reading from in the file to be sent.
+ * \param[in] filename Path of the file to be sent.
+ * \param[in] disposition Content disposition as null-terminated string (attachment or inline).
+ * \param[in] status HTTP status code.
+ * \retval 0 Success.
+ * \retval EINVAL Invalid argument.
+ * \retval EALREADY Operation already in progress.
+ * \retval EISDIR Is a directory.
+ * \retval EBADF Bad file number.
+ * \retval EFBIG File too large.
+ * \retval ENOMEM Out of memory.
+ * \warning The parameter `disposition` is not checked internally, thus any non-`NULL` value is passed directly to the
+ * header `Content-Disposition`.
+ */
 SG_EXTERN int sg_httpres_sendfile2(struct sg_httpres *res, uint64_t size, uint64_t max_size, uint64_t offset,
                                    const char *filename, const char *disposition, unsigned int status);
 
@@ -1055,12 +1055,53 @@ SG_EXTERN int sg_httpres_zsendstream2(struct sg_httpres *res, int level, uint64_
 SG_EXTERN int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb, void *handle, sg_free_cb free_cb,
                                      unsigned int status);
 
-/* TODO: WARNING: this function is experimental! */
+/**
+ * Compresses a file in Gzip format and sends it to the client. The compression is done by zlib library using the DEFLATE
+ * compression algorithm.
+ * \param[in] res Response handle.
+ * \param[in] level Compression level (1..9 or -1 for default).
+ * \param[in] size Size of the file to be sent. Use zero to calculate automatically.
+ * \param[in] max_size Maximum allowed file size. Use zero for no limit.
+ * \param[in] offset Offset to start reading from in the file to be sent.
+ * \param[in] filename Path of the file to be sent.
+ * \param[in] disposition Content disposition as null-terminated string (attachment or inline).
+ * \param[in] status HTTP status code.
+ * \retval 0 Success.
+ * \retval EINVAL Invalid argument.
+ * \retval EALREADY Operation already in progress.
+ * \retval EISDIR Is a directory.
+ * \retval EBADF Bad file number.
+ * \retval EFBIG File too large.
+ * \retval ENOMEM Out of memory.
+ * \retval Z_<ERROR> zlib error as negative number.
+ * \note When compression succeeds, the header `Content-Encoding: gzip` is automatically added to the response.
+ * \warning The parameter `disposition` is not checked internally, thus any non-`NULL` value is passed directly to the
+ * header `Content-Disposition`.
+ */
 SG_EXTERN int sg_httpres_zsendfile2(struct sg_httpres *res, int level, uint64_t size, uint64_t max_size,
                                     uint64_t offset, const char *filename, const char *disposition,
                                     unsigned int status);
 
-/* TODO: WARNING: this function is experimental! */
+/**
+ * Compresses a file in Gzip format and sends it to the client. The compression is done by zlib library using the DEFLATE
+ * compression algorithm.
+ * \param[in] res Response handle.
+ * \param[in] size Size of the file to be sent. Use zero to calculate automatically.
+ * \param[in] max_size Maximum allowed file size. Use zero for no limit.
+ * \param[in] offset Offset to start reading from in the file to be sent.
+ * \param[in] filename Path of the file to be sent.
+ * \param[in] downloaded If `true` it offer the file as download.
+ * \param[in] status HTTP status code.
+ * \retval 0 Success.
+ * \retval EINVAL Invalid argument.
+ * \retval EALREADY Operation already in progress.
+ * \retval EISDIR Is a directory.
+ * \retval EBADF Bad file number.
+ * \retval EFBIG File too large.
+ * \retval ENOMEM Out of memory.
+ * \retval Z_<ERROR> zlib error as negative number.
+ * \note When compression succeeds, the header `Content-Encoding: gzip` is automatically added to the response.
+ */
 SG_EXTERN int sg_httpres_zsendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size, uint64_t offset,
                                    const char *filename, bool downloaded, unsigned int status);
 

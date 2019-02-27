@@ -370,7 +370,7 @@ int sg_httpres_zsendbinary2(struct sg_httpres *res, int level, void *buf, size_t
     size_t zsize;
     void *zbuf;
     int ret;
-    if (!res || !buf || ((ssize_t) size < 0) || (status < 100) || (status > 599))
+    if (!res || ((level < -1) || (level > 9)) || !buf || ((ssize_t) size < 0) || (status < 100) || (status > 599))
         return EINVAL;
     if (res->handle)
         return EALREADY;
@@ -415,7 +415,7 @@ int sg_httpres_zsendstream2(struct sg_httpres *res, int level, uint64_t size, sg
                             sg_free_cb free_cb, unsigned int status) {
     struct sg__httpres_zholder *holder;
     int errnum;
-    if (!res || !read_cb || ((int64_t) size < 0) || (status < 100) || (status > 599)) {
+    if (!res || ((level < -1) || (level > 9)) || !read_cb || ((int64_t) size < 0) || (status < 100) || (status > 599)) {
         errnum = EINVAL;
         goto error;
     }
@@ -468,14 +468,13 @@ int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb, void *han
     return sg_httpres_zsendstream2(res, Z_BEST_SPEED, 0, read_cb, handle, free_cb, status);
 }
 
-/* TODO: WARNING: this function is experimental! */
-static int sg__httpres_zsendfile2(struct sg_httpres *res, int level, uint64_t size, uint64_t max_size, uint64_t offset,
-                                  const char *filename, const char *disposition, unsigned int status) {
+int sg_httpres_zsendfile2(struct sg_httpres *res, int level, uint64_t size, uint64_t max_size, uint64_t offset,
+                          const char *filename, const char *disposition, unsigned int status) {
     struct sg__httpres_gzholder *holder;
     struct stat sbuf;
     int fd, errnum = 0;
-    if (!res || ((int64_t) size < 0) || ((int64_t) max_size < 0) || ((int64_t) offset < 0) || !filename ||
-        (status < 100) || (status > 599))
+    if (!res || ((level < -1) || (level > 9)) || ((int64_t) size < 0) || ((int64_t) max_size < 0) ||
+        ((int64_t) offset < 0) || !filename || (status < 100) || (status > 599))
         return EINVAL;
     if (res->handle)
         return EALREADY;
@@ -531,11 +530,10 @@ error:
     return errnum;
 }
 
-/* TODO: WARNING: this function is experimental! */
 int sg_httpres_zsendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size, uint64_t offset,
                          const char *filename, bool downloaded, unsigned int status) {
-    return sg__httpres_zsendfile2(res, Z_BEST_SPEED, size, max_size, offset, filename,
-                                  (downloaded ? "attachment" : NULL), status);
+    return sg_httpres_zsendfile2(res, Z_BEST_SPEED, size, max_size, offset, filename,
+                                 (downloaded ? "attachment" : NULL), status);
 }
 
 #endif

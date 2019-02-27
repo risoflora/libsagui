@@ -408,6 +408,9 @@ static void test_httpres_sendstream(struct sg_httpres *res) {
     ASSERT(sg_httpres_sendstream(NULL, size, dummy_read_cb, &buf, dummy_free_cb, 200) == EINVAL);
     ASSERT(buf == 0);
     buf = 1;
+    ASSERT(sg_httpres_sendstream(res, (uint64_t) -1, NULL, &buf, dummy_free_cb, 200) == EINVAL);
+    ASSERT(buf == 0);
+    buf = 1;
     ASSERT(sg_httpres_sendstream(res, size, NULL, &buf, dummy_free_cb, 200) == EINVAL);
     ASSERT(buf == 0);
     buf = 1;
@@ -480,6 +483,72 @@ static void test_httpres_zsend(struct sg_httpres *res) {
     res->handle = NULL;
 }
 
+static void test_httpres_zsendbinary2(struct sg_httpres *res) {
+    char *str = "foo";
+    size_t len = strlen(str);
+
+    ASSERT(sg_httpres_zsendbinary2(NULL, -1, str, len, "text/plain", 200) == EINVAL);
+    ASSERT(sg_httpres_zsendbinary2(res, -2, str, len, "text/plain", 200) == EINVAL);
+    ASSERT(sg_httpres_zsendbinary2(res, 10, str, len, "text/plain", 200) == EINVAL);
+    ASSERT(sg_httpres_zsendbinary2(res, -1, NULL, len, "text/plain", 200) == EINVAL);
+    ASSERT(sg_httpres_zsendbinary2(res, -1, str, (size_t) -1, "text/plain", 200) == EINVAL);
+    ASSERT(sg_httpres_zsendbinary2(res, -1, str, len, "text/plain", 99) == EINVAL);
+    ASSERT(sg_httpres_zsendbinary2(res, -1, str, len, "text/plain", 600) == EINVAL);
+
+    str = "foooo";
+    len = strlen(str);
+    res->status = 0;
+    sg_strmap_cleanup(&res->headers);
+    ASSERT(sg_httpres_zsendbinary2(res, -1, str, len, "text/plain", 200) == 0);
+    ASSERT(!sg_strmap_get(res->headers, "Content-Encoding"));
+    ASSERT(strcmp(sg_strmap_get(res->headers, "Content-Type"), "text/plain") == 0);
+    ASSERT(res->status == 200);
+    MHD_destroy_response(res->handle);
+    res->handle = NULL;
+    str = "fooooooooooobaaaaaaaaaarrrrrrrrrrr";
+    len = strlen(str);
+    res->status = 0;
+    ASSERT(sg_httpres_zsendbinary2(res, -1, str, len, "text/plain", 200) == 0);
+    ASSERT(strcmp(sg_strmap_get(res->headers, "Content-Encoding"), "deflate") == 0);
+    ASSERT(strcmp(sg_strmap_get(res->headers, "Content-Type"), "text/plain") == 0);
+    ASSERT(res->status == 200);
+    MHD_destroy_response(res->handle);
+    res->handle = NULL;
+
+    str = "foo";
+    len = strlen(str);
+    res->status = 0;
+    ASSERT(sg_httpres_zsendbinary2(res, -1, "foo", 0, "text/plain", 200) == 0);
+    ASSERT(res->status == 200);
+    MHD_destroy_response(res->handle);
+    res->handle = NULL;
+
+    res->status = 0;
+    ASSERT(sg_httpres_zsendbinary2(res, -1, str, len, NULL, 200) == 0);
+    ASSERT(res->status == 200);
+    MHD_destroy_response(res->handle);
+    res->handle = NULL;
+    res->status = 0;
+    ASSERT(sg_httpres_zsendbinary2(res, -1, str, len, "", 200) == 0);
+    ASSERT(res->status == 200);
+    MHD_destroy_response(res->handle);
+    res->handle = NULL;
+    res->status = 0;
+    ASSERT(sg_httpres_zsendbinary2(res, -1, "", 0, "", 204) == 0); /* No content. */
+    ASSERT(res->status == 204);
+    MHD_destroy_response(res->handle);
+    res->handle = NULL;
+
+    res->status = 0;
+    ASSERT(sg_httpres_zsendbinary2(res, -1, str, len, "text/plain", 201) == 0);
+    ASSERT(res->status == 201);
+    ASSERT(sg_httpres_zsendbinary2(res, -1, str, len, "text/plain", 200) == EALREADY);
+    ASSERT(strcmp(sg_strmap_get(*sg_httpres_headers(res), MHD_HTTP_HEADER_CONTENT_TYPE), "text/plain") == 0);
+    ASSERT(res->status == 201);
+    MHD_destroy_response(res->handle);
+    res->handle = NULL;
+}
+
 static void test_httpres_zsendbinary(struct sg_httpres *res) {
     char *str = "foo";
     size_t len = strlen(str);
@@ -544,6 +613,40 @@ static void test_httpres_zsendbinary(struct sg_httpres *res) {
     res->handle = NULL;
 }
 
+static void test_httpres_zsendstream2(struct sg_httpres *res) {
+    char *str;
+    size_t size = sizeof(int);
+    int buf = 1;
+    ASSERT(sg_httpres_zsendstream2(NULL, -1, size, dummy_read_cb, &buf, dummy_free_cb, 200) == EINVAL);
+    ASSERT(buf == 0);
+    buf = 1;
+    ASSERT(sg_httpres_zsendstream2(res, -2, size, dummy_read_cb, &buf, dummy_free_cb, 200) == EINVAL);
+    ASSERT(buf == 0);
+    buf = 1;
+    ASSERT(sg_httpres_zsendstream2(res, 10, size, dummy_read_cb, &buf, dummy_free_cb, 200) == EINVAL);
+    ASSERT(buf == 0);
+    buf = 1;
+    ASSERT(sg_httpres_zsendstream2(res, -1, size, NULL, &buf, dummy_free_cb, 200) == EINVAL);
+    ASSERT(buf == 0);
+    buf = 1;
+    ASSERT(sg_httpres_zsendstream2(res, -1, size, dummy_read_cb, &buf, dummy_free_cb, 99) == EINVAL);
+    ASSERT(buf == 0);
+    buf = 1;
+    ASSERT(sg_httpres_zsendstream2(res, -1, size, dummy_read_cb, &buf, dummy_free_cb, 600) == EINVAL);
+    ASSERT(buf == 0);
+
+    str = sg_alloc(sizeof(str));
+    ASSERT(sg_httpres_zsendstream2(res, -1, size, dummy_read_cb, str, dummy_free_cb, 200) == 0);
+    sg_free(res->handle);
+    res->handle = NULL;
+    ASSERT(sg_httpres_zsendstream2(res, -1, size, dummy_read_cb, str, dummy_free_cb, 201) == 0);
+    ASSERT(res->status == 201);
+    ASSERT(sg_httpres_zsendstream2(res, -1, size, dummy_read_cb, str, dummy_free_cb, 200) == EALREADY);
+    sg_free(res->handle);
+    res->handle = NULL;
+    sg_free(str);
+}
+
 static void test_httpres_zsendstream(struct sg_httpres *res) {
     char *str;
     int buf = 1;
@@ -569,6 +672,144 @@ static void test_httpres_zsendstream(struct sg_httpres *res) {
     sg_free(res->handle);
     res->handle = NULL;
     sg_free(str);
+}
+
+static void test_httpres_zsendfile2(struct sg_httpres *res) {
+#define FILENAME "foo.txt"
+#define PATH TEST_HTTPRES_BASE_PATH FILENAME
+    const size_t len = 3;
+    char str[4];
+    FILE *file;
+    char *dir;
+    size_t size = sizeof(int);
+    uint64_t max_size = 10, offset = 0;
+
+    ASSERT(sg_httpres_zsendfile2(NULL, -1, size, max_size, offset, PATH, NULL, 200) == EINVAL);
+    ASSERT(sg_httpres_zsendfile2(res, -2, size, max_size, offset, PATH, NULL, 200) == EINVAL);
+    ASSERT(sg_httpres_zsendfile2(res, 10, size, max_size, offset, PATH, NULL, 200) == EINVAL);
+    ASSERT(sg_httpres_zsendfile2(res, -1, (uint64_t) -1, max_size, offset, PATH, NULL, 200) == EINVAL);
+    ASSERT(sg_httpres_zsendfile2(res, -1, size, (uint64_t) -1, offset, PATH, NULL, 200) == EINVAL);
+    ASSERT(sg_httpres_zsendfile2(res, -1, size, max_size, (uint64_t) -1, PATH, NULL, 200) == EINVAL);
+    ASSERT(sg_httpres_zsendfile2(res, -1, size, max_size, offset, NULL, NULL, 200) == EINVAL);
+    ASSERT(sg_httpres_zsendfile2(res, -1, size, max_size, offset, PATH, NULL, 99) == EINVAL);
+    ASSERT(sg_httpres_zsendfile2(res, -1, size, max_size, offset, PATH, NULL, 600) == EINVAL);
+
+#ifdef _WIN32
+    ASSERT(sg_httpres_zsendfile2(res, -1, size, max_size, offset, "", NULL, 200) == EACCES);
+#else
+    ASSERT(sg_httpres_zsendfile2(res, -1, size, max_size, offset, "", NULL, 200) == ENOENT);
+#endif
+    dir = sg_tmpdir();
+#ifdef _WIN32
+    ASSERT(sg_httpres_zsendfile2(res, -1, size, max_size, offset, dir, NULL, 200) == EACCES);
+#else
+    ASSERT(sg_httpres_zsendfile2(res, -1, size, max_size, offset, dir, NULL, 200) == EISDIR);
+#endif
+    sg_free(dir);
+
+    strcpy(str, "foo");
+    unlink(PATH);
+    file = fopen(PATH, "w");
+    ASSERT(file);
+    ASSERT(fwrite(str, 1, len, file) == len);
+    ASSERT(fclose(file) == 0);
+    ASSERT(sg_httpres_zsendfile2(res, -1, size, 1, offset, PATH, NULL, 200) == EFBIG);
+
+    ASSERT(sg_httpres_zsendfile2(res, -1, size, len, offset, PATH, "attachment", 200) == 0);
+    ASSERT(strcmp(sg_strmap_get(*sg_httpres_headers(res), MHD_HTTP_HEADER_CONTENT_DISPOSITION),
+                  "attachment; filename=\""
+                   FILENAME
+                   "\"") == 0);
+
+    ASSERT(sg_httpres_zsendfile2(res, -1, size, len, offset, PATH, "attachment", 200) == EALREADY);
+
+    sg_free(res->handle);
+    res->handle = NULL;
+    ASSERT(sg_httpres_zsendfile2(res, -1, size, len, offset, PATH, "inline", 201) == 0);
+    ASSERT(strcmp(sg_strmap_get(*sg_httpres_headers(res), MHD_HTTP_HEADER_CONTENT_DISPOSITION),
+                  "inline; filename=\""
+                   FILENAME
+                   "\"") == 0);
+    ASSERT(res->status == 201);
+
+    sg_free(res->handle);
+    res->handle = NULL;
+    sg_strmap_cleanup(sg_httpres_headers(res));
+    ASSERT(sg_httpres_zsendfile2(res, -1, size, len, offset, PATH, NULL, 200) == 0);
+    ASSERT(!sg_strmap_get(*sg_httpres_headers(res), MHD_HTTP_HEADER_CONTENT_DISPOSITION));
+    ASSERT(res->status == 200);
+
+    sg_free(res->handle);
+    res->handle = NULL;
+    ASSERT(sg_httpres_zsendfile2(res, -1, size, len, offset, PATH, "abc123", 201) == 0);
+    ASSERT(strcmp(sg_strmap_get(*sg_httpres_headers(res), MHD_HTTP_HEADER_CONTENT_DISPOSITION),
+                  "abc123; filename=\""
+                   FILENAME
+                   "\"") == 0);
+    ASSERT(res->status == 201);
+#undef PATH
+#undef FILENAME
+    sg_free(res->handle);
+    res->handle = NULL;
+}
+
+static void test_httpres_zsendfile(struct sg_httpres *res) {
+#define FILENAME "foo.txt"
+#define PATH TEST_HTTPRES_BASE_PATH FILENAME
+    const size_t len = 3;
+    char str[4];
+    FILE *file;
+    char *dir;
+    size_t size = sizeof(int);
+    uint64_t max_size = 10, offset = 0;
+
+    ASSERT(sg_httpres_zsendfile(NULL, size, max_size, offset, PATH, false, 200) == EINVAL);
+    ASSERT(sg_httpres_zsendfile(res, (uint64_t) -1, max_size, offset, PATH, false, 200) == EINVAL);
+    ASSERT(sg_httpres_zsendfile(res, size, (uint64_t) -1, offset, PATH, false, 200) == EINVAL);
+    ASSERT(sg_httpres_zsendfile(res, size, max_size, (uint64_t) -1, PATH, false, 200) == EINVAL);
+    ASSERT(sg_httpres_zsendfile(res, size, max_size, offset, NULL, false, 200) == EINVAL);
+    ASSERT(sg_httpres_zsendfile(res, size, max_size, offset, PATH, false, 99) == EINVAL);
+    ASSERT(sg_httpres_zsendfile(res, size, max_size, offset, PATH, false, 600) == EINVAL);
+
+#ifdef _WIN32
+    ASSERT(sg_httpres_zsendfile(res, size, max_size, offset, "", false, 200) == EACCES);
+#else
+    ASSERT(sg_httpres_zsendfile(res, size, max_size, offset, "", false, 200) == ENOENT);
+#endif
+    dir = sg_tmpdir();
+#ifdef _WIN32
+    ASSERT(sg_httpres_zsendfile(res, size, max_size, offset, dir, false, 200) == EACCES);
+#else
+    ASSERT(sg_httpres_zsendfile(res, size, max_size, offset, dir, false, 200) == EISDIR);
+#endif
+    sg_free(dir);
+
+    strcpy(str, "foo");
+    unlink(PATH);
+    file = fopen(PATH, "w");
+    ASSERT(file);
+    ASSERT(fwrite(str, 1, len, file) == len);
+    ASSERT(fclose(file) == 0);
+    ASSERT(sg_httpres_zsendfile(res, size, 1, offset, PATH, false, 200) == EFBIG);
+
+    ASSERT(sg_httpres_zsendfile(res, size, len, offset, PATH, true, 200) == 0);
+    ASSERT(strcmp(sg_strmap_get(*sg_httpres_headers(res), MHD_HTTP_HEADER_CONTENT_DISPOSITION),
+                  "attachment; filename=\""
+                   FILENAME
+                   "\"") == 0);
+
+    ASSERT(sg_httpres_zsendfile(res, size, len, offset, PATH, true, 200) == EALREADY);
+
+    sg_free(res->handle);
+    res->handle = NULL;
+    sg_strmap_cleanup(sg_httpres_headers(res));
+    ASSERT(sg_httpres_zsendfile(res, size, len, offset, PATH, false, 201) == 0);
+    ASSERT(!sg_strmap_get(*sg_httpres_headers(res), MHD_HTTP_HEADER_CONTENT_DISPOSITION));
+    ASSERT(res->status == 201);
+#undef PATH
+#undef FILENAME
+    sg_free(res->handle);
+    res->handle = NULL;
 }
 
 static void test_httpres_clear(struct sg_httpres *res) {
@@ -612,8 +853,12 @@ int main(void) {
     test_httpres_sendfile(res);
     test_httpres_sendstream(res);
     test_httpres_zsend(res);
+    test_httpres_zsendbinary2(res);
     test_httpres_zsendbinary(res);
+    test_httpres_zsendstream2(res);
     test_httpres_zsendstream(res);
+    test_httpres_zsendfile2(res);
+    test_httpres_zsendfile(res);
     test_httpres_clear(res);
     sg__httpres_free(res);
     return EXIT_SUCCESS;

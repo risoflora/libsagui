@@ -63,7 +63,7 @@ int main(void) {
     test__convals_iter();
     test__strmap_iter();
     test_eor();
-    /* TODO: test__deflate() */
-    /* TODO: test__compress() */
+    /* TODO: test__zcompress() */
+    /* TODO: test__zdeflate() */
     return EXIT_SUCCESS;
 }
