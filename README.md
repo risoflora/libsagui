@@ -16,6 +16,9 @@ Sagui is a cross-platform C library which helps to develop web servers or framew
   * Regular expressions using [PCRE2](https://www.pcre.org/current/doc/html/pcre2pattern.html) [syntax](https://www.pcre.org/current/doc/html/pcre2syntax.html).
   * Just-in-time optimization ([JIT](https://www.pcre.org/current/doc/html/pcre2jit.html)).
   * Binary search in path entry-points.
+* **HTTP compression:**
+  * [Deflate](https://en.wikipedia.org/wiki/DEFLATE) compression for static contents and streams.
+  * [Gzip](https://en.wikipedia.org/wiki/Gzip) compression for files.
 * **HTTPS support:**
   * TLS 1.3 through [GnuTLS](https://www.gnutls.org) library.
 * **Basic authentication:**
@@ -149,7 +152,7 @@ See also [Checking backward API/ABI compatibility of Sagui library versions](htt
 
 # Projects using Sagui
 
-* [Brook framework](https://github.com/silvioprog/brookframework) -  Pascal framework which helps to develop web applications.
+* [Brook framework](https://github.com/risoflora/brookframework) -  Pascal framework which helps to develop web applications.
 
 # Contributing
 
