@@ -74,7 +74,7 @@ extern "C" {
 #endif
 
 #define SG_VERSION_MAJOR 2
-#define SG_VERSION_MINOR 2
+#define SG_VERSION_MINOR 3
 #define SG_VERSION_PATCH 0
 #define SG_VERSION_HEX ((SG_VERSION_MAJOR << 16) | (SG_VERSION_MINOR <<  8) | (SG_VERSION_PATCH))
 
@@ -1054,6 +1054,40 @@ SG_EXTERN int sg_httpres_zsendstream2(struct sg_httpres *res, int level, uint64_
  */
 SG_EXTERN int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb, void *handle, sg_free_cb free_cb,
                                      unsigned int status);
+
+/**
+ * Compresses a file in Gzip format and offer it as download. The compression is done by zlib library using the DEFLATE
+ * compression algorithm.
+ * \param[in] res Response handle.
+ * \param[in] filename Path of the file to be compressed and sent.
+ * \retval 0 Success.
+ * \retval EINVAL Invalid argument.
+ * \retval EALREADY Operation already in progress.
+ * \retval EISDIR Is a directory.
+ * \retval EBADF Bad file number.
+ * \retval ENOMEM Out of memory.
+ * \retval Z_<ERROR> zlib error as negative number.
+ * \note When compression succeeds, the header `Content-Encoding: gzip` is automatically added to the response.
+ */
+#define sg_httpres_zdownload(res, filename) \
+    sg_httpres_zsendfile2((res), 1, 0, 0, 0, (filename), "attachment", 200)
+
+/**
+ * Compresses a file in Gzip formant and sends it to be rendered. The compression is done by zlib library using the
+ * DEFLATE compression algorithm.
+ * \param[in] res Response handle.
+ * \param[in] filename Path of the file to be sent.
+ * \retval 0 Success.
+ * \retval EINVAL Invalid argument.
+ * \retval EALREADY Operation already in progress.
+ * \retval EISDIR Is a directory.
+ * \retval EBADF Bad file number.
+ * \retval ENOMEM Out of memory.
+ * \retval Z_<ERROR> zlib error as negative number.
+ * \note When compression succeeds, the header `Content-Encoding: gzip` is automatically added to the response.
+ */
+#define sg_httpres_zrender(res, filename) \
+    sg_httpres_zsendfile2((res), 1, 0, 0, 0, (filename), "inline", 200)
 
 /**
  * Compresses a file in Gzip format and sends it to the client. The compression is done by zlib library using the DEFLATE

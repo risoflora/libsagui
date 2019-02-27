@@ -674,6 +674,94 @@ static void test_httpres_zsendstream(struct sg_httpres *res) {
     sg_free(str);
 }
 
+static void test_httpres_zdownload(struct sg_httpres *res) {
+#define FILENAME "foo.txt"
+#define PATH TEST_HTTPRES_BASE_PATH FILENAME
+    const size_t len = 3;
+    char str[4];
+    FILE *file;
+    char *dir;
+
+    ASSERT(sg_httpres_zdownload(NULL, PATH) == EINVAL);
+    ASSERT(sg_httpres_zdownload(res, NULL) == EINVAL);
+
+#ifdef _WIN32
+    ASSERT(sg_httpres_zdownload(res, "") == EACCES);
+#else
+    ASSERT(sg_httpres_zdownload(res, "") == ENOENT);
+#endif
+    dir = sg_tmpdir();
+#ifdef _WIN32
+    ASSERT(sg_httpres_zdownload(res, dir) == EACCES);
+#else
+    ASSERT(sg_httpres_zdownload(res, dir) == EISDIR);
+#endif
+    sg_free(dir);
+
+    strcpy(str, "foo");
+    unlink(PATH);
+    file = fopen(PATH, "w");
+    ASSERT(file);
+    ASSERT(fwrite(str, 1, len, file) == len);
+    ASSERT(fclose(file) == 0);
+    ASSERT(sg_httpres_zdownload(res, PATH) == 0);
+    ASSERT(strcmp(sg_strmap_get(*sg_httpres_headers(res), MHD_HTTP_HEADER_CONTENT_DISPOSITION),
+                  "attachment; filename=\""
+                   FILENAME
+                   "\"") == 0);
+    ASSERT(sg_httpres_zdownload(res, PATH) == EALREADY);
+    sg_free(res->handle);
+    res->handle = NULL;
+#undef PATH
+#undef FILENAME
+    sg_free(res->handle);
+    res->handle = NULL;
+}
+
+static void test_httpres_zrender(struct sg_httpres *res) {
+#define FILENAME "foo.txt"
+#define PATH TEST_HTTPRES_BASE_PATH FILENAME
+    const size_t len = 3;
+    char str[4];
+    FILE *file;
+    char *dir;
+
+    ASSERT(sg_httpres_zrender(NULL, PATH) == EINVAL);
+    ASSERT(sg_httpres_zrender(res, NULL) == EINVAL);
+
+#ifdef _WIN32
+    ASSERT(sg_httpres_zrender(res, "") == EACCES);
+#else
+    ASSERT(sg_httpres_zrender(res, "") == ENOENT);
+#endif
+    dir = sg_tmpdir();
+#ifdef _WIN32
+    ASSERT(sg_httpres_zrender(res, dir) == EACCES);
+#else
+    ASSERT(sg_httpres_zrender(res, dir) == EISDIR);
+#endif
+    sg_free(dir);
+
+    strcpy(str, "foo");
+    unlink(PATH);
+    file = fopen(PATH, "w");
+    ASSERT(file);
+    ASSERT(fwrite(str, 1, len, file) == len);
+    ASSERT(fclose(file) == 0);
+    ASSERT(sg_httpres_zrender(res, PATH) == 0);
+    ASSERT(strcmp(sg_strmap_get(*sg_httpres_headers(res), MHD_HTTP_HEADER_CONTENT_DISPOSITION),
+                  "inline; filename=\""
+                   FILENAME
+                   "\"") == 0);
+    ASSERT(sg_httpres_zrender(res, PATH) == EALREADY);
+    sg_free(res->handle);
+    res->handle = NULL;
+#undef PATH
+#undef FILENAME
+    sg_free(res->handle);
+    res->handle = NULL;
+}
+
 static void test_httpres_zsendfile2(struct sg_httpres *res) {
 #define FILENAME "foo.txt"
 #define PATH TEST_HTTPRES_BASE_PATH FILENAME
@@ -857,6 +945,8 @@ int main(void) {
     test_httpres_zsendbinary(res);
     test_httpres_zsendstream2(res);
     test_httpres_zsendstream(res);
+    test_httpres_zdownload(res);
+    test_httpres_zrender(res);
     test_httpres_zsendfile2(res);
     test_httpres_zsendfile(res);
     test_httpres_clear(res);
