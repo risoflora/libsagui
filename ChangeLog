@@ -1,3 +1,77 @@
+2019-03-01  silvioprog  <silvioprog@gmail.com>
+
+	Bump v2.2.0
+
+	Fixed test to build on Raspbian.
+
+	Added tests for the internal functions of the HTTP compression feature.
+
+2019-02-27  silvioprog  <silvioprog@gmail.com>
+
+	Spelling fixes in the README file.
+
+	Added convenience macros sg_httpres_zdownload() and sg_httpres_zrender().
+
+	Added both online tests and a README entry for the HTTP compression feature.
+
+	Added reference and tests for the functions of the HTTP compression feature.
+
+2019-02-26  silvioprog  <silvioprog@gmail.com>
+
+	Fixed wrong types size_t by uint64_t in the stream size declarations.
+
+	Resolved off_t/lseek() in all supported platforms. (Fix #20)
+
+	Reused the same internal deflate function of the Gzip in the deflate compression reducing the final binary size.
+
+2019-02-25  silvioprog  <silvioprog@gmail.com>
+
+	Allowed the user to specify the size of a stream or file in the HTTP compression functions. (Fix #18)
+
+	Simplified the logic of the Gzip streaming.
+
+	Fixed wrong offset value in the Gzip streaming for the HTTP compression.
+
+	Fixed double free in the internal function sg__gzdeflate().
+
+	Fixed HTTP compression allowing to send large files (10 GB or above) in Gzip file format. (Fix #17)
+
+2019-02-23  silvioprog  <silvioprog@gmail.com>
+
+	Overloaded the sg_httpres_z* functions allowing to specify the compression level.
+
+	Added new experimental internal function fixing the gzip compression. (Fix #16)
+
+2019-02-22  silvioprog  <silvioprog@gmail.com>
+
+	Refactored the internal compression functions.
+
+2019-02-21  silvioprog  <silvioprog@gmail.com>
+
+	Added new private function to reuse the internal logic of the sendfile() feature.
+
+	Compressed the sent file in the Gzip file format.
+
+	Improved the API by adding new functions which allows to omit the content disposition in the file sending.
+
+2019-02-20  silvioprog  <silvioprog@gmail.com>
+
+	Declared the macros sg_httpres_download()/sg_httpres_render() as functions and improved the function sg_httpres_sendfile().
+
+2019-02-19  silvioprog  <silvioprog@gmail.com>
+
+	Upgraded the library version.
+
+	Removed the Gzip header from all functions sg_httpres_z*().
+
+	Increased the performance of the sg_httpres_zsendstream() by reusing an internal buffer and removing a useless one.
+
+2019-02-18  silvioprog  <silvioprog@gmail.com>
+
+	Added experimental function sg_httpres_zsendfile() which compress and sends a response file.
+
+	Fixed response to avoid memory leaks and sigsegvs.
+
 2019-02-13  silvioprog  <silvioprog@gmail.com>
 
 	Bump v2.0.0
