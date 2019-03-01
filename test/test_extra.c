@@ -119,16 +119,16 @@ static void test__zcompress(void) {
     sprintf(src, "%s", text);
     src_size = strlen(src);
     dest_size = compressBound(src_size);
-    ASSERT(sg__zcompress(NULL, src_size, (Bytef *) dest, &dest_size, -10) != Z_OK);
+    ASSERT(sg__zcompress(NULL, src_size, (Bytef *) dest, (uLong *) &dest_size, -10) != Z_OK);
     dest_size = compressBound(src_size);
-    ASSERT(sg__zcompress((Bytef *) src, src_size, (Bytef *) dest, &dest_size, 9) == Z_OK);
+    ASSERT(sg__zcompress((Bytef *) src, src_size, (Bytef *) dest, (uLong *) &dest_size, 9) == Z_OK);
     ASSERT(dest_size == 15);
     memset(src, 0, sizeof(src));
     memcpy(src, dest, dest_size);
     memset(dest, 0, sizeof(dest));
     src_size = dest_size;
     dest_size = sizeof(dest);
-    ASSERT(sg__uncompress2((Bytef *) dest, &dest_size, (Bytef *) src, &src_size) == Z_OK);
+    ASSERT(sg__uncompress2((Bytef *) dest, (uLongf *) &dest_size, (Bytef *) src, (uLong *) &src_size) == Z_OK);
     ASSERT(dest_size == 50);
     dest[dest_size] = '\0';
     ASSERT(strcmp(dest, text) == 0);
@@ -155,7 +155,7 @@ static void test__zdeflate(void) {
     dest = malloc(100);
     src_size = dest_size;
     dest_size = 100;
-    ASSERT(sg__uncompress2((Bytef *) dest, &dest_size, (Bytef *) src, &src_size) == Z_OK);
+    ASSERT(sg__uncompress2((Bytef *) dest, (uLongf *) &dest_size, (Bytef *) src, (uLong *) &src_size) == Z_OK);
     ASSERT(dest_size == 50);
     dest[dest_size] = '\0';
     ASSERT(strcmp(dest, text) == 0);
@@ -179,7 +179,7 @@ static void test__zdeflate(void) {
     dest = malloc(100);
     src_size = dest_size;
     dest_size = 100;
-    ASSERT(sg__uncompress2((Bytef *) dest, &dest_size, (Bytef *) src, &src_size) == Z_OK);
+    ASSERT(sg__uncompress2((Bytef *) dest, (uLongf *) &dest_size, (Bytef *) src, (uLong *) &src_size) == Z_OK);
     ASSERT(dest_size == 50);
     dest[dest_size] = '\0';
     ASSERT(strcmp(dest, text) == 0);
