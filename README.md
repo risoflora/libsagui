@@ -4,7 +4,7 @@
 
 # Overview
 
-Sagui is a cross-platform C library which helps to develop web servers or frameworks. Its core has been developed using the [GNU libmicrohttpd](https://www.gnu.org/software/libmicrohttpd), [uthash](https://troydhanson.github.io/uthash), [PCRE2](https://www.pcre.org) and [GnuTLS](https://www.gnutls.org), that's why it is so fast, compact and useful to run on embedded systems.
+Sagui is a cross-platform C library which helps to develop web servers or frameworks. Its core has been developed using the [GNU libmicrohttpd](https://www.gnu.org/software/libmicrohttpd), [uthash](https://troydhanson.github.io/uthash), [PCRE2](https://www.pcre.org), [ZLib](https://www.zlib.net) and [GnuTLS](https://www.gnutls.org), that's why it is so fast, compact and useful to run on embedded systems.
 
 # Features
 

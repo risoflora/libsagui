@@ -408,7 +408,7 @@ error:
 
 int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const char *content_type,
                            unsigned int status) {
-    return sg_httpres_zsendbinary2(res, Z_BEST_SPEED, buf, size, content_type, status);
+    return sg_httpres_zsendbinary2(res, Z_BEST_COMPRESSION, buf, size, content_type, status);
 }
 
 int sg_httpres_zsendstream2(struct sg_httpres *res, int level, uint64_t size, sg_read_cb read_cb, void *handle,
