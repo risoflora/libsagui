@@ -2,15 +2,15 @@
 
 The Sagui library is compatible with the following compilers:
 
-* `gcc` - from [GNU Compiler Collection](https://gcc.gnu.org).
-* `llvm` - from [CLang Project](https://clang.llvm.org).
+* GCC - from [GNU Compiler Collection](https://gcc.gnu.org).
+* LLVM - from [CLang Project](https://clang.llvm.org).
 
 and was successfully tested in:
 
-* MinGW-w64 - using latest `gcc` version [`i686`/`x86_64`]
-* Google's NDK - using `clang` 6.0 from NDK-r17 [API `24` / ABIs `armeabi-v7a` and `aarch64`]
-* GCC on Raspbian - version 6.3.0 [`i686` / `arm-linux-gnueabihf`]
-* CLang on Raspbian - version 3.8.1 [`i686` / `armv6--linux-gnueabihf`]
+* MinGW-w64 - using latest `gcc` version.
+* Google's NDK - using available `clang` version latest [NDK](https://developer.android.com/ndk/).
+* GCC on Raspbian - using available version.
+* CLang on Raspbian - using available version.
 
 # Build options
 
@@ -43,7 +43,7 @@ cd build/
 cmake -DCMAKE_BUILD_TYPE=Release ..
 ```
 
-it prints a build summary as following:
+it prints a build summary as following (assuming you are using first Sagui version):
 
 ```bash
 -- The C compiler identification is GNU 7.3.0
@@ -124,7 +124,7 @@ Scanning dependencies of target sagui
 Supposing the shared library will be built using the `clang` front-end, set the variable `CMAKE_C_COMPILER` to `clang` and turn on the variable `BUILD_SHARED_LIBS`:
 
 ```bash
-cmake -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_SHARED_LIBS=ON ..
+cmake -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON ..
 make sagui
 ```
 
@@ -190,7 +190,7 @@ both HTML and PDF files are saved in the `build/doc` directory.
 The HTTPS support is possible linking the [GnuTLS](https://www.gnutls.org) library though `SG_HTTPS_SUPPORT` build option:
 
 ```bash
-cmake -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_SHARED_LIBS=ON -DSG_HTTPS_SUPPORT=ON ..
+cmake -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DSG_HTTPS_SUPPORT=ON ..
 ```
 
 **NOTE:** If the development version of the GnuTLS library is not available in the environment, the HTTPS support will be disable automatically.
@@ -231,7 +231,7 @@ libsagui-1.0.0/lib/libsagui.a
 To distribute the shared library:
 
 ```bash
-cmake -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_SHARED_LIBS=ON ..
+cmake -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON ..
 make package
 ```
 
@@ -253,14 +253,14 @@ libsagui-1.0.0/lib/libsagui.so.1.0.0 <symbolic link>
 **Building the shared library for Windows 32/64 bits using MinGW installed on Linux:**
 
 ```bash
-cmake -DCMAKE_C_COMPILER=i686-w64-mingw32-gcc -DCMAKE_RC_COMPILER=i686-w64-mingw32-windres -DCMAKE_SYSTEM_NAME="Windows" -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=./Output -DBUILD_SHARED_LIBS=ON ..
+cmake -DCMAKE_C_COMPILER=i686-w64-mingw32-gcc -DCMAKE_RC_COMPILER=i686-w64-mingw32-windres -DCMAKE_SYSTEM_NAME="Windows" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=./Output -DBUILD_SHARED_LIBS=ON ..
 make sagui install/strip
 ```
 
 for 64 bits:
 
 ```bash
-cmake -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DCMAKE_RC_COMPILER=x86_64-w64-mingw32-windres -DCMAKE_SYSTEM_NAME="Windows" -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=./Output -DBUILD_SHARED_LIBS=ON ..
+cmake -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DCMAKE_RC_COMPILER=x86_64-w64-mingw32-windres -DCMAKE_SYSTEM_NAME="Windows" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=./Output -DBUILD_SHARED_LIBS=ON ..
 make sagui install/strip
 ```
 
@@ -269,7 +269,7 @@ it builds and saves the DLL in `Output/bin/libsagui-1.dll`.
 **Building the shared library for Windows 32/64 bits using MinGW installed on Windows:**
 
 ```bash
-cmake -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=./Output -DBUILD_SHARED_LIBS=ON ..
+cmake -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=./Output -DBUILD_SHARED_LIBS=ON ..
 make sagui install/strip
 ```
 
@@ -315,13 +315,6 @@ make clean_pushed_tests
 
 ```code
 export target_host=arm-linux-gnueabihf && export AR=$target_host-ar && export AS=$target_host-gcc && export CC=$target_host-gcc && export LD=$target_host-ld && export STRIP=$target_host-strip
-cmake -DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=./Output -DBUILD_SHARED_LIBS=ON ..
+cmake -DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=./Output -DBUILD_SHARED_LIBS=ON ..
 make sagui install/strip
 ```
-
-# Wishlist
-
-Tests on:
-
-* Orange PI i96
-* Raspbian on ARM `x86_64`

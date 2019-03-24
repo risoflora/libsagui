@@ -9,9 +9,9 @@ Sagui is a cross-platform C library which helps to develop web servers or framew
 # Features
 
 * **Requests processing through:**
-  * Event-driven - _single-thread + main loop + select_.
+  * Event-driven - _single-thread + main loop + select/epoll_.
   * Threaded - _one thread per request_.
-  * Thread pool - _thread pool + select_.
+  * Thread pool - _thread pool + select/epoll_.
 * **High-performance path routing that supports:**
   * Regular expressions using [PCRE2](https://www.pcre.org/current/doc/html/pcre2pattern.html) [syntax](https://www.pcre.org/current/doc/html/pcre2syntax.html).
   * Just-in-time optimization ([JIT](https://www.pcre.org/current/doc/html/pcre2jit.html)).
