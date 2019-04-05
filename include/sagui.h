@@ -76,7 +76,7 @@ extern "C" {
 #define SG_VERSION_MAJOR 2
 #define SG_VERSION_MINOR 2
 #define SG_VERSION_PATCH 0
-#define SG_VERSION_HEX ((SG_VERSION_MAJOR << 16) | (SG_VERSION_MINOR <<  8) | (SG_VERSION_PATCH))
+#define SG_VERSION_HEX ((SG_VERSION_MAJOR << 16) | (SG_VERSION_MINOR << 8) | (SG_VERSION_PATCH))
 
 #define SG_ERR_SIZE 256
 
@@ -146,7 +146,7 @@ typedef int (*sg_save_as_cb)(void *handle, const char *path, bool overwritten);
 SG_EXTERN unsigned int sg_version(void);
 
 /**
- * Returns the library version number as string in the format N.N.N.
+ * Returns the library version number as string in the format `<MAJOR>.<MINOR>.<PATCH>`.
  * \return Library version packed into a null-terminated string.
  */
 SG_EXTERN const char *sg_version_str(void);
@@ -161,7 +161,7 @@ SG_EXTERN void *sg_malloc(size_t size)
 __SG_MALLOC;
 
 /**
- * Allocates a new zero-initialize memory space.
+ * Allocates a new zero-initialized memory space.
  * \param[in] size Memory size to be allocated.
  * \return Pointer of the zero-initialized allocated memory.
  * \retval NULL If size is `0` or no memory space.
@@ -180,7 +180,7 @@ SG_EXTERN void *sg_realloc(void *ptr, size_t size)
 __SG_MALLOC;
 
 /**
- * Frees a memory space previously allocated by #sg_alloc() or #sg_realloc().
+ * Frees a memory space previously allocated by #sg_malloc(), #sg_alloc() or #sg_realloc().
  * \param[in] ptr Pointer of the memory to be freed.
  */
 SG_EXTERN void sg_free(void *ptr);
@@ -204,8 +204,10 @@ SG_EXTERN bool sg_is_post(const char *method);
 /**
  * Extracts the entry-point of a path or resource. For example, given a path
  * `/api1/customer`, the part considered as entry-point is `/api1`.
- * \param path Entry-point as null-terminated string.
+ * \param path Path as null-terminated string.
+ * \return Entry-point as null-terminated string.
  * \retval NULL If no memory space is available.
+ * \warning The caller must free the returned value.
  */
 SG_EXTERN char *sg_extract_entrypoint(const char *path);
 
@@ -305,7 +307,7 @@ SG_EXTERN const char *sg_str_content(struct sg_str *str);
 SG_EXTERN size_t sg_str_length(struct sg_str *str);
 
 /**
- * Cleans all existing content in the string handle \pr{str}.
+ * Clears all existing content in the string handle \pr{str}.
  * \param[in] str String handle.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
@@ -1487,7 +1489,7 @@ SG_EXTERN int sg_entrypoints_rm(struct sg_entrypoints *entrypoints, const char *
 SG_EXTERN int sg_entrypoints_iter(struct sg_entrypoints *entrypoints, sg_entrypoints_iter_cb cb, void *cls);
 
 /**
- * Cleans all existing entry-point items in the entry-points \pr{entrypoints}.
+ * Clears all existing entry-point items in the entry-points \pr{entrypoints}.
  * \param[in] entrypoints Entry-points handle.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.

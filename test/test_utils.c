@@ -230,7 +230,7 @@ static void test_version(void) {
     char ver_local[9];
     size_t ver_len;
 
-    ASSERT(sg_version() > 0);
+    ASSERT(sg_version() == ((SG_VERSION_MAJOR << 16) | (SG_VERSION_MINOR << 8) | (SG_VERSION_PATCH)));
 
     ver_original = sg_version_str();
     ASSERT(ver_original);

@@ -126,7 +126,7 @@ Flags:               fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cm
 ```
 
 ```
-SO: Ubuntu 18.04.1 LTS (kernel 4.15.0-30-generic)
+OS: Ubuntu 18.04.1 LTS (kernel 4.15.0-30-generic)
 ```
 
 # ApacheBench logs
