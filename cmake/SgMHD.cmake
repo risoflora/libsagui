@@ -101,5 +101,5 @@ ExternalProject_Add(${MHD_FULL_NAME}
 
 ExternalProject_Get_Property(${MHD_FULL_NAME} INSTALL_DIR)
 set(MHD_INCLUDE_DIR ${INSTALL_DIR}/include)
-set(MHD_ARCHIVE_LIB ${INSTALL_DIR}/lib/${MHD_NAME}.a)
+set(MHD_ARCHIVE_LIB ${INSTALL_DIR}/lib${SG_LIB_SUFFIX}/${MHD_NAME}.a)
 unset(INSTALL_DIR)
