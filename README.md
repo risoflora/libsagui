@@ -142,13 +142,13 @@ All stable releases are available for download at the [releases page](https://gi
 
 # Building/installing
 
-Check the [BUILD.md](https://github.com/risoflora/libsagui/blob/master/BUILD.md) for instructions to build the library, examples, tests and documentation, then, follow the steps in [INSTALL.md](https://github.com/risoflora/libsagui/blob/master/INSTALL.md) to install the library from sources on your system.
+Check the [BUILD.md](https://github.com/risoflora/libsagui/blob/master/docs/BUILD.md) for instructions to build the library, examples, tests and documentation, then, follow the steps in [INSTALL.md](https://github.com/risoflora/libsagui/blob/master/docs/INSTALL.md) to install the library from sources on your system.
 
 # Compatibility
 
 A typical upgrade of the Sagui library does not break the ABI at all. Take a look at the [API/ABI compatibility report](https://abi-laboratory.pro/?view=timeline&l=libsagui) to compare most recent library versions.
 
-See also [Checking backward API/ABI compatibility of Sagui library versions](https://github.com/risoflora/libsagui/blob/master/ABIComplianceChecker.md).
+See also [Checking backward API/ABI compatibility of Sagui library versions](https://github.com/risoflora/libsagui/blob/master/docs/ABIComplianceChecker.md).
 
 # Projects using Sagui
 
