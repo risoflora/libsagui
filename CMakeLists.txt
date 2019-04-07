@@ -9,6 +9,7 @@
 # ::
 #
 #   SG_INCLUDE_DIR - Directory containing the library header.
+#   SG_LIB_SUFFIX - Library suffix, e.g. `64`.
 
 #                         _
 #   ___  __ _  __ _ _   _(_)

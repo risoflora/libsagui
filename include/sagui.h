@@ -75,7 +75,7 @@ extern "C" {
 
 #define SG_VERSION_MAJOR 2
 #define SG_VERSION_MINOR 2
-#define SG_VERSION_PATCH 0
+#define SG_VERSION_PATCH 2
 #define SG_VERSION_HEX ((SG_VERSION_MAJOR << 16) | (SG_VERSION_MINOR << 8) | (SG_VERSION_PATCH))
 
 #define SG_ERR_SIZE 256
@@ -572,14 +572,14 @@ SG_EXTERN const char *sg_httpauth_realm(struct sg_httpauth *auth);
 /**
  * Deny the authentication sending a justification to the user.
  * \param[in] auth Authentication handle.
- * \param[in] justification Justification message.
+ * \param[in] reason Denial reason.
  * \param[in] content_type Content type.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  * \retval EALREADY Already denied.
  * \retval ENOMEM Out of memory.
  */
-SG_EXTERN int sg_httpauth_deny(struct sg_httpauth *auth, const char *justification, const char *content_type);
+SG_EXTERN int sg_httpauth_deny(struct sg_httpauth *auth, const char *reason, const char *content_type);
 
 /**
  * Cancels the authentication loop while the user is trying to acess the server.
@@ -856,7 +856,7 @@ SG_EXTERN int sg_httpres_set_cookie(struct sg_httpres *res, const char *name, co
  * \retval ENOMEM Out of memory.
  */
 #define sg_httpres_send(res, val, content_type, status) \
-    sg_httpres_sendbinary((res), (void *) (val), ((val != NULL) ? strlen((val)) : 0), (content_type), (status))
+    sg_httpres_sendbinary((res), (void *) (val), (((val) != NULL) ? strlen((val)) : 0), (content_type), (status))
 
 /**
  * Sends a binary content to the client.
@@ -978,7 +978,7 @@ SG_EXTERN int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, sg_re
  * \note When compression succeeds, the header `Content-Encoding: deflate` is automatically added to the response.
  */
 #define sg_httpres_zsend(res, val, content_type, status) \
-    sg_httpres_zsendbinary((res), (void *) (val), ((val != NULL) ? strlen((val)) : 0), (content_type), (status))
+    sg_httpres_zsendbinary((res), (void *) (val), (((val) != NULL) ? strlen((val)) : 0), (content_type), (status))
 
 /**
  * Compresses a binary content and sends it to the client. The compression is done by zlib library using the
