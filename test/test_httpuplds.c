@@ -65,8 +65,9 @@ static int dummy_httpuplds_save_as_cb(void *handle, const char *path, bool overw
 }
 
 static int dummy_httpuplds_iter_cb(void *cls, struct sg_httpupld *upld) {
+    const char *str = cls;
     if (strcmp(upld->name, "foo") == 0 || strcmp(upld->name, "bar") == 0) {
-        sprintf(cls, "%s%s", (char *) cls, upld->name);
+        sprintf(cls, "%s%s", str, upld->name);
         return 0;
     }
     return 123;
@@ -363,7 +364,6 @@ static void test__httpupld_free_cb(void) {
     saved_srv = handle->srv;
     sg__httpupld_free_cb(handle);
     sg_httpsrv_free(saved_srv);
-    ASSERT(handle->fd == -1);
 }
 
 static void test__httpupld_save_cb(void) {

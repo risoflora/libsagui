@@ -233,7 +233,8 @@ static void test_strmap_iter(struct sg_strmap **map) {
 }
 
 static int strmap_sort_empty(void *cls, struct sg_strmap *pair_a, struct sg_strmap *pair_b) {
-    sprintf(cls, "%s%s", (char *) cls, (char *) cls);
+    const char *str1 = cls, *str2 = cls;
+    sprintf(cls, "%s%s", str1, str2);
     (void) pair_a;
     (void) pair_b;
     return 0;

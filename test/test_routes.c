@@ -52,7 +52,8 @@ static int route_segments_123_iter_cb(__SG_UNUSED void *cls, __SG_UNUSED unsigne
 }
 
 static int route_segments_concat_iter_cb(void *cls, __SG_UNUSED unsigned int index, const char *segment) {
-    sprintf(cls, "%s%d%s", (char *) cls, index, segment);
+    const char *str = cls;
+    sprintf(cls, "%s%d%s", str, index, segment);
     return 0;
 }
 
