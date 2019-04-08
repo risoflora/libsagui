@@ -28,6 +28,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
+#include <arpa/inet.h>
+#endif
 #include "sg_macros.h"
 #include "microhttpd.h"
 #include "sagui.h"
@@ -155,6 +161,29 @@ struct sg_httpupld *sg_httpreq_uploads(struct sg_httpreq *req) {
         return req->uplds;
     errno = EINVAL;
     return NULL;
+}
+
+int sg_httpreq_ip(struct sg_httpreq *req, char *ip, size_t *len) {
+    const union MHD_ConnectionInfo *info;
+    if (!req || !ip || !len || (ssize_t) len < 0)
+        return EINVAL;
+    info = MHD_get_connection_info(req->con, MHD_CONNECTION_INFO_CLIENT_ADDRESS);
+    if (info)
+        switch (info->client_addr->sa_family) {
+            case AF_INET:
+                if (*len > INET_ADDRSTRLEN)
+                    *len = INET_ADDRSTRLEN;
+                if (!inet_ntop(AF_INET, &(((struct sockaddr_in *) info->client_addr)->sin_addr), ip, *len))
+                    return errno;
+                break;
+            case AF_INET6:
+                if (*len > INET6_ADDRSTRLEN)
+                    *len = INET6_ADDRSTRLEN;
+                if (!inet_ntop(AF_INET6, &(((struct sockaddr_in6 *) info->client_addr)->sin6_addr), ip, *len))
+                    return errno;
+                break;
+        }
+    return 0;
 }
 
 #ifdef SG_HTTPS_SUPPORT

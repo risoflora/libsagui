@@ -809,6 +809,9 @@ SG_EXTERN bool sg_httpreq_is_uploading(struct sg_httpreq *req);
  */
 SG_EXTERN struct sg_httpupld *sg_httpreq_uploads(struct sg_httpreq *req);
 
+/* TODO: WARNING: this function is experimental! */
+SG_EXTERN int sg_httpreq_ip(struct sg_httpreq *req, char *ip, size_t *len);
+
 #ifdef SG_HTTPS_SUPPORT
 
 /**
