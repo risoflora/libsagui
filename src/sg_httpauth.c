@@ -65,9 +65,12 @@ bool sg__httpauth_dispatch(struct sg_httpauth *auth) {
     }
     if (auth->res->handle) {
         sg_strmap_iter(auth->res->headers, sg__strmap_iter, auth->res->handle);
-        auth->res->ret = MHD_queue_basic_auth_fail_response(auth->res->con,
-                                                            auth->realm ? auth->realm : _("Sagui realm"),
-                                                            auth->res->handle);
+        if (auth->res->status == MHD_HTTP_UNAUTHORIZED)
+            auth->res->ret = MHD_queue_basic_auth_fail_response(auth->res->con,
+                                                                auth->realm ? auth->realm : _("Sagui realm"),
+                                                                auth->res->handle);
+        else
+            auth->res->ret = MHD_queue_response(auth->res->con, auth->res->status, auth->res->handle);
     }
     return false;
 done:
@@ -92,20 +95,26 @@ const char *sg_httpauth_realm(struct sg_httpauth *auth) {
     return NULL;
 }
 
-int sg_httpauth_deny(struct sg_httpauth *auth, const char *reason, const char *content_type) {
-    if (!auth || !reason || !content_type)
+int sg_httpauth_deny2(struct sg_httpauth *auth, const char *reason, const char *content_type, unsigned int status) {
+    if (!auth || !reason || !content_type || (status < 100) || (status > 599))
         return EINVAL;
     if (auth->res->handle)
         return EALREADY;
     auth->res->handle = MHD_create_response_from_buffer(strlen(reason), (void *) reason, MHD_RESPMEM_MUST_COPY);
     if (!auth->res->handle)
         return ENOMEM;
+    auth->res->status = status;
     return sg_strmap_add(&auth->res->headers, MHD_HTTP_HEADER_CONTENT_TYPE, content_type);
+}
+
+int sg_httpauth_deny(struct sg_httpauth *auth, const char *reason, const char *content_type) {
+    return sg_httpauth_deny2(auth, reason, content_type, MHD_HTTP_UNAUTHORIZED);
 }
 
 int sg_httpauth_cancel(struct sg_httpauth *auth) {
     if (!auth)
         return EINVAL;
+    auth->res->status = MHD_HTTP_INTERNAL_SERVER_ERROR;
     auth->canceled = true;
     return 0;
 }

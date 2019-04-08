@@ -104,16 +104,35 @@ static void test_httpauth_realm(struct sg_httpauth *auth) {
     auth->realm = NULL;
 }
 
+static void test_httpauth_deny2(struct sg_httpauth *auth) {
+    ASSERT(sg_httpauth_deny2(NULL, "", "", 200) == EINVAL);
+    ASSERT(sg_httpauth_deny2(auth, NULL, "", 200) == EINVAL);
+    ASSERT(sg_httpauth_deny2(auth, "", NULL, 200) == EINVAL);
+    ASSERT(sg_httpauth_deny2(auth, "", "", 99) == EINVAL);
+    ASSERT(sg_httpauth_deny2(auth, "", "", 600) == EINVAL);
+
+    ASSERT(sg_httpauth_deny2(auth, MHD_HTTP_HEADER_CONTENT_TYPE, "foo", MHD_HTTP_FORBIDDEN) == 0);
+    ASSERT(auth->res->status == MHD_HTTP_FORBIDDEN);
+    ASSERT(sg_httpauth_deny2(auth, MHD_HTTP_HEADER_CONTENT_TYPE, "bar", 200) == EALREADY);
+    ASSERT(sg_httpauth_deny2(auth, "bar", "foo", 200) == EALREADY);
+    ASSERT(strcmp(sg_strmap_get(auth->res->headers, MHD_HTTP_HEADER_CONTENT_TYPE), "foo") == 0);
+    MHD_destroy_response(auth->res->handle);
+    auth->res->handle = NULL;
+    sg_strmap_cleanup(&auth->res->headers);
+}
+
 static void test_httpauth_deny(struct sg_httpauth *auth) {
     ASSERT(sg_httpauth_deny(NULL, "", "") == EINVAL);
     ASSERT(sg_httpauth_deny(auth, NULL, "") == EINVAL);
     ASSERT(sg_httpauth_deny(auth, "", NULL) == EINVAL);
 
     ASSERT(sg_httpauth_deny(auth, MHD_HTTP_HEADER_CONTENT_TYPE, "foo") == 0);
+    ASSERT(auth->res->status == MHD_HTTP_UNAUTHORIZED);
     ASSERT(sg_httpauth_deny(auth, MHD_HTTP_HEADER_CONTENT_TYPE, "bar") == EALREADY);
     ASSERT(sg_httpauth_deny(auth, "bar", "foo") == EALREADY);
     ASSERT(strcmp(sg_strmap_get(auth->res->headers, MHD_HTTP_HEADER_CONTENT_TYPE), "foo") == 0);
     MHD_destroy_response(auth->res->handle);
+    auth->res->handle = NULL;
     sg_strmap_cleanup(&auth->res->headers);
 }
 
@@ -154,6 +173,7 @@ int main(void) {
     test__httpauth_dispatch(auth);
     test_httpauth_set_realm(auth);
     test_httpauth_realm(auth);
+    test_httpauth_deny2(auth);
     test_httpauth_deny(auth);
     test_httpauth_cancel(auth);
     test_httpauth_usr(auth);

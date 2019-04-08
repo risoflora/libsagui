@@ -29,6 +29,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <sys/stat.h>
 #include <curl/curl.h>
 #include <sagui.h>
@@ -101,13 +102,16 @@ static void sg_httpres_stream_free_cb(void *handle) {
 static bool srv_auth_cb(__SG_UNUSED void *cls, struct sg_httpauth *auth, struct sg_httpreq *req,
                         __SG_UNUSED struct sg_httpres *res) {
     char *data = strdup("abc123");
-    bool pass;
+    bool pass, *auth_403 = cls;
     ASSERT(sg_httpauth_set_realm(auth, "My realm") == 0);
     ASSERT(sg_httpreq_set_user_data(req, data) == 0);
     pass = strmatch(sg_httpauth_usr(auth), "foo") && strmatch(sg_httpauth_pwd(auth), "bar");
     if (!pass) {
         sg_free(data);
-        ASSERT(sg_httpauth_deny(auth, DENIED_MSG, "text/plain") == 0);
+        if (*auth_403)
+            ASSERT(sg_httpauth_deny2(auth, DENIED_MSG, "text/plain", 403) == 0);
+        else
+            ASSERT(sg_httpauth_deny(auth, DENIED_MSG, "text/plain") == 0);
         if (strcmp(sg_httpreq_path(req), "/cancel-auth") == 0)
             ASSERT(sg_httpauth_cancel(auth) == 0);
     }
@@ -310,10 +314,11 @@ int main(void) {
     char *tmp;
     size_t size;
     long status;
+    bool auth_403;
 
     curl_global_init(CURL_GLOBAL_ALL);
 
-    srv = sg_httpsrv_new2(srv_auth_cb, srv_req_cb, srv_err_cb, NULL);
+    srv = sg_httpsrv_new2(srv_auth_cb, srv_req_cb, srv_err_cb, &auth_403);
     ASSERT(srv);
     curl = curl_easy_init();
     ASSERT(curl);
@@ -334,6 +339,7 @@ int main(void) {
     ASSERT(curl_easy_setopt(curl, CURLOPT_HTTPHEADER, (struct curl_slist *) headers) == CURLE_OK);
     ASSERT(curl_easy_setopt(curl, CURLOPT_COOKIE, "cookie1=cookie-value1; cookie2=cookie-value2;") == CURLE_OK);
 
+    auth_403 = false;
     ASSERT(sg_str_clear(res) == 0);
     ret = curl_easy_perform(curl);
     CURL_LOG(ret);
@@ -341,6 +347,16 @@ int main(void) {
     ASSERT(curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &status) == CURLE_OK);
     ASSERT(status == 401);
     ASSERT(strcmp(sg_str_content(res), DENIED_MSG) == 0);
+
+    auth_403 = true;
+    ASSERT(sg_str_clear(res) == 0);
+    ret = curl_easy_perform(curl);
+    CURL_LOG(ret);
+    ASSERT(ret == CURLE_OK);
+    ASSERT(curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &status) == CURLE_OK);
+    ASSERT(status == 403);
+    ASSERT(strcmp(sg_str_content(res), DENIED_MSG) == 0);
+    auth_403 = false;
 
     ASSERT(curl_easy_setopt(curl, CURLOPT_USERPWD, "wrong:pass") == CURLE_OK);
     ASSERT(sg_str_clear(res) == 0);

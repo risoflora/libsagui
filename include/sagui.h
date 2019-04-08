@@ -574,6 +574,20 @@ SG_EXTERN const char *sg_httpauth_realm(struct sg_httpauth *auth);
  * \param[in] auth Authentication handle.
  * \param[in] reason Denial reason.
  * \param[in] content_type Content type.
+ * \param[in] status HTTP status code.
+ * \retval 0 Success.
+ * \retval EINVAL Invalid argument.
+ * \retval EALREADY Already denied.
+ * \retval ENOMEM Out of memory.
+ */
+SG_EXTERN int sg_httpauth_deny2(struct sg_httpauth *auth, const char *reason, const char *content_type,
+                                unsigned int status);
+
+/**
+ * Deny the authentication sending a justification to the user.
+ * \param[in] auth Authentication handle.
+ * \param[in] reason Denial reason.
+ * \param[in] content_type Content type.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  * \retval EALREADY Already denied.
