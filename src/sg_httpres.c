@@ -248,7 +248,7 @@ struct sg_httpres *sg__httpres_new(struct MHD_Connection *con) {
     if (!res)
         return NULL;
     res->con = con;
-    res->status = 500;
+    res->status = MHD_HTTP_INTERNAL_SERVER_ERROR;
     return res;
 }
 
@@ -544,6 +544,6 @@ int sg_httpres_clear(struct sg_httpres *res) {
     sg_strmap_cleanup(&res->headers);
     MHD_destroy_response(res->handle);
     res->handle = NULL;
-    res->status = 500;
+    res->status = MHD_HTTP_INTERNAL_SERVER_ERROR;
     return 0;
 }
