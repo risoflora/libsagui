@@ -1,3 +1,39 @@
+2019-04-08  silvioprog  <silvioprog@gmail.com>
+
+	Bump v2.3.0
+
+	Added new function which allow to pass a custom status code when denying an authentication.
+
+2019-04-07  silvioprog  <silvioprog@gmail.com>
+
+	Used MHD macros to pass 500 statuses internally.
+
+	Fixed all tests on Linux (gcc 8.3.1/clang 7.0.1).
+
+	Fixed broken links in the README file.
+
+	Renamed parameter name from "justification" to "reason" in the sg_httpauth_deny() function.
+
+2019-04-06  silvioprog  <silvioprog@gmail.com>
+
+	Added cmake variable SG_LIB_SUFFIX to detect the library suffix on x86_64 systems.
+
+2019-04-05  silvioprog  <silvioprog@gmail.com>
+
+	Spelling fixes.
+
+2019-03-24  silvioprog  <silvioprog@gmail.com>
+
+	Docs upgrade.
+
+2019-03-10  silvioprog  <silvioprog@gmail.com>
+
+	Moved all documentation into its own directory.
+
+2019-03-06  silvioprog  <silvioprog@gmail.com>
+
+	Used best compression for static contents.
+
 2019-03-01  silvioprog  <silvioprog@gmail.com>
 
 	Bump v2.2.0
