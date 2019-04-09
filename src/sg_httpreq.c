@@ -163,23 +163,23 @@ struct sg_httpupld *sg_httpreq_uploads(struct sg_httpreq *req) {
     return NULL;
 }
 
-int sg_httpreq_ip(struct sg_httpreq *req, char *ip, size_t *len) {
+int sg_httpreq_ip(struct sg_httpreq *req, char *ip, size_t len) {
     const union MHD_ConnectionInfo *info;
-    if (!req || !ip || !len || (ssize_t) len < 0)
+    if (!req || !ip || (ssize_t) len < 0)
         return EINVAL;
     info = MHD_get_connection_info(req->con, MHD_CONNECTION_INFO_CLIENT_ADDRESS);
     if (info)
         switch (info->client_addr->sa_family) {
             case AF_INET:
-                if (*len > INET_ADDRSTRLEN)
-                    *len = INET_ADDRSTRLEN;
-                if (!inet_ntop(AF_INET, &(((struct sockaddr_in *) info->client_addr)->sin_addr), ip, *len))
+                if (len > INET_ADDRSTRLEN)
+                    len = INET_ADDRSTRLEN;
+                if (!inet_ntop(AF_INET, &(((struct sockaddr_in *) info->client_addr)->sin_addr), ip, len))
                     return errno;
                 break;
             case AF_INET6:
-                if (*len > INET6_ADDRSTRLEN)
-                    *len = INET6_ADDRSTRLEN;
-                if (!inet_ntop(AF_INET6, &(((struct sockaddr_in6 *) info->client_addr)->sin6_addr), ip, *len))
+                if (len > INET6_ADDRSTRLEN)
+                    len = INET6_ADDRSTRLEN;
+                if (!inet_ntop(AF_INET6, &(((struct sockaddr_in6 *) info->client_addr)->sin6_addr), ip, len))
                     return errno;
                 break;
         }
