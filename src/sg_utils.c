@@ -350,17 +350,15 @@ void sg__err_cb(__SG_UNUSED void *cls, const char *err) {
 
 /* Sockets */
 
-int sg_ntop4(const unsigned char *src, char *dst, size_t size) {
+int sg_ntop4(const void *src, char *dst, size_t size) {
+    const unsigned char *tmp;
     int len;
-    if (!src || !dst)
+    if (!src || !dst || (ssize_t) size < 0)
         return EINVAL;
     if (size > 16)
         size = 16;
-    len = snprintf((char *) src, size, "%d.%d.%d.%d",
-                   (int) (src[0] & 0xff),
-                   (int) (src[1] & 0xff),
-                   (int) (src[2] & 0xff),
-                   (int) (src[3] & 0xff));
+    tmp = src;
+    len = snprintf((char *) src, size, "%u.%u.%u.%u", tmp[0], tmp[1], tmp[2], tmp[3]);
     if (len < 1)
         return ENOSPC;
     if ((size_t) len > size)
