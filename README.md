@@ -21,6 +21,8 @@ Sagui is a cross-platform C library which helps to develop web servers or framew
   * [Gzip](https://en.wikipedia.org/wiki/Gzip) for files compression.
 * **HTTPS support:**
   * TLS 1.3 through [GnuTLS](https://www.gnutls.org) library.
+* **Dual stack:**
+  * Single socket for IPv4 and IPv6 support.
 * **Basic authentication:**
   * For standard login using *user name/password*.
 * **Upload/download streaming by:**

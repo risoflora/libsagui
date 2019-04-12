@@ -226,6 +226,9 @@ SG_EXTERN char *sg_tmpdir(void);
  */
 SG_EXTERN ssize_t sg_eor(bool err);
 
+/* TODO: WARNING: this function is experimental! */
+SG_EXTERN int sg_ntop4(const unsigned char *src, char *dst, size_t size);
+
 /** \} */
 
 /**

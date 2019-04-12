@@ -347,3 +347,25 @@ void sg__err_cb(__SG_UNUSED void *cls, const char *err) {
     if (isatty(fileno(stderr)) && (fprintf(stderr, "%s", err) > 0))
         fflush(stderr);
 }
+
+/* Sockets */
+
+int sg_ntop4(const unsigned char *src, char *dst, size_t size) {
+    int len;
+    if (!src || !dst)
+        return EINVAL;
+    if (size > 16)
+        size = 16;
+    len = snprintf((char *) src, size, "%d.%d.%d.%d",
+                   (int) (src[0] & 0xff),
+                   (int) (src[1] & 0xff),
+                   (int) (src[2] & 0xff),
+                   (int) (src[3] & 0xff));
+    if (len < 1)
+        return ENOSPC;
+    if ((size_t) len > size)
+        len = size;
+    memcpy(dst, src, len);
+    dst[len] = '\0';
+    return 0;
+}
