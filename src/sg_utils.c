@@ -351,19 +351,22 @@ void sg__err_cb(__SG_UNUSED void *cls, const char *err) {
 /* Sockets */
 
 int sg_ntop4(const void *src, char *dst, size_t size) {
+#define SG__ADDRSTRLEN 16
+    char buf[SG__ADDRSTRLEN];
     const unsigned char *tmp;
     int len;
     if (!src || !dst || (ssize_t) size < 0)
         return EINVAL;
-    if (size > 16)
-        size = 16;
+    if (size > SG__ADDRSTRLEN)
+        size = SG__ADDRSTRLEN;
+#undef SG__ADDRSTRLEN
     tmp = src;
-    len = snprintf((char *) src, size, "%u.%u.%u.%u", tmp[0], tmp[1], tmp[2], tmp[3]);
+    len = snprintf(buf, size, "%u.%u.%u.%u", tmp[0], tmp[1], tmp[2], tmp[3]);
     if (len < 1)
         return ENOSPC;
     if ((size_t) len > size)
         len = size;
-    memcpy(dst, src, len);
+    memcpy(dst, buf, len);
     dst[len] = '\0';
     return 0;
 }
