@@ -227,7 +227,7 @@ SG_EXTERN char *sg_tmpdir(void);
 SG_EXTERN ssize_t sg_eor(bool err);
 
 /* TODO: WARNING: this function is experimental! */
-SG_EXTERN int sg_ntop4(const void *src, char *dst, size_t size);
+SG_EXTERN int sg_ip(const void *socket, char *buf, size_t size);
 
 /** \} */
 

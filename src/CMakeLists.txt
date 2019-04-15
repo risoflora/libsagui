@@ -61,6 +61,10 @@ list(APPEND SG_C_SOURCE
         ${SG_SOURCE_DIR}/sg_httpreq.c
         ${SG_SOURCE_DIR}/sg_httpres.c
         ${SG_SOURCE_DIR}/sg_httpsrv.c)
+if (WIN32)
+    list(APPEND SG_C_SOURCE
+            ${SG_SOURCE_DIR}/inet.c)
+endif ()
 if (SG_PATH_ROUTING)
     list(APPEND SG_C_SOURCE
             ${SG_SOURCE_DIR}/sg_entrypoint.c

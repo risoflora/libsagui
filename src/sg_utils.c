@@ -25,10 +25,6 @@
  * along with Sagui library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifdef _WIN32
-#include <windows.h>
-#include <wchar.h>
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -37,6 +33,17 @@
 #include <unistd.h>
 #include <ctype.h>
 #include "sg_macros.h"
+#ifdef _WIN32
+#include "inet.h"
+#include <ws2tcpip.h>
+#include <winsock2.h>
+#include <windows.h>
+#include <wchar.h>
+#else
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#endif
 #include "sagui.h"
 #include "sg_utils.h"
 
@@ -350,23 +357,22 @@ void sg__err_cb(__SG_UNUSED void *cls, const char *err) {
 
 /* Sockets */
 
-int sg_ntop4(const void *src, char *dst, size_t size) {
-#define SG__ADDRSTRLEN 16
-    char buf[SG__ADDRSTRLEN];
-    const unsigned char *tmp;
-    int len;
-    if (!src || !dst || (ssize_t) size < 0)
+int sg_ip(const void *socket, char *buf, size_t size) {
+    const struct sockaddr *sa;
+    if (!socket || !buf || (ssize_t) size < 0)
         return EINVAL;
-    if (size > SG__ADDRSTRLEN)
-        size = SG__ADDRSTRLEN;
-#undef SG__ADDRSTRLEN
-    tmp = src;
-    len = snprintf(buf, size, "%u.%u.%u.%u", tmp[0], tmp[1], tmp[2], tmp[3]);
-    if (len < 1)
-        return ENOSPC;
-    if ((size_t) len > size)
-        len = size;
-    memcpy(dst, buf, len);
-    dst[len] = '\0';
+    sa = socket;
+    switch (sa->sa_family) {
+        case AF_INET:
+            if (!inet_ntop(AF_INET, &(((struct sockaddr_in *) sa)->sin_addr), buf, size))
+                return errno;
+            break;
+        case AF_INET6:
+            if (!inet_ntop(AF_INET6, &(((struct sockaddr_in6 *) sa)->sin6_addr), buf, size))
+                return errno;
+            break;
+        default:
+            return EINVAL;
+    }
     return 0;
 }
