@@ -51,7 +51,7 @@ set(PROJECT_ISSUES_URL "${PROJECT_URL}/issues")
 set(SG_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
 
 get_property(_lib64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
-if ("${_lib64}" STREQUAL "TRUE")
+if (("${_lib64}" STREQUAL "TRUE") AND (NOT ANDROID))
     set(SG_LIB_SUFFIX 64)
 else ()
     set(SG_LIB_SUFFIX "")
