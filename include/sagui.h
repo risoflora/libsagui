@@ -226,7 +226,16 @@ SG_EXTERN char *sg_tmpdir(void);
  */
 SG_EXTERN ssize_t sg_eor(bool err);
 
-/* TODO: WARNING: this function is experimental! */
+/**
+ * Obtains the IP of a socket handle (e.g. the one returned by #sg_httpreq_client()) into a null-terminated string.
+ * \param[in] socket Socket handle.
+ * \param[out] buf Pointer of the string to store the IP.
+ * \param[in] size Size of the string to store the IP.
+ * \retval 0 Success.
+ * \retval EINVAL Invalid argument.
+ * \retval EAFNOSUPPORT Address family not supported by protocol.
+ * \retval ENOSPC No space left on device.
+ */
 SG_EXTERN int sg_ip(const void *socket, char *buf, size_t size);
 
 /** \} */
@@ -812,7 +821,12 @@ SG_EXTERN bool sg_httpreq_is_uploading(struct sg_httpreq *req);
  */
 SG_EXTERN struct sg_httpupld *sg_httpreq_uploads(struct sg_httpreq *req);
 
-/* TODO: WARNING: this function is experimental! */
+/**
+ * Gets the socket handle of the client.
+ * \param[in] req Request handle.
+ * \return Socket address of the client.
+ * \retval NULL If \pr{req} is null and sets the `errno` to `EINVAL`.
+ */
 SG_EXTERN const void *sg_httpreq_client(struct sg_httpreq *req);
 
 #ifdef SG_HTTPS_SUPPORT

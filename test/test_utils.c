@@ -27,10 +27,15 @@
 
 #include "sg_assert.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
+#include <errno.h>
 #include <string.h>
+#ifdef _WIN32
+#include <ws2tcpip.h>
+#include <winsock2.h>
+#include <windows.h>
+#else
+#include <sys/socket.h>
+#endif
 #include "sg_macros.h"
 #include "sg_utils.h"
 #include <sagui.h>
@@ -399,6 +404,26 @@ static void test_tmpdir(void) {
     sg_free(tmp);
 }
 
+static void test_ip(void) {
+    struct sockaddr sa;
+    char buf[46];
+    memset(&sa, 0, sizeof(struct sockaddr));
+    ASSERT(sg_ip(NULL, buf, sizeof(buf)) == EINVAL);
+    ASSERT(sg_ip(&sa, NULL, sizeof(buf)) == EINVAL);
+    ASSERT(sg_ip(&sa, buf, -1) == EINVAL);
+    sa.sa_family = 123;
+    ASSERT(sg_ip(&sa, buf, sizeof(buf)) == EINVAL);
+
+    sa.sa_family = AF_INET;
+    ASSERT(sg_ip(&sa, buf, 16) == 0);
+    ASSERT(strcmp(buf, "0.0.0.0") == 0);
+    sa.sa_family = AF_INET6;
+    ASSERT(sg_ip(&sa, buf, 46) == 0);
+    ASSERT(strlen(buf) > 0);
+
+    /* we do not need massive testing for inet_ntop() since it is already tested by the glibc team. */
+}
+
 int main(void) {
     test__strdup();
     test__toasciilower();
@@ -414,5 +439,6 @@ int main(void) {
     test_is_post();
     test_extract_entrypoint();
     test_tmpdir();
+    test_ip();
     return EXIT_SUCCESS;
 }
