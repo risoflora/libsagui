@@ -108,7 +108,7 @@ static int sg__uncompress2(Bytef *dest, uLongf *destLen, const Bytef *source, uL
     inflateEnd(&stream);
     return err == Z_STREAM_END ? Z_OK :
            err == Z_NEED_DICT ? Z_DATA_ERROR :
-           err == Z_BUF_ERROR && left + stream.avail_out ? Z_DATA_ERROR :
+           err == Z_BUF_ERROR && (left + stream.avail_out) != 0 ? Z_DATA_ERROR :
            err;
 }
 
@@ -157,8 +157,10 @@ static void test__zdeflate(void) {
     dest_size = 100;
     ASSERT(sg__uncompress2((Bytef *) dest, (uLongf *) &dest_size, (Bytef *) src, (uLong *) &src_size) == Z_OK);
     ASSERT(dest_size == 50);
-    dest[dest_size] = '\0';
-    ASSERT(strcmp(dest, text) == 0);
+    if (dest) {
+        dest[dest_size] = '\0';
+        ASSERT(strcmp(dest, text) == 0);
+    }
     free(dest);
 
 
@@ -181,8 +183,10 @@ static void test__zdeflate(void) {
     dest_size = 100;
     ASSERT(sg__uncompress2((Bytef *) dest, (uLongf *) &dest_size, (Bytef *) src, (uLong *) &src_size) == Z_OK);
     ASSERT(dest_size == 50);
-    dest[dest_size] = '\0';
-    ASSERT(strcmp(dest, text) == 0);
+    if (dest) {
+        dest[dest_size] = '\0';
+        ASSERT(strcmp(dest, text) == 0);
+    }
     free(dest);
 }
 

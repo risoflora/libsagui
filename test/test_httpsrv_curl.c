@@ -84,6 +84,7 @@ static char *ftos(const char *filename) {
         return NULL;
     }
     fread(str, 1, sbuf.st_size, file);
+    fclose(file);
     str[sbuf.st_size] = '\0';
     return str;
 }

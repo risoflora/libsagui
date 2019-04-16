@@ -156,27 +156,27 @@ static ssize_t sg__httpres_gzread_cb(void *handle, __SG_UNUSED uint64_t offset, 
     int flush;
     if (holder->status == SG__HTTPRES_GZNONE) {
         holder->status = SG__HTTPRES_GZPROCESSING;
-        mem[0] = (unsigned char) 0x1f;
-        mem[1] = (unsigned char) 0x8b;
-        mem[2] = (unsigned char) 0x08;
+        mem[0] = (char) 0x1f;
+        mem[1] = (char) 0x8b;
+        mem[2] = (char) 0x08;
 #ifdef _WIN32
-        mem[9] = (unsigned char) 0x0b;
+        mem[9] = (char) 0x0b;
 #else
-        mem[9] = (unsigned char) 0x03;
+        mem[9] = (char) 0x03;
 #endif
         holder->crc = crc32(0L, Z_NULL, 0);
         return 10;
     }
     if (holder->status == SG__HTTPRES_GZFINISHING) {
         holder->status = SG__HTTPRES_GZFINISHED;
-        mem[0] = (unsigned char) (holder->crc & 0xff);
-        mem[1] = (unsigned char) ((holder->crc >> 8) & 0xff);
-        mem[2] = (unsigned char) ((holder->crc >> 16) & 0xff);
-        mem[3] = (unsigned char) ((holder->crc >> 24) & 0xff);
-        mem[4] = (unsigned char) ((holder->offset_in) & 0xff);
-        mem[5] = (unsigned char) ((holder->offset_in >> 8) & 0xff);
-        mem[6] = (unsigned char) ((holder->offset_in >> 16) & 0xff);
-        mem[7] = (unsigned char) ((holder->offset_in >> 24) & 0xff);
+        mem[0] = (char) (holder->crc & 0xff);
+        mem[1] = (char) ((holder->crc >> 8) & 0xff);
+        mem[2] = (char) ((holder->crc >> 16) & 0xff);
+        mem[3] = (char) ((holder->crc >> 24) & 0xff);
+        mem[4] = (char) ((holder->offset_in) & 0xff);
+        mem[5] = (char) ((holder->offset_in >> 8) & 0xff);
+        mem[6] = (char) ((holder->offset_in >> 16) & 0xff);
+        mem[7] = (char) ((holder->offset_in >> 24) & 0xff);
         return 8;
     }
     if (holder->status == SG__HTTPRES_GZFINISHED)
@@ -330,8 +330,8 @@ int sg_httpres_sendfile2(struct sg_httpres *res, uint64_t size, uint64_t max_siz
     res->status = status;
     return 0;
 error:
-    if ((fd != -1) && close(fd) && (errnum == 0))
-        errnum = errno;
+    if (fd != -1)
+        close(fd);
     return errnum;
 }
 
@@ -525,8 +525,8 @@ error_buf_in:
 error_stream:
     sg_free(holder);
 error:
-    if ((fd != -1) && close(fd) && (errnum == 0))
-        errnum = errno;
+    if (fd != -1)
+        close(fd);
     return errnum;
 }
 
