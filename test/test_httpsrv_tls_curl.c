@@ -133,7 +133,12 @@ const char certificate[] =
         "-----END CERTIFICATE-----";
 
 static void srv_req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_httpres *res) {
+    char ip[46];
+    const void *client = sg_httpreq_client(req);
     ASSERT(sg_httpreq_tls_session(req));
+    ASSERT(client);
+    ASSERT(sg_ip(client, ip, sizeof(46)) == 0);
+    ASSERT(strcmp(ip, "::1") == 0);
     ASSERT(strcmp(sg_httpreq_version(req), "HTTP/1.1") == 0);
     ASSERT(strcmp(sg_httpreq_method(req), "GET") == 0);
     sg_httpres_send(res, OK_MSG, "text/plain", 200);

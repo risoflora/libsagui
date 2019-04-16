@@ -198,6 +198,11 @@ bool sg__is_cookie_val(const char *val) {
     return true;
 }
 
+void sg__err_cb(__SG_UNUSED void *cls, const char *err) {
+    if (isatty(fileno(stderr)) && (fprintf(stderr, "%s", err) > 0))
+        fflush(stderr);
+}
+
 /* Version. */
 
 unsigned int sg_version(void) {
@@ -346,13 +351,6 @@ done:
     buf[len] = '\0';
     return buf;
 #endif
-}
-
-/* Errors. */
-
-void sg__err_cb(__SG_UNUSED void *cls, const char *err) {
-    if (isatty(fileno(stderr)) && (fprintf(stderr, "%s", err) > 0))
-        fflush(stderr);
 }
 
 /* Sockets */

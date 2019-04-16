@@ -155,7 +155,7 @@ struct sg_httpupld *sg_httpreq_uploads(struct sg_httpreq *req) {
     return NULL;
 }
 
-void *sg_httpreq_client(struct sg_httpreq *req) {
+const void *sg_httpreq_client(struct sg_httpreq *req) {
     const union MHD_ConnectionInfo *info;
     if (req) {
         info = MHD_get_connection_info(req->con, MHD_CONNECTION_INFO_CLIENT_ADDRESS);

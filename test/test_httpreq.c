@@ -228,6 +228,13 @@ static void test_httpreq_uploads(struct sg_httpreq *req) {
     }
 }
 
+static void test_httpreq_client(void) {
+    errno = 0;
+    ASSERT(!sg_httpreq_client(NULL));
+    ASSERT(errno == EINVAL);
+    /* more tests in `test_httpsrv_tls_curl.c`. */
+}
+
 #ifdef SG_HTTPS_SUPPORT
 
 static void test_httpreq_tls_session(void) {
@@ -280,6 +287,7 @@ int main(void) {
     test_httpreq_payload(req);
     test_httpreq_is_uploading(req);
     test_httpreq_uploads(req);
+    test_httpreq_client();
 #ifdef SG_HTTPS_SUPPORT
     test_httpreq_tls_session();
 #endif
