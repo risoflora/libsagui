@@ -2,13 +2,13 @@
 #
 # For 32-bit:
 #
-# cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/Toolchain-mingw32-openSUSE.cmake" \
+# cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/Toolchain-mingw32-Linux.cmake" \
 #   -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=./Output -DBUILD_SHARED_LIBS=ON ..
 # make sagui install/strip
 #
 # For 64-bit:
 #
-# cmake -DMINGW_PREFIX="mingw64" -DCMAKE_TOOLCHAIN_FILE="../cmake/Toolchain-mingw32-openSUSE.cmake" \
+# cmake -DMINGW_PREFIX="mingw64" -DCMAKE_TOOLCHAIN_FILE="../cmake/Toolchain-mingw32-Linux.cmake" \
 #   -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=./Output -DBUILD_SHARED_LIBS=ON ..
 # make sagui install/strip
 
@@ -39,10 +39,10 @@
 # along with Sagui library.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-if (__SG_TOOLCHAIN_MINGW32_OPENSUSE_INCLUDED)
+if (__SG_TOOLCHAIN_MINGW32_LINUX_INCLUDED)
     return()
 endif ()
-set(__SG_TOOLCHAIN_MINGW32_OPENSUSE_INCLUDED ON)
+set(__SG_TOOLCHAIN_MINGW32_LINUX_INCLUDED ON)
 
 if ("${MINGW_PREFIX}" STREQUAL "mingw32")
     set(MINGW_PREFIX "i686-w64-mingw32")
@@ -63,7 +63,3 @@ set(CMAKE_FIND_ROOT_PATH /usr/${MINGW_PREFIX}/sys-root/mingw)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-
-if ("${MINGW_PREFIX}" STREQUAL "x86_64-w64-mingw32")
-    set(SG_LIB_SUFFIX "64")
-endif ()
