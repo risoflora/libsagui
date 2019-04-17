@@ -2,8 +2,8 @@
 
 The Sagui library is compatible with the following compilers:
 
-* GCC - from [GNU Compiler Collection](https://gcc.gnu.org).
-* LLVM - from [CLang Project](https://clang.llvm.org).
+* GCC - [GNU Compiler Collection](https://gcc.gnu.org).
+* LLVM - [CLang Project](https://clang.llvm.org).
 
 and was successfully tested in:
 
