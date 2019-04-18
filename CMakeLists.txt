@@ -50,6 +50,14 @@ set(PROJECT_URL "https://github.com/risoflora/libsagui")
 set(PROJECT_ISSUES_URL "${PROJECT_URL}/issues")
 set(SG_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
 
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif ()
+
+if (NOT BUILD_SHARED_LIBS)
+    set(BUILD_SHARED_LIBS ON)
+endif ()
+
 if (NOT SG_LIB_SUFFIX)
     get_property(_lib64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
     if (("${_lib64}" STREQUAL "TRUE") AND (NOT ANDROID))
