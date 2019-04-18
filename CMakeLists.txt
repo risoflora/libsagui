@@ -10,6 +10,7 @@
 #
 #   SG_INCLUDE_DIR - Directory containing the library header.
 #   SG_LIB_SUFFIX - Library suffix, e.g. `64`.
+#   SG_USE_OUTPUT_PREFIX - Install all files into "./Output" directory.
 
 #                         _
 #   ___  __ _  __ _ _   _(_)
@@ -53,9 +54,11 @@ set(SG_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif ()
-
 if (NOT BUILD_SHARED_LIBS)
     set(BUILD_SHARED_LIBS ON)
+endif ()
+if (SG_USE_OUTPUT_PREFIX AND CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/Output" CACHE PATH "..." FORCE)
 endif ()
 
 if (NOT SG_LIB_SUFFIX)

@@ -2,14 +2,12 @@
 #
 # For 32-bit:
 #
-# cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/Toolchain-mingw32-Linux.cmake" \
-#   -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=./Output -DBUILD_SHARED_LIBS=ON ..
+# cmake -DCMAKE_TOOLCHAIN_FILE="../cmake/Toolchain-mingw32-Linux.cmake" ..
 # make sagui install/strip
 #
 # For 64-bit:
 #
-# cmake -DMINGW_PREFIX="mingw64" -DCMAKE_TOOLCHAIN_FILE="../cmake/Toolchain-mingw32-Linux.cmake" \
-#   -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=./Output -DBUILD_SHARED_LIBS=ON ..
+# cmake -DMINGW64=ON -DCMAKE_TOOLCHAIN_FILE="../cmake/Toolchain-mingw32-Linux.cmake" ..
 # make sagui install/strip
 
 #                         _
@@ -44,22 +42,37 @@ if (__SG_TOOLCHAIN_MINGW32_LINUX_INCLUDED)
 endif ()
 set(__SG_TOOLCHAIN_MINGW32_LINUX_INCLUDED ON)
 
-if ("${MINGW_PREFIX}" STREQUAL "mingw32")
-    set(MINGW_PREFIX "i686-w64-mingw32")
-elseif ("${MINGW_PREFIX}" STREQUAL "mingw64")
-    set(MINGW_PREFIX "x86_64-w64-mingw32")
+if (NOT SG_USE_OUTPUT_PREFIX)
+    set(SG_USE_OUTPUT_PREFIX ON)
 endif ()
-if (NOT MINGW_PREFIX)
+
+if (MINGW64)
+    set(MINGW_PREFIX "x86_64-w64-mingw32")
+elseif (NOT MINGW_PREFIX)
     set(MINGW_PREFIX "i686-w64-mingw32")
 endif ()
 
 set(CMAKE_SYSTEM_NAME Windows)
 
-set(CMAKE_C_COMPILER ${MINGW_PREFIX}-gcc)
-#set(CMAKE_CXX_COMPILER ${MINGW_PREFIX}-g++)
-set(CMAKE_RC_COMPILER ${MINGW_PREFIX}-windres)
+if (NOT CMAKE_C_COMPILER)
+    set(CMAKE_C_COMPILER ${MINGW_PREFIX}-gcc)
+endif ()
+if (NOT CMAKE_RC_COMPILER)
+    set(CMAKE_RC_COMPILER ${MINGW_PREFIX}-windres)
+endif ()
 
-set(CMAKE_FIND_ROOT_PATH /usr/${MINGW_PREFIX}/sys-root/mingw)
+if (NOT CMAKE_FIND_ROOT_PATH)
+    set(_tmp_dir /usr/${MINGW_PREFIX}/sys-root/mingw)
+    if (EXISTS ${_tmp_dir})
+        set(CMAKE_FIND_ROOT_PATH ${_tmp_dir})
+        if ("${MINGW_PREFIX}" STREQUAL "x86_64-w64-mingw32")
+            set(SG_LIB_SUFFIX "64")
+        endif ()
+    else ()
+        set(CMAKE_FIND_ROOT_PATH /usr/${MINGW_PREFIX})
+    endif ()
+    unset(_tmp_dir)
+endif ()
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
