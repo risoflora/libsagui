@@ -36,6 +36,12 @@
 #include "sg_macros.h"
 #include "sagui.h"
 
+struct sg__memory_manager {
+    sg_malloc_func malloc;
+    sg_realloc_func realloc;
+    sg_free_func free;
+};
+
 #ifdef _WIN32
 #ifndef PATH_MAX
 #define PATH_MAX _MAX_PATH

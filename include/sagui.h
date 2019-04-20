@@ -87,6 +87,15 @@ extern "C" {
  * \{
  */
 
+/* TODO: WARNING: this callback signature is experimental! */
+typedef void *(*sg_malloc_func)(size_t size);
+
+/* TODO: WARNING: this callback signature is experimental! */
+typedef void *(*sg_realloc_func)(void *ptr, size_t size);
+
+/* TODO: WARNING: this callback signature is experimental! */
+typedef void (*sg_free_func)(void *ptr);
+
 /**
  * Callback signature used by functions that handle errors.
  * \param[out] cls User-defined closure.
@@ -150,6 +159,9 @@ SG_EXTERN unsigned int sg_version(void);
  * \return Library version packed into a null-terminated string.
  */
 SG_EXTERN const char *sg_version_str(void);
+
+/* TODO: WARNING: this function is experimental! */
+SG_EXTERN int sg_mm_set(sg_malloc_func malloc_func, sg_realloc_func realloc_func, sg_free_func free_func);
 
 /**
  * Allocates a new memory space.

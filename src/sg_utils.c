@@ -219,26 +219,39 @@ const char *sg_version_str(void) {
 
 /* Memory. */
 
-/*TODO: develop a memory manager to manage sg_malloc(), sg_alloc(), sg_realloc() and sg_free(). */
+static struct sg__memory_manager sg__mm = {
+        malloc,
+        realloc,
+        free
+};
+
+int sg_mm_set(sg_malloc_func malloc_func, sg_realloc_func realloc_func, sg_free_func free_func) {
+    if (!malloc_func || !realloc_func || !free_func)
+        return EINVAL;
+    sg__mm.malloc = malloc_func;
+    sg__mm.realloc = realloc_func;
+    sg__mm.free = free_func;
+    return 0;
+}
 
 void *sg_malloc(size_t size) {
-    return malloc(size);
+    return sg__mm.malloc(size);
 }
 
 void *sg_alloc(size_t size) {
     void *ptr;
-    ptr = malloc(size);
+    ptr = sg__mm.malloc(size);
     if (ptr)
         memset(ptr, 0, size);
     return ptr;
 }
 
 void *sg_realloc(void *ptr, size_t size) {
-    return realloc(ptr, size);
+    return sg__mm.realloc(ptr, size);
 }
 
 void sg_free(void *ptr) {
-    free(ptr);
+    sg__mm.free(ptr);
 }
 
 /* String. */
