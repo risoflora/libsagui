@@ -61,7 +61,7 @@ list(APPEND SG_C_SOURCE
         ${SG_SOURCE_DIR}/sg_httpreq.c
         ${SG_SOURCE_DIR}/sg_httpres.c
         ${SG_SOURCE_DIR}/sg_httpsrv.c)
-if (WIN32)
+if (NOT HAVE_INET_NTOP)
     list(APPEND SG_C_SOURCE
             ${SG_SOURCE_DIR}/inet.c)
 endif ()

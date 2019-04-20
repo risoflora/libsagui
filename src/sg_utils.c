@@ -34,7 +34,6 @@
 #include <ctype.h>
 #include "sg_macros.h"
 #ifdef _WIN32
-#include "inet.h"
 #include <ws2tcpip.h>
 #include <winsock2.h>
 #include <windows.h>
@@ -42,7 +41,12 @@
 #else
 #include <sys/socket.h>
 #include <netinet/in.h>
+#ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
+#endif
+#endif
+#ifndef HAVE_INET_NTOP
+#include "inet.h"
 #endif
 #include "sagui.h"
 #include "sg_utils.h"
