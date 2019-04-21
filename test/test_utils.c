@@ -274,9 +274,9 @@ static void test_mm_set(void) {
 
     mm_tester = 0;
     ASSERT(sg_malloc(123) == &mm_tester);
-    ASSERT(mm_tester = 123);
+    ASSERT(mm_tester == 123);
     ASSERT(sg_realloc(&mm_tester, 10) == &mm_tester);
-    ASSERT(mm_tester = 133);
+    ASSERT(mm_tester == 133);
     sg_free(&mm_tester);
     ASSERT(mm_tester == 0);
 
