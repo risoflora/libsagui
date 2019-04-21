@@ -35,6 +35,7 @@
 #include <unistd.h>
 #include <errno.h>
 #endif
+#include "sagui.h"
 
 #ifdef SG_PATH_ROUTING
 # ifndef PCRE2_CODE_UNIT_WIDTH
@@ -102,6 +103,12 @@
 /* used by uthash library */
 #ifndef HASH_NONFATAL_OOM
 #define HASH_NONFATAL_OOM 1
+#endif
+#ifndef uthash_malloc
+#define uthash_malloc(sz) sg_malloc(sz)
+#endif
+#ifndef uthash_free
+#define uthash_free(ptr, sz) sg_free(ptr)
 #endif
 
 #endif /* SG_MACROS_H */
