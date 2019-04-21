@@ -27,6 +27,7 @@
 
 #include "sg_assert.h"
 
+#include <stdlib.h>
 #include <errno.h>
 #include <string.h>
 #ifdef _WIN32
@@ -248,6 +249,40 @@ static void test_version(void) {
     ASSERT(ver_original[ver_len] == '\0');
 }
 
+static int mm_tester = 0;
+
+static void *mm_malloc(size_t size) {
+    mm_tester = size;
+    return &mm_tester;
+}
+
+static void *mm_realloc(void *ptr, size_t size) {
+    *((int *) ptr) = size;
+    return ptr;
+}
+
+static void mm_free(void *ptr) {
+    *((int *) ptr) = 0;
+}
+
+static void test_mm_set(void) {
+    ASSERT(sg_mm_set(NULL, mm_realloc, mm_free) == EINVAL);
+    ASSERT(sg_mm_set(mm_malloc, NULL, mm_free) == EINVAL);
+    ASSERT(sg_mm_set(mm_malloc, mm_realloc, NULL) == EINVAL);
+
+    ASSERT(sg_mm_set(mm_malloc, mm_realloc, mm_free) == 0);
+
+    mm_tester = 0;
+    ASSERT(sg_malloc(123) == &mm_tester);
+    ASSERT(mm_tester = 123);
+    ASSERT(sg_realloc(&mm_tester, 10) == &mm_tester);
+    ASSERT(mm_tester = 133);
+    sg_free(&mm_tester);
+    ASSERT(mm_tester == 0);
+
+    sg_mm_set(malloc, realloc, free);
+}
+
 static void test_malloc(void) {
     char *buf;
 #define TEST_MEM_BUF_LEN 10
@@ -431,6 +466,7 @@ int main(void) {
     test__is_cookie_name();
     test__is_cookie_val();
     test_version();
+    test_mm_set();
     test_malloc();
     test_alloc();
     test_realloc();

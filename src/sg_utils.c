@@ -219,11 +219,7 @@ const char *sg_version_str(void) {
 
 /* Memory. */
 
-static struct sg__memory_manager sg__mm = {
-        malloc,
-        realloc,
-        free
-};
+static struct sg__memory_manager sg__mm = {malloc, realloc, free};
 
 int sg_mm_set(sg_malloc_func malloc_func, sg_realloc_func realloc_func, sg_free_func free_func) {
     if (!malloc_func || !realloc_func || !free_func)

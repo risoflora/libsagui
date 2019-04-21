@@ -36,7 +36,11 @@
 #ifdef __ANDROID__
 #define TEST_HTTPRES_BASE_PATH SG_ANDROID_TESTS_DEST_DIR "/"
 #else
+#ifdef _WIN32
 #define TEST_HTTPRES_BASE_PATH ""
+#else
+#define TEST_HTTPRES_BASE_PATH "/tmp/"
+#endif
 #endif
 #endif
 

@@ -87,13 +87,28 @@ extern "C" {
  * \{
  */
 
-/* TODO: WARNING: this callback signature is experimental! */
+/**
+ * Callback signature used to override the function which allocates a new memory space.
+ * \param[in] size Memory size to be allocated.
+ * \return Pointer of the allocated memory.
+ * \retval NULL If size is `0` or no memory space.
+ */
 typedef void *(*sg_malloc_func)(size_t size);
 
-/* TODO: WARNING: this callback signature is experimental! */
+/**
+ * Callback signature used to override the function which allocates a new zero-initialized memory space.
+ * \param[in] size Memory size to be allocated.
+ * \return Pointer of the zero-initialized allocated memory.
+ * \retval NULL If size is `0` or no memory space.
+ */
 typedef void *(*sg_realloc_func)(void *ptr, size_t size);
 
-/* TODO: WARNING: this callback signature is experimental! */
+/**
+ * Callback signature used to override the function which reallocates an existing memory block.
+ * \param[in,out] ptr Pointer of the memory to be reallocated.
+ * \param[in] size Memory size to be reallocated.
+ * \return Pointer of the reallocated memory.
+ */
 typedef void (*sg_free_func)(void *ptr);
 
 /**
@@ -160,7 +175,17 @@ SG_EXTERN unsigned int sg_version(void);
  */
 SG_EXTERN const char *sg_version_str(void);
 
-/* TODO: WARNING: this function is experimental! */
+/**
+ * Overrides the standard functions [malloc(3)](https://linux.die.net/man/3/malloc),
+ * [realloc(3)](https://linux.die.net/man/3/realloc) and [free(3)](https://linux.die.net/man/3/free) set by default in
+ * the memory manager.
+ * \param[in] malloc_func Reference to override the function `malloc()`.
+ * \param[in] realloc_func Reference to override the function `realloc()`.
+ * \param[in] free_func Reference to override the function `free()`.
+ * \retval 0 Success.
+ * \retval EINVAL Invalid argument.
+ * \note It must be called before any other Sagui function or after all resources have been freed.
+ */
 SG_EXTERN int sg_mm_set(sg_malloc_func malloc_func, sg_realloc_func realloc_func, sg_free_func free_func);
 
 /**
@@ -168,6 +193,7 @@ SG_EXTERN int sg_mm_set(sg_malloc_func malloc_func, sg_realloc_func realloc_func
  * \param[in] size Memory size to be allocated.
  * \return Pointer of the allocated memory.
  * \retval NULL If size is `0` or no memory space.
+ * \note Equivalent to [malloc(3)](https://linux.die.net/man/3/malloc).
  */
 SG_EXTERN void *sg_malloc(size_t size)
 __SG_MALLOC;
@@ -194,6 +220,7 @@ __SG_MALLOC;
 /**
  * Frees a memory space previously allocated by #sg_malloc(), #sg_alloc() or #sg_realloc().
  * \param[in] ptr Pointer of the memory to be freed.
+ * \note Equivalent to [free(3)](https://linux.die.net/man/3/free).
  */
 SG_EXTERN void sg_free(void *ptr);
 
