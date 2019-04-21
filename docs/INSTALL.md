@@ -8,15 +8,15 @@ sudo apt update
 sudo apt install clang cmake
 
 # Download latest release
-export SG_VER="2.2.0" # change to latest version
+export SG_VER="2.4.0" # change to latest version
 wget --continue --content-disposition https://github.com/risoflora/libsagui/archive/v$SG_VER.tar.gz
 tar -zxvf libsagui-$SG_VER.tar.gz
 cd libsagui-$SG_VER/ && mkdir build && cd build/
 
 # Configure, build and install
-cmake -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON ..
+cmake -DCMAKE_C_COMPILER=clang ..
 make && sudo make sagui install/strip
-sudo ldconfig # cache update
+sudo ldconfig # Rebuild library cache
 ```
 
 to uninstall:
@@ -36,13 +36,13 @@ pacman -S --needed mingw-w64-i686-toolchain mingw-w64-x86_64-toolchain
 pacman -S --needed mingw-w64-i686-cmake mingw-w64-x86_64-cmake
 
 # Download latest release
-export SG_VER="2.2.0" # change to latest version
+export SG_VER="2.4.0" # change to latest version
 wget --continue --content-disposition https://github.com/risoflora/libsagui/archive/v$SG_VER.tar.gz
 tar -zxvf libsagui-$SG_VER.tar.gz
 cd libsagui-$SG_VER/ && mkdir build && cd build/
 
 # Configure, build and install
-cmake -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/mingw32 -DBUILD_SHARED_LIBS=ON ..
+cmake -G "MSYS Makefiles" -DCMAKE_INSTALL_PREFIX=/mingw32 ..
 make sagui install/strip
 
 # NOTE: use prefix "/mingw64" for x86_64
