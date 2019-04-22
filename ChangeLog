@@ -1,4 +1,82 @@
+2019-04-22  silvioprog  <silvioprog@gmail.com>
+
+	Bump v2.4.0
+
+	Mapped the zlib allocator to use the Sagui MM.
+
+2019-04-21  silvioprog  <silvioprog@gmail.com>
+
+	Changed the uthash allocator to use the Sagui MM.
+
+	Fixed broken test reported by travis.
+
+	Fixed the memory manager tests.
+
+	Fixed the building for static library and updated the documentation.
+
+2019-04-20  silvioprog  <silvioprog@gmail.com>
+
+	Added tests/docs regarding the memory manager feature.
+
+	Featured an experimental tiny memory manager. (Fix #22)
+
+	Fixed build using mingw on Windows.
+
+2019-04-18  silvioprog  <silvioprog@gmail.com>
+
+	Improved the toolchain script for mingw to make it easy to build the library through all supported Linux distributions.
+
+2019-04-17  silvioprog  <silvioprog@gmail.com>
+
+	Generates shared library and sets release mode as default build. (Fix #23)
+
+	Fixed wrong logic which allows BUILD_TESTING only in debug mode.
+
+	Added cmake script which configures the toolchain on Linux.
+
+	Disabled BUILD_TESTING if build type is not DEBUG.
+
+2019-04-16  silvioprog  <silvioprog@gmail.com>
+
+	Fixed cross-build for Windows on openSUSE 64 bits.
+
+	Added cmake script which configures the toolchain on openSUSE.
+
+	Added more tests and documentation for the functions "sg_httpreq_client()" and "sg_ip()".
+
+	Fixed broken test on travis continuous integration.
+
+	Fixed typo in test case.
+
+	Returned a constant instance in function "sg_httpreq_client()" and added basic tests.
+
+2019-04-15  silvioprog  <silvioprog@gmail.com>
+
+	Fixed PVS-Studio issues.
+
+	Fixed build for Android.
+
+	Added new experimental function "sg_ip()" using glibc (inet_ntop) and removed "sg_ntop4()".
+
+2019-04-12  silvioprog  <silvioprog@gmail.com>
+
+	Avoided buffer overflow in the experimental function "sg_ntop4()".
+
+	Improved the function "sg_ntop()" to make its interface easy for the end-user.
+
+2019-04-11  silvioprog  <silvioprog@gmail.com>
+
+	Fixed build on mingw (Linux) when libcurl is not available.
+
+	Added experimental function "sg_ntop4()". (#26)
+
+	Replaced experimental function "sg_httpreq_ip()" by "sg_httpreq_client()" in order to return the client address information. (#26)
+
 2019-04-08  silvioprog  <silvioprog@gmail.com>
+
+	Passed the buffer length as value instead of reference in the function "sg_httpreq_ip()".
+
+	Added experimental function "sg_httpreq_ip()".
 
 	Bump v2.3.0
 
