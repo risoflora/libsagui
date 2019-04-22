@@ -428,6 +428,8 @@ int sg_httpres_zsendstream2(struct sg_httpres *res, int level, uint64_t size, sg
         errnum = ENOMEM;
         goto error;
     }
+    holder->stream.zalloc = sg__zalloc;
+    holder->stream.zfree = sg__zfree;
     errnum = deflateInit2(&holder->stream, level, Z_DEFLATED, MAX_WBITS, MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY);
     if (errnum != Z_OK)
         goto error_stream;
@@ -490,6 +492,8 @@ int sg_httpres_zsendfile2(struct sg_httpres *res, int level, uint64_t size, uint
         errnum = ENOMEM;
         goto error;
     }
+    holder->stream.zalloc = sg__zalloc;
+    holder->stream.zfree = sg__zfree;
     errnum = deflateInit2(&holder->stream, level, Z_DEFLATED, -MAX_WBITS, 8, Z_DEFAULT_STRATEGY);
     if (errnum != Z_OK)
         goto error_stream;

@@ -57,6 +57,14 @@ ssize_t sg_eor(bool err) {
 
 #ifdef SG_HTTP_COMPRESSION
 
+voidpf sg__zalloc(__SG_UNUSED voidpf opaque, unsigned items, unsigned size) {
+    return sg_alloc(items * size);
+}
+
+void sg__zfree(__SG_UNUSED voidpf opaque, voidpf ptr) {
+    sg_free(ptr);
+}
+
 int sg__zcompress(z_const Bytef *src, uLong src_size, Bytef *dest, uLongf *dest_size, int level) {
     z_const uInt max = (uInt) -1;
     z_stream stream;
@@ -64,8 +72,8 @@ int sg__zcompress(z_const Bytef *src, uLong src_size, Bytef *dest, uLongf *dest_
     int errnum;
     left = *dest_size;
     *dest_size = 0;
-    stream.zalloc = Z_NULL;
-    stream.zfree = Z_NULL;
+    stream.zalloc = sg__zalloc;
+    stream.zfree = sg__zfree;
     stream.opaque = Z_NULL;
     errnum = deflateInit2(&stream, level, Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY);
     if (errnum != Z_OK)
