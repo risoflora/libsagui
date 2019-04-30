@@ -159,6 +159,12 @@ static ssize_t sg__httpres_gzread_cb(void *handle, __SG_UNUSED uint64_t offset, 
         mem[0] = (char) 0x1f;
         mem[1] = (char) 0x8b;
         mem[2] = (char) 0x08;
+        mem[3] = (char) 0x00;
+        mem[4] = (char) 0x00;
+        mem[5] = (char) 0x00;
+        mem[6] = (char) 0x00;
+        mem[7] = (char) 0x00;
+        mem[8] = (char) 0x00;
 #ifdef _WIN32
         mem[9] = (char) 0x0b;
 #else
