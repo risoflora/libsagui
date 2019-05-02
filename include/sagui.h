@@ -96,18 +96,17 @@ extern "C" {
 typedef void *(*sg_malloc_func)(size_t size);
 
 /**
- * Callback signature used to override the function which allocates a new zero-initialized memory space.
- * \param[in] size Memory size to be allocated.
- * \return Pointer of the zero-initialized allocated memory.
- * \retval NULL If size is `0` or no memory space.
+ * Callback signature used to override the function which reallocates an existing memory block.
+ * \param[in] ptr Pointer of the memory to be reallocated.
+ * \param[in] size Memory size to be reallocated.
+ * \return Pointer of the reallocated memory.
  */
 typedef void *(*sg_realloc_func)(void *ptr, size_t size);
 
 /**
- * Callback signature used to override the function which reallocates an existing memory block.
- * \param[in,out] ptr Pointer of the memory to be reallocated.
- * \param[in] size Memory size to be reallocated.
- * \return Pointer of the reallocated memory.
+ * Callback signature used to override the function which frees a memory space previously allocated by #sg_malloc(),
+ * #sg_alloc() or #sg_realloc().
+ * \param[in] ptr Pointer of the memory to be freed.
  */
 typedef void (*sg_free_func)(void *ptr);
 
@@ -209,7 +208,7 @@ __SG_MALLOC;
 
 /**
  * Reallocates an existing memory block.
- * \param[in,out] ptr Pointer of the memory to be reallocated.
+ * \param[in] ptr Pointer of the memory to be reallocated.
  * \param[in] size Memory size to be reallocated.
  * \return Pointer of the reallocated memory.
  * \note Equivalent to [realloc(3)](https://linux.die.net/man/3/realloc).
