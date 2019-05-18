@@ -28,6 +28,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#ifdef _WIN32
+#include <winsock2.h>
+#else
+#include <unistd.h>
+#include <sys/socket.h>
+#endif
 #include "sg_macros.h"
 #include "microhttpd.h"
 #include "sagui.h"
@@ -94,7 +100,7 @@ static bool sg__httpsrv_listen(struct sg_httpsrv *srv, const char *key, const ch
         errno = EINVAL;
         return false;
     }
-    flags = MHD_USE_DUAL_STACK | MHD_USE_ERROR_LOG |
+    flags = MHD_USE_DUAL_STACK | MHD_USE_ITC | MHD_USE_ERROR_LOG |
             (threaded ? MHD_USE_INTERNAL_POLLING_THREAD | MHD_USE_THREAD_PER_CONNECTION : MHD_USE_AUTO_INTERNAL_THREAD);
     sg__httpsrv_addopt(ops, &pos, MHD_OPTION_EXTERNAL_LOGGER, (intptr_t) sg__httpsrv_oel, srv);
     sg__httpsrv_addopt(ops, &pos, MHD_OPTION_NOTIFY_COMPLETED, (intptr_t) sg__httpsrv_rcc, srv);
@@ -194,9 +200,24 @@ bool sg_httpsrv_listen(struct sg_httpsrv *srv, uint16_t port, bool threaded) {
 }
 
 int sg_httpsrv_shutdown(struct sg_httpsrv *srv) {
+    MHD_socket fd;
     if (!srv)
         return EINVAL;
     if (srv->handle) {
+        if (srv->con_timeout > 0) {
+            fd = MHD_quiesce_daemon(srv->handle);
+            if (fd != MHD_INVALID_SOCKET) {
+#ifdef _WIN32
+                shutdown(fd, SD_BOTH);
+                closesocket(fd);
+#else
+                shutdown(fd, SHUT_RDWR);
+                close(fd);
+#endif
+                while (MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_CURRENT_CONNECTIONS)->num_connections > 0)
+                    usleep(100 * 1000);
+            }
+        }
         MHD_stop_daemon(srv->handle);
         srv->handle = NULL;
     }

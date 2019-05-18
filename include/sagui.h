@@ -620,7 +620,7 @@ SG_EXTERN int sg_httpauth_set_realm(struct sg_httpauth *auth, const char *realm)
 SG_EXTERN const char *sg_httpauth_realm(struct sg_httpauth *auth);
 
 /**
- * Deny the authentication sending a justification to the user.
+ * Deny the authentication sending the reason to the user.
  * \param[in] auth Authentication handle.
  * \param[in] reason Denial reason.
  * \param[in] content_type Content type.
@@ -634,7 +634,7 @@ SG_EXTERN int sg_httpauth_deny2(struct sg_httpauth *auth, const char *reason, co
                                 unsigned int status);
 
 /**
- * Deny the authentication sending a justification to the user.
+ * Deny the authentication sending the reason to the user.
  * \param[in] auth Authentication handle.
  * \param[in] reason Denial reason.
  * \param[in] content_type Content type.
@@ -1216,7 +1216,7 @@ SG_EXTERN int sg_httpres_zsendfile(struct sg_httpres *res, uint64_t size, uint64
 #endif
 
 /**
- * Clears all headers, cookies, status and internal buffers of the response handle.
+ * Clears all headers, cookies, statuses and internal buffers of the response handle.
  * \param[in] res Response handle.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
@@ -1302,6 +1302,7 @@ SG_EXTERN bool sg_httpsrv_listen(struct sg_httpsrv *srv, uint16_t port, bool thr
  * Stops the server not to accept new connections.
  * \param[in] srv Server handle.
  * \retval 0 If the server is stopped. If \pr{srv} is null, sets the `errno` to `EINVAL`.
+ * \note When #sg_httpsrv_set_con_timeout() is set, the server waits for the clients to be closed before shutting down.
  */
 SG_EXTERN int sg_httpsrv_shutdown(struct sg_httpsrv *srv);
 
