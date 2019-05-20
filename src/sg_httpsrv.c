@@ -200,7 +200,6 @@ bool sg_httpsrv_listen(struct sg_httpsrv *srv, uint16_t port, bool threaded) {
 }
 
 int sg_httpsrv_shutdown(struct sg_httpsrv *srv) {
-    const union MHD_DaemonInfo *info;
     MHD_socket fd;
     if (!srv)
         return EINVAL;
@@ -215,8 +214,7 @@ int sg_httpsrv_shutdown(struct sg_httpsrv *srv) {
                 shutdown(fd, SHUT_RDWR);
                 close(fd);
 #endif
-                info = MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_CURRENT_CONNECTIONS);
-                while (info->num_connections > 0)
+                while (MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_CURRENT_CONNECTIONS)->num_connections > 0)
                     usleep(100 * 1000);
             }
         }
