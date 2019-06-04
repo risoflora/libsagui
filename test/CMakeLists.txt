@@ -71,15 +71,18 @@ if (BUILD_TESTING)
             extra
             str
             strmap
-            entrypoint
-            entrypoints
-            routes
-            router
             httpauth
             httpuplds
             httpreq
             httpres
             httpsrv)
+    if (SG_PATH_ROUTING)
+        list(APPEND SG_TESTS
+                entrypoint
+                entrypoints
+                routes
+                router)
+    endif ()
     if (_curl_found)
         add_definitions(-DCURL_STATICLIB=1)
         list(APPEND SG_TESTS httpsrv_curl)

@@ -91,7 +91,7 @@ endif ()
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 option(SG_HTTPS_SUPPORT "Enable HTTPS support" OFF)
-option(SG_HTTP_COMPRESSION "HTTP compression" ON)
+option(SG_HTTP_COMPRESSION "Enable HTTP compression" ON)
 option(SG_PATH_ROUTING "Enable path routing" ON)
 
 include(GNUInstallDirs)

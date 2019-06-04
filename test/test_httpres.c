@@ -437,6 +437,8 @@ static void test_httpres_sendstream(struct sg_httpres *res) {
     sg_free(str);
 }
 
+#ifdef SG_HTTP_COMPRESSION
+
 static void test_httpres_zsend(struct sg_httpres *res) {
     char *str = "foo";
 
@@ -904,6 +906,8 @@ static void test_httpres_zsendfile(struct sg_httpres *res) {
     res->handle = NULL;
 }
 
+#endif /* SG_HTTP_COMPRESSION */
+
 static void test_httpres_clear(struct sg_httpres *res) {
     struct sg_strmap **headers;
     ASSERT(sg_httpres_clear(NULL) == EINVAL);
@@ -944,6 +948,7 @@ int main(void) {
     test_httpres_sendfile2(res);
     test_httpres_sendfile(res);
     test_httpres_sendstream(res);
+#ifdef SG_HTTP_COMPRESSION
     test_httpres_zsend(res);
     test_httpres_zsendbinary2(res);
     test_httpres_zsendbinary(res);
@@ -953,6 +958,7 @@ int main(void) {
     test_httpres_zrender(res);
     test_httpres_zsendfile2(res);
     test_httpres_zsendfile(res);
+#endif
     test_httpres_clear(res);
     sg__httpres_free(res);
     return EXIT_SUCCESS;

@@ -1266,7 +1266,7 @@ SG_EXTERN void sg_httpsrv_free(struct sg_httpsrv *srv);
  * \param[in] dhparams Memory pointer for the Diffie Hellman parameters (dh.pem) to be used by the HTTPS server for
  * key exchange.
  * \param[in] port Port for listening to connections.
- * \param[in] threaded Enable/disable the threaded model. If `true`, the server creates one thread per connection.
+ * \param[in] threaded Enables/disables the threaded model. If `true`, the server creates one thread per connection.
  * \retval true If the server is started, `false` otherwise. If \pr{srv} is null, sets the `errno` to `EINVAL`.
  * \note If port is `0`, the operating system will assign an unused port randomly.
  */
@@ -1279,7 +1279,7 @@ SG_EXTERN bool sg_httpsrv_tls_listen2(struct sg_httpsrv *srv, const char *key, c
  * \param[in] key Memory pointer for the private key (key.pem) to be used by the HTTPS server.
  * \param[in] cert Memory pointer for the certificate (cert.pem) to be used by the HTTPS server.
  * \param[in] port Port for listening to connections.
- * \param[in] threaded Enable/disable the threaded model. If `true`, the server creates one thread per connection.
+ * \param[in] threaded Enables/disables the threaded model. If `true`, the server creates one thread per connection.
  * \retval true If the server is started, `false` otherwise. If \pr{srv} is null, sets the `errno` to `EINVAL`.
  * \note If port is `0`, the operating system will assign an unused port randomly.
  */
@@ -1292,7 +1292,7 @@ SG_EXTERN bool sg_httpsrv_tls_listen(struct sg_httpsrv *srv, const char *key, co
  * Starts the HTTP server.
  * \param[in] srv Server handle.
  * \param[in] port Port for listening to connections.
- * \param[in] threaded Enable/disable the threaded model. If `true`, the server creates one thread per connection.
+ * \param[in] threaded Enables/disables the threaded model. If `true`, the server creates one thread per connection.
  * \retval true If the server is started, `false` otherwise. If \pr{srv} is null, sets the `errno` to `EINVAL`.
  * \note If port is `0`, the operating system will assign randomly an unused port.
  */
