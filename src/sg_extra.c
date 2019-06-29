@@ -58,7 +58,7 @@ ssize_t sg_eor(bool err) {
 #ifdef SG_HTTP_COMPRESSION
 
 voidpf sg__zalloc(__SG_UNUSED voidpf opaque, unsigned items, unsigned size) {
-    return sg_alloc(items * size);
+    return sg_alloc((size_t) items * size);
 }
 
 void sg__zfree(__SG_UNUSED voidpf opaque, voidpf ptr) {
