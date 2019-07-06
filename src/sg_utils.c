@@ -314,7 +314,7 @@ char *sg_extract_entrypoint(const char *path) {
     len = (end - start) + 1;
     str = sg_malloc(len + 1);
     if (!str) {
-        errno = EINVAL;
+        errno = ENOMEM;
         return NULL;
     }
     snprintf(str, len + 1, "/%s", start + path);
