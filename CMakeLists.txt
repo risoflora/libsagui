@@ -9,7 +9,6 @@
 # ::
 #
 #   SG_INCLUDE_DIR - Directory containing the library header.
-#   SG_LIB_SUFFIX - Library suffix, e.g. `64`.
 #   SG_USE_OUTPUT_PREFIX - Install all files into "./Output" directory.
 
 #                         _
@@ -59,16 +58,6 @@ if (NOT DEFINED BUILD_SHARED_LIBS)
 endif ()
 if ((SG_USE_OUTPUT_PREFIX OR MINGW) AND CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/Output" CACHE PATH "..." FORCE)
-endif ()
-
-if (NOT SG_LIB_SUFFIX)
-    get_property(_lib64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
-    if (("${_lib64}" STREQUAL "TRUE") AND (NOT ANDROID))
-        set(SG_LIB_SUFFIX 64)
-    else ()
-        set(SG_LIB_SUFFIX "")
-    endif ()
-    unset(_lib64)
 endif ()
 
 if ("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")

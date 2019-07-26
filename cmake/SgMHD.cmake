@@ -50,6 +50,7 @@ set(MHD_FULL_NAME "${MHD_NAME}-${MHD_VER}")
 set(MHD_URL "https://ftp.gnu.org/gnu/libmicrohttpd/${MHD_FULL_NAME}.tar.gz")
 set(MHD_URL_MIRROR "https://espejito.fder.edu.uy/gnu/libmicrohttpd/${MHD_FULL_NAME}.tar.gz")
 set(MHD_SHA256 "37c36f1be177f0e37ef181a645cd3baac1000bd322a01c2eff70f3cc8c91749c")
+set(_libdir ${CMAKE_BINARY_DIR}/${MHD_FULL_NAME}/lib)
 if (${CMAKE_VERSION} VERSION_LESS "3.7")
     unset(MHD_URL_MIRROR)
 endif ()
@@ -59,6 +60,7 @@ else ()
     set(_enable_https "no")
 endif ()
 set(MHD_OPTIONS
+        --libdir=${_libdir}
         --enable-static=yes
         --enable-shared=no
         --enable-messages=yes
@@ -101,5 +103,6 @@ ExternalProject_Add(${MHD_FULL_NAME}
 
 ExternalProject_Get_Property(${MHD_FULL_NAME} INSTALL_DIR)
 set(MHD_INCLUDE_DIR ${INSTALL_DIR}/include)
-set(MHD_ARCHIVE_LIB ${INSTALL_DIR}/lib${SG_LIB_SUFFIX}/${MHD_NAME}.a)
+set(MHD_ARCHIVE_LIB ${INSTALL_DIR}/lib/${MHD_NAME}.a)
+unset(_libdir)
 unset(INSTALL_DIR)
