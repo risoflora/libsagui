@@ -58,7 +58,7 @@ int sg_str_write(struct sg_str *str, const char *val, size_t len) {
 int sg_str_printf_va(struct sg_str *str, const char *fmt, va_list ap) {
     if (!str || !fmt)
         return EINVAL;
-#ifndef __arm__
+#if !defined(__arm__) && !defined(__aarch64__)
     if (!ap)
         return EINVAL;
 #endif
