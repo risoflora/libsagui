@@ -253,14 +253,14 @@ void sg_free(void *ptr) {
 /* String. */
 
 char *sg_strerror(int errnum, char *errmsg, size_t errlen) {
-#if defined(_WIN32) || defined(__ANDROID__)
+#if defined(_WIN32) || defined(__ANDROID__) || !defined(__gnu_linux__)
     int saved_errno;
 #else
     char *res;
 #endif
     if (!errmsg || errlen < 1)
         return NULL;
-#if defined(_WIN32) || defined(__ANDROID__)
+#if defined(_WIN32) || defined(__ANDROID__) || !defined(__gnu_linux__)
     saved_errno = errno;
 #else
     res = strerror_r(errnum, errmsg, errlen - 1);
@@ -275,7 +275,7 @@ char *sg_strerror(int errnum, char *errmsg, size_t errlen) {
         return "?";
     return errmsg;
 #endif
-#ifdef __ANDROID__
+#if defined(__ANDROID__) || !defined(__gnu_linux__)
     errnum = strerror_r(errnum, errmsg, errlen);
     errno = saved_errno;
     if ((errnum != 0) && (errnum != EINVAL) && (errnum != ERANGE))
