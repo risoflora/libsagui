@@ -96,8 +96,8 @@
 #endif
 
 /* used by utstring library */
-#ifndef oom
-#define oom() (void) 0
+#ifndef utstring_oom
+#define utstring_oom() (void) 0
 #endif
 
 /* used by uthash library */
