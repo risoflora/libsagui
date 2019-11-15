@@ -10,9 +10,6 @@
 # cmake -DMINGW64=ON -DCMAKE_TOOLCHAIN_FILE="../cmake/Toolchain-mingw32-Linux.cmake" ..
 # make sagui install/strip
 #
-# ::
-#
-#    SG_HAS_SYS_ROOT - Determines if the system uses sys-root path. (mingw only)
 
 #                         _
 #   ___  __ _  __ _ _   _(_)
@@ -68,7 +65,6 @@ endif ()
 if (NOT CMAKE_FIND_ROOT_PATH)
     set(_tmp_dir /usr/${MINGW_PREFIX}/sys-root/mingw)
     if (EXISTS ${_tmp_dir})
-        set(SG_HAS_SYS_ROOT ON)
         set(CMAKE_FIND_ROOT_PATH ${_tmp_dir})
     else ()
         set(CMAKE_FIND_ROOT_PATH /usr/${MINGW_PREFIX})

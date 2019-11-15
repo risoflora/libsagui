@@ -313,6 +313,8 @@ make sagui install/strip
 
 it builds and saves the DLL in `Output/bin/libsagui-2.dll`.
 
+**NOTE:** the package `mingw32-winpthreads-static` (or `mingw64-winpthreads-static` for 64 bits) must be installed in some Linux distributions (e.g: Fedora and openSUSE).
+
 **Building the shared library for Windows 32/64 bits using MinGW installed on Windows:**
 
 ```bash
