@@ -8,4 +8,4 @@ Report non-public reports to the [issue tracker](https://github.com/risoflora/li
 
 # Committing a fix
 
-The fix when is made available, preferrably within 1 month of the report, is pushed to the repository using a detailed message on all supported branches which are affected. The commit message must refer to the bug report addressed (e.g., our issue tracker or some external issue tracker).
+The fix when is made available, preferably within 1 month of the report, is pushed to the repository using a detailed message on all supported branches which are affected. The commit message must refer to the bug report addressed (e.g., our issue tracker or some external issue tracker).

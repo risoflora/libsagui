@@ -130,9 +130,7 @@ Starting from the version 1.0.0, Sagui follows the [SemVer](https://semver.org) 
 
 # Licensing
 
-Sagui is released under GNU Lesser General Public License v3.0. Check the [LICENSE file](https://github.com/risoflora/libsagui/blob/master/LICENSE) for more details.
-
-[![GNU Lesser General Public License v3.0](https://www.gnu.org/graphics/lgplv3-88x31.png)](https://www.gnu.org/licenses/lgpl-3.0.html)
+Sagui is released under GNU Lesser General Public License v2.1. Check the [LICENSE file](https://github.com/risoflora/libsagui/blob/master/LICENSE) for more details.
 
 # Documentation
 
