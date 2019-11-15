@@ -52,7 +52,6 @@ static void test__strmap_iter(void) {
     struct MHD_Response *res = sg_alloc(64);
     header->name = "";
     header->val = "";
-    ASSERT(sg__strmap_iter(NULL, header) == 0);
     ASSERT(sg__strmap_iter(res, header) == 0);
     sg_free(header);
     sg_free(res);
