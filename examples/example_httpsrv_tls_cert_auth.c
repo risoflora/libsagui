@@ -27,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <errno.h>
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
@@ -156,10 +157,18 @@ static void req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_http
     sg_free(page);
 }
 
-int main(void) {
-    struct sg_httpsrv *srv = sg_httpsrv_new(req_cb, NULL);
+int main(int argc, const char *argv[]) {
+    struct sg_httpsrv *srv;
     gnutls_datum_t key_file, cert_file, ca_file;
-    int ret, status = EXIT_FAILURE;
+    int ret, status;
+    uint16_t port;
+    if (argc != 2) {
+        printf("%s <PORT>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+    port = strtol(argv[1], NULL, 10);
+    status = EXIT_FAILURE;
+    srv = sg_httpsrv_new(req_cb, NULL);
     memset(&key_file, 0, sizeof(gnutls_datum_t));
     memset(&cert_file, 0, sizeof(gnutls_datum_t));
     memset(&ca_file, 0, sizeof(gnutls_datum_t));
@@ -179,7 +188,7 @@ int main(void) {
         goto error;
     }
     if (sg_httpsrv_tls_listen2(srv, (const char *) key_file.data, NULL, (const char *) cert_file.data,
-                               (const char *) ca_file.data, NULL, 0 /* 0 = port chosen randomly */, false)) {
+                               (const char *) ca_file.data, NULL, port, false)) {
         status = EXIT_SUCCESS;
         fprintf(stdout, "Server running at https://localhost:%d\n", sg_httpsrv_port(srv));
         fflush(stdout);

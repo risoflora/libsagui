@@ -27,6 +27,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <sagui.h>
 
@@ -61,9 +62,16 @@ static void req_cb(__SG_UNUSED void *cls, __SG_UNUSED struct sg_httpreq *req, st
                     "text/html; charset=utf-8", 200);
 }
 
-int main(void) {
-    struct sg_httpsrv *srv = sg_httpsrv_new2(auth_cb, req_cb, err_cb, NULL);
-    if (!sg_httpsrv_listen(srv, 0 /* 0 = port chosen randomly */, false)) {
+int main(int argc, const char *argv[]) {
+    struct sg_httpsrv *srv;
+    uint16_t port;
+    if (argc != 2) {
+        printf("%s <PORT>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+    port = strtol(argv[1], NULL, 10);
+    srv = sg_httpsrv_new2(auth_cb, req_cb, err_cb, NULL);
+    if (!sg_httpsrv_listen(srv, port, false)) {
         sg_httpsrv_free(srv);
         return EXIT_FAILURE;
     }
