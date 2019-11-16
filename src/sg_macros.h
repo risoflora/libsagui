@@ -37,23 +37,25 @@
 #include "sagui.h"
 
 #ifdef SG_PATH_ROUTING
-# ifndef PCRE2_CODE_UNIT_WIDTH
-#  define PCRE2_CODE_UNIT_WIDTH 8
-# endif
+#ifndef PCRE2_CODE_UNIT_WIDTH
+#define PCRE2_CODE_UNIT_WIDTH 8
+#endif
 #include "pcre2.h"
 #endif
 
 #ifndef SG__EXTERN
-# if defined(_WIN32) && defined(BUILD_TESTING)
-#  define SG__EXTERN __declspec(dllexport) extern
-# else
-#  define SG__EXTERN
-# endif
+#if defined(_WIN32) && defined(BUILD_TESTING)
+#define SG__EXTERN __declspec(dllexport) extern
+#else
+#define SG__EXTERN
+#endif
 #endif
 
-#define _(String) (String) /* macro to make it easy to mark text for translation */
+/* macro to make it easy to mark text for translation */
+#define _(String) (String)
 
-#define xstr(a) str(a) /* stringify the result of expansion of a macro argument */
+/* stringify the result of expansion of a macro argument */
+#define xstr(a) str(a)
 #define str(a) #a
 
 #ifdef _WIN32

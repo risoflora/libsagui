@@ -50,15 +50,16 @@ extern const char *__progname;
 #ifdef NDEBUG
 #define ASSERT(expr) ((void) 0)
 #else
-#define ASSERT(expr)                                                                                                   \
-do {                                                                                                                   \
-    if (!(expr)) {                                                                                                     \
-        if ((fprintf(stderr, "%s: %s:%d: %s: Assertion `%s' failed.\n",                                                \
-                __progname, __FILE__, __LINE__, __extension__ __FUNCTION__, #expr) > 0))                               \
-            fflush(stderr);                                                                                            \
-        exit(EXIT_FAILURE);                                                                                            \
-    }                                                                                                                  \
-} while (0)
+#define ASSERT(expr)                                                           \
+  do {                                                                         \
+    if (!(expr)) {                                                             \
+      if ((fprintf(stderr, "%s: %s:%d: %s: Assertion `%s' failed.\n",          \
+                   __progname, __FILE__, __LINE__, __extension__ __FUNCTION__, \
+                   #expr) > 0))                                                \
+        fflush(stderr);                                                        \
+      exit(EXIT_FAILURE);                                                      \
+    }                                                                          \
+  } while (0)
 #endif
 
 #endif /* SG_ASSERT_H */

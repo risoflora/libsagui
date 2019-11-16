@@ -49,15 +49,15 @@ extern "C" {
 #include <time.h>
 
 #ifndef SG_EXTERN
-# ifdef _WIN32
-#  ifdef BUILDING_LIBSAGUI
-#   define SG_EXTERN __declspec(dllexport) extern
-#  else
-#   define SG_EXTERN __declspec(dllimport) extern
-#  endif
-# else
-#  define SG_EXTERN extern
-# endif
+#ifdef _WIN32
+#ifdef BUILDING_LIBSAGUI
+#define SG_EXTERN __declspec(dllexport) extern
+#else
+#define SG_EXTERN __declspec(dllimport) extern
+#endif
+#else
+#define SG_EXTERN extern
+#endif
 #endif
 
 #ifndef __SG_UNUSED
@@ -75,7 +75,8 @@ extern "C" {
 #define SG_VERSION_MAJOR 2
 #define SG_VERSION_MINOR 4
 #define SG_VERSION_PATCH 7
-#define SG_VERSION_HEX ((SG_VERSION_MAJOR << 16) | (SG_VERSION_MINOR << 8) | (SG_VERSION_PATCH))
+#define SG_VERSION_HEX                                                         \
+  ((SG_VERSION_MAJOR << 16) | (SG_VERSION_MINOR << 8) | (SG_VERSION_PATCH))
 
 #define SG_ERR_SIZE 256
 
@@ -124,7 +125,8 @@ typedef void (*sg_err_cb)(void *cls, const char *err);
  * \param[out] size Size of the current buffer to be written.
  * \return Total written buffer.
  */
-typedef ssize_t (*sg_write_cb)(void *handle, uint64_t offset, const char *buf, size_t size);
+typedef ssize_t (*sg_write_cb)(void *handle, uint64_t offset, const char *buf,
+                               size_t size);
 
 /**
  * Callback signature used by functions that read streams.
@@ -134,7 +136,8 @@ typedef ssize_t (*sg_write_cb)(void *handle, uint64_t offset, const char *buf, s
  * \param[out] size Size of the current read buffer.
  * \return Total read buffer.
  */
-typedef ssize_t (*sg_read_cb)(void *handle, uint64_t offset, char *buf, size_t size);
+typedef ssize_t (*sg_read_cb)(void *handle, uint64_t offset, char *buf,
+                              size_t size);
 
 /**
  * Callback signature used by functions that free streams.
@@ -184,7 +187,8 @@ SG_EXTERN const char *sg_version_str(void);
  * \retval EINVAL Invalid argument.
  * \note It must be called before any other Sagui function or after all resources have been freed.
  */
-SG_EXTERN int sg_mm_set(sg_malloc_func malloc_func, sg_realloc_func realloc_func, sg_free_func free_func);
+SG_EXTERN int sg_mm_set(sg_malloc_func malloc_func,
+                        sg_realloc_func realloc_func, sg_free_func free_func);
 
 /**
  * Allocates a new memory space.
@@ -193,8 +197,7 @@ SG_EXTERN int sg_mm_set(sg_malloc_func malloc_func, sg_realloc_func realloc_func
  * \retval NULL If size is `0` or no memory space.
  * \note Equivalent to [malloc(3)](https://linux.die.net/man/3/malloc).
  */
-SG_EXTERN void *sg_malloc(size_t size)
-__SG_MALLOC;
+SG_EXTERN void *sg_malloc(size_t size) __SG_MALLOC;
 
 /**
  * Allocates a new zero-initialized memory space.
@@ -202,8 +205,7 @@ __SG_MALLOC;
  * \return Pointer of the zero-initialized allocated memory.
  * \retval NULL If size is `0` or no memory space.
  */
-SG_EXTERN void *sg_alloc(size_t size)
-__SG_MALLOC;
+SG_EXTERN void *sg_alloc(size_t size) __SG_MALLOC;
 
 /**
  * Reallocates an existing memory block.
@@ -212,8 +214,7 @@ __SG_MALLOC;
  * \return Pointer of the reallocated memory.
  * \note Equivalent to [realloc(3)](https://linux.die.net/man/3/realloc).
  */
-SG_EXTERN void *sg_realloc(void *ptr, size_t size)
-__SG_MALLOC;
+SG_EXTERN void *sg_realloc(void *ptr, size_t size) __SG_MALLOC;
 
 /**
  * Frees a memory space previously allocated by #sg_malloc(), #sg_alloc() or #sg_realloc().
@@ -295,8 +296,7 @@ struct sg_str;
  * \return String handle.
  * \retval NULL If no memory space is available.
  */
-SG_EXTERN struct sg_str *sg_str_new(void)
-__SG_MALLOC;
+SG_EXTERN struct sg_str *sg_str_new(void) __SG_MALLOC;
 
 /**
  * Frees the string handle previously allocated by #sg_str_new().
@@ -337,7 +337,7 @@ SG_EXTERN int sg_str_printf_va(struct sg_str *str, const char *fmt, va_list ap);
  * \retval EINVAL Invalid argument.
  */
 SG_EXTERN int sg_str_printf(struct sg_str *str, const char *fmt, ...)
-__SG_FORMAT(2, 3);
+  __SG_FORMAT(2, 3);
 
 /**
  * Returns the null-terminated string content from the string handle \pr{str}.
@@ -397,7 +397,8 @@ typedef int (*sg_strmap_iter_cb)(void *cls, struct sg_strmap *pair);
  * \retval 0 A == B.
  * \retval 1 A > B.
  */
-typedef int (*sg_strmap_sort_cb)(void *cls, struct sg_strmap *pair_a, struct sg_strmap *pair_b);
+typedef int (*sg_strmap_sort_cb)(void *cls, struct sg_strmap *pair_a,
+                                 struct sg_strmap *pair_b);
 
 /**
  * Returns a name from the \pr{pair}.
@@ -426,7 +427,8 @@ SG_EXTERN const char *sg_strmap_val(struct sg_strmap *pair);
  * \note It cannot check if a name already exists in a pair added to the \pr{map}, then the uniqueness must be managed
  * by the application.
  */
-SG_EXTERN int sg_strmap_add(struct sg_strmap **map, const char *name, const char *val);
+SG_EXTERN int sg_strmap_add(struct sg_strmap **map, const char *name,
+                            const char *val);
 
 /**
  * Sets a pair of name-value to the string \pr{map}.
@@ -439,7 +441,8 @@ SG_EXTERN int sg_strmap_add(struct sg_strmap **map, const char *name, const char
  * \note If a name already exists in a pair previously added into the \pr{map}, then the function replaces its value,
  * otherwise it is added as a new pair.
  */
-SG_EXTERN int sg_strmap_set(struct sg_strmap **map, const char *name, const char *val);
+SG_EXTERN int sg_strmap_set(struct sg_strmap **map, const char *name,
+                            const char *val);
 
 /**
  * Finds a pair by name.
@@ -451,7 +454,8 @@ SG_EXTERN int sg_strmap_set(struct sg_strmap **map, const char *name, const char
  * \retval ENOENT Pair not found.
  * \retval ENOMEM Out of memory.
  */
-SG_EXTERN int sg_strmap_find(struct sg_strmap *map, const char *name, struct sg_strmap **pair);
+SG_EXTERN int sg_strmap_find(struct sg_strmap *map, const char *name,
+                             struct sg_strmap **pair);
 
 /**
  * Gets a pair by name and returns the value.
@@ -482,7 +486,8 @@ SG_EXTERN int sg_strmap_rm(struct sg_strmap **map, const char *name);
  * \retval EINVAL Invalid argument.
  * \return Callback result when it is different from `0`.
  */
-SG_EXTERN int sg_strmap_iter(struct sg_strmap *map, sg_strmap_iter_cb cb, void *cls);
+SG_EXTERN int sg_strmap_iter(struct sg_strmap *map, sg_strmap_iter_cb cb,
+                             void *cls);
 
 /**
  * Sorts the pairs map.
@@ -492,7 +497,8 @@ SG_EXTERN int sg_strmap_iter(struct sg_strmap *map, sg_strmap_iter_cb cb, void *
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  */
-SG_EXTERN int sg_strmap_sort(struct sg_strmap **map, sg_strmap_sort_cb cb, void *cls);
+SG_EXTERN int sg_strmap_sort(struct sg_strmap **map, sg_strmap_sort_cb cb,
+                             void *cls);
 
 /**
  * Counts the total pairs in the map.
@@ -565,7 +571,8 @@ struct sg_httpsrv;
  * \retval true Grants the user access.
  * \retval false Denies the user access.
  */
-typedef bool (*sg_httpauth_cb)(void *cls, struct sg_httpauth *auth, struct sg_httpreq *req, struct sg_httpres *res);
+typedef bool (*sg_httpauth_cb)(void *cls, struct sg_httpauth *auth,
+                               struct sg_httpreq *req, struct sg_httpres *res);
 
 /**
  * Callback signature used to handle uploaded files and/or fields.
@@ -579,7 +586,8 @@ typedef bool (*sg_httpauth_cb)(void *cls, struct sg_httpauth *auth, struct sg_ht
  * \retval 0 Success.
  * \retval E<ERROR> User-defined error to refuse the upload.
  */
-typedef int (*sg_httpupld_cb)(void *cls, void **handle, const char *dir, const char *field, const char *name,
+typedef int (*sg_httpupld_cb)(void *cls, void **handle, const char *dir,
+                              const char *field, const char *name,
                               const char *mime, const char *encoding);
 
 /**
@@ -597,7 +605,8 @@ typedef int (*sg_httpuplds_iter_cb)(void *cls, struct sg_httpupld *upld);
  * \param[out] req Request handle.
  * \param[out] res Response handle.
  */
-typedef void (*sg_httpreq_cb)(void *cls, struct sg_httpreq *req, struct sg_httpres *res);
+typedef void (*sg_httpreq_cb)(void *cls, struct sg_httpreq *req,
+                              struct sg_httpres *res);
 
 /**
  * Sets the authentication protection space (realm).
@@ -608,7 +617,8 @@ typedef void (*sg_httpreq_cb)(void *cls, struct sg_httpreq *req, struct sg_httpr
  * \retval EALREADY Realm already set.
  * \retval ENOMEM Out of memory.
  */
-SG_EXTERN int sg_httpauth_set_realm(struct sg_httpauth *auth, const char *realm);
+SG_EXTERN int sg_httpauth_set_realm(struct sg_httpauth *auth,
+                                    const char *realm);
 
 /**
  * Gets the authentication protection space (realm).
@@ -629,8 +639,8 @@ SG_EXTERN const char *sg_httpauth_realm(struct sg_httpauth *auth);
  * \retval EALREADY Already denied.
  * \retval ENOMEM Out of memory.
  */
-SG_EXTERN int sg_httpauth_deny2(struct sg_httpauth *auth, const char *reason, const char *content_type,
-                                unsigned int status);
+SG_EXTERN int sg_httpauth_deny2(struct sg_httpauth *auth, const char *reason,
+                                const char *content_type, unsigned int status);
 
 /**
  * Deny the authentication sending the reason to the user.
@@ -642,7 +652,8 @@ SG_EXTERN int sg_httpauth_deny2(struct sg_httpauth *auth, const char *reason, co
  * \retval EALREADY Already denied.
  * \retval ENOMEM Out of memory.
  */
-SG_EXTERN int sg_httpauth_deny(struct sg_httpauth *auth, const char *reason, const char *content_type);
+SG_EXTERN int sg_httpauth_deny(struct sg_httpauth *auth, const char *reason,
+                               const char *content_type);
 
 /**
  * Cancels the authentication loop while the user is trying to acess the server.
@@ -677,7 +688,8 @@ SG_EXTERN const char *sg_httpauth_pwd(struct sg_httpauth *auth);
  * \retval EINVAL Invalid argument.
  * \retval E<ERROR> User-defined error to abort the list iteration.
  */
-SG_EXTERN int sg_httpuplds_iter(struct sg_httpupld *uplds, sg_httpuplds_iter_cb cb, void *cls);
+SG_EXTERN int sg_httpuplds_iter(struct sg_httpupld *uplds,
+                                sg_httpuplds_iter_cb cb, void *cls);
 
 /**
  * Gets the next upload item starting from the first item pointer \pr{upld}.
@@ -771,7 +783,8 @@ SG_EXTERN int sg_httpupld_save(struct sg_httpupld *upld, bool overwritten);
  * \retval EEXIST File already exists (if \pr{overwritten} is `true`).
  * \retval EISDIR Destination file is a directory.
  */
-SG_EXTERN int sg_httpupld_save_as(struct sg_httpupld *upld, const char *path, bool overwritten);
+SG_EXTERN int sg_httpupld_save_as(struct sg_httpupld *upld, const char *path,
+                                  bool overwritten);
 
 /**
  * Returns the client headers into #sg_strmap map.
@@ -913,7 +926,8 @@ SG_EXTERN struct sg_strmap **sg_httpres_headers(struct sg_httpres *res);
  * \retval EINVAL Invalid argument.
  * \retval ENOMEM Out of memory.
  */
-SG_EXTERN int sg_httpres_set_cookie(struct sg_httpres *res, const char *name, const char *val);
+SG_EXTERN int sg_httpres_set_cookie(struct sg_httpres *res, const char *name,
+                                    const char *val);
 
 /**
  * Sends a null-terminated string content to the client.
@@ -926,8 +940,10 @@ SG_EXTERN int sg_httpres_set_cookie(struct sg_httpres *res, const char *name, co
  * \retval EALREADY Operation already in progress.
  * \retval ENOMEM Out of memory.
  */
-#define sg_httpres_send(res, val, content_type, status) \
-    sg_httpres_sendbinary((res), (void *) (val), (((val) != NULL) ? strlen((val)) : 0), (content_type), (status))
+#define sg_httpres_send(res, val, content_type, status)                        \
+  sg_httpres_sendbinary((res), (void *) (val),                                 \
+                        (((val) != NULL) ? strlen((val)) : 0), (content_type), \
+                        (status))
 
 /**
  * Sends a binary content to the client.
@@ -941,7 +957,8 @@ SG_EXTERN int sg_httpres_set_cookie(struct sg_httpres *res, const char *name, co
  * \retval EALREADY Operation already in progress.
  * \retval ENOMEM Out of memory.
  */
-SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t size, const char *content_type,
+SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf,
+                                    size_t size, const char *content_type,
                                     unsigned int status);
 
 /**
@@ -955,8 +972,8 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t si
  * \retval EBADF Bad file number.
  * \retval ENOMEM Out of memory.
  */
-#define sg_httpres_download(res, filename) \
-    sg_httpres_sendfile2((res), 0, 0, 0, (filename), "attachment", 200)
+#define sg_httpres_download(res, filename)                                     \
+  sg_httpres_sendfile2((res), 0, 0, 0, (filename), "attachment", 200)
 
 /**
  * Sends a file to be rendered.
@@ -969,8 +986,8 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t si
  * \retval EBADF Bad file number.
  * \retval ENOMEM Out of memory.
  */
-#define sg_httpres_render(res, filename) \
-    sg_httpres_sendfile2((res), 0, 0, 0, (filename), "inline", 200)
+#define sg_httpres_render(res, filename)                                       \
+  sg_httpres_sendfile2((res), 0, 0, 0, (filename), "inline", 200)
 
 /**
  * Sends a file to the client.
@@ -991,8 +1008,11 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf, size_t si
  * \warning The parameter `disposition` is not checked internally, thus any non-`NULL` value is passed directly to the
  * header `Content-Disposition`.
  */
-SG_EXTERN int sg_httpres_sendfile2(struct sg_httpres *res, uint64_t size, uint64_t max_size, uint64_t offset,
-                                   const char *filename, const char *disposition, unsigned int status);
+SG_EXTERN int sg_httpres_sendfile2(struct sg_httpres *res, uint64_t size,
+                                   uint64_t max_size, uint64_t offset,
+                                   const char *filename,
+                                   const char *disposition,
+                                   unsigned int status);
 
 /**
  * Sends a file to the client.
@@ -1011,8 +1031,10 @@ SG_EXTERN int sg_httpres_sendfile2(struct sg_httpres *res, uint64_t size, uint64
  * \retval EFBIG File too large.
  * \retval ENOMEM Out of memory.
  */
-SG_EXTERN int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size, uint64_t offset,
-                                  const char *filename, bool downloaded, unsigned int status);
+SG_EXTERN int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size,
+                                  uint64_t max_size, uint64_t offset,
+                                  const char *filename, bool downloaded,
+                                  unsigned int status);
 
 /**
  * Sends a stream to the client.
@@ -1028,7 +1050,8 @@ SG_EXTERN int sg_httpres_sendfile(struct sg_httpres *res, uint64_t size, uint64_
  * \retval ENOMEM Out of memory.
  * \note Use `size = 0` if the stream size is unknown.
  */
-SG_EXTERN int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, sg_read_cb read_cb, void *handle,
+SG_EXTERN int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size,
+                                    sg_read_cb read_cb, void *handle,
                                     sg_free_cb free_cb, unsigned int status);
 
 #ifdef SG_HTTP_COMPRESSION
@@ -1048,8 +1071,10 @@ SG_EXTERN int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, sg_re
  * \retval Z_<ERROR> zlib error as negative number.
  * \note When compression succeeds, the header `Content-Encoding: deflate` is automatically added to the response.
  */
-#define sg_httpres_zsend(res, val, content_type, status) \
-    sg_httpres_zsendbinary((res), (void *) (val), (((val) != NULL) ? strlen((val)) : 0), (content_type), (status))
+#define sg_httpres_zsend(res, val, content_type, status)                       \
+  sg_httpres_zsendbinary((res), (void *) (val),                                \
+                         (((val) != NULL) ? strlen((val)) : 0),                \
+                         (content_type), (status))
 
 /**
  * Compresses a binary content and sends it to the client. The compression is done by zlib library using the
@@ -1068,8 +1093,10 @@ SG_EXTERN int sg_httpres_sendstream(struct sg_httpres *res, uint64_t size, sg_re
  * \retval Z_<ERROR> zlib error as negative number.
  * \note When compression succeeds, the header `Content-Encoding: deflate` is automatically added to the response.
  */
-SG_EXTERN int sg_httpres_zsendbinary2(struct sg_httpres *res, int level, void *buf, size_t size,
-                                      const char *content_type, unsigned int status);
+SG_EXTERN int sg_httpres_zsendbinary2(struct sg_httpres *res, int level,
+                                      void *buf, size_t size,
+                                      const char *content_type,
+                                      unsigned int status);
 
 /**
  * Compresses a binary content and sends it to the client. The compression is done by zlib library using the
@@ -1087,7 +1114,8 @@ SG_EXTERN int sg_httpres_zsendbinary2(struct sg_httpres *res, int level, void *b
  * \retval Z_<ERROR> zlib error as negative number.
  * \note When compression succeeds, the header `Content-Encoding: deflate` is automatically added to the response.
  */
-SG_EXTERN int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t size, const char *content_type,
+SG_EXTERN int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf,
+                                     size_t size, const char *content_type,
                                      unsigned int status);
 
 /**
@@ -1107,8 +1135,10 @@ SG_EXTERN int sg_httpres_zsendbinary(struct sg_httpres *res, void *buf, size_t s
  * \retval Z_<ERROR> zlib error as negative number.
  * \note When compression succeeds, the header `Content-Encoding: deflate` is automatically added to the response.
  */
-SG_EXTERN int sg_httpres_zsendstream2(struct sg_httpres *res, int level, uint64_t size, sg_read_cb read_cb,
-                                      void *handle, sg_free_cb free_cb, unsigned int status);
+SG_EXTERN int sg_httpres_zsendstream2(struct sg_httpres *res, int level,
+                                      uint64_t size, sg_read_cb read_cb,
+                                      void *handle, sg_free_cb free_cb,
+                                      unsigned int status);
 
 /**
  * Compresses a stream and sends it to the client. The compression is done by zlib library using the DEFLATE
@@ -1125,7 +1155,8 @@ SG_EXTERN int sg_httpres_zsendstream2(struct sg_httpres *res, int level, uint64_
  * \retval Z_<ERROR> zlib error as negative number.
  * \note When compression succeeds, the header `Content-Encoding: deflate` is automatically added to the response.
  */
-SG_EXTERN int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb, void *handle, sg_free_cb free_cb,
+SG_EXTERN int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb,
+                                     void *handle, sg_free_cb free_cb,
                                      unsigned int status);
 
 /**
@@ -1142,8 +1173,8 @@ SG_EXTERN int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb,
  * \retval Z_<ERROR> zlib error as negative number.
  * \note When compression succeeds, the header `Content-Encoding: gzip` is automatically added to the response.
  */
-#define sg_httpres_zdownload(res, filename) \
-    sg_httpres_zsendfile2((res), 1, 0, 0, 0, (filename), "attachment", 200)
+#define sg_httpres_zdownload(res, filename)                                    \
+  sg_httpres_zsendfile2((res), 1, 0, 0, 0, (filename), "attachment", 200)
 
 /**
  * Compresses a file in Gzip formant and sends it to be rendered. The compression is done by zlib library using the
@@ -1159,8 +1190,8 @@ SG_EXTERN int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb,
  * \retval Z_<ERROR> zlib error as negative number.
  * \note When compression succeeds, the header `Content-Encoding: gzip` is automatically added to the response.
  */
-#define sg_httpres_zrender(res, filename) \
-    sg_httpres_zsendfile2((res), 1, 0, 0, 0, (filename), "inline", 200)
+#define sg_httpres_zrender(res, filename)                                      \
+  sg_httpres_zsendfile2((res), 1, 0, 0, 0, (filename), "inline", 200)
 
 /**
  * Compresses a file in Gzip format and sends it to the client. The compression is done by zlib library using the DEFLATE
@@ -1185,8 +1216,10 @@ SG_EXTERN int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb,
  * \warning The parameter `disposition` is not checked internally, thus any non-`NULL` value is passed directly to the
  * header `Content-Disposition`.
  */
-SG_EXTERN int sg_httpres_zsendfile2(struct sg_httpres *res, int level, uint64_t size, uint64_t max_size,
-                                    uint64_t offset, const char *filename, const char *disposition,
+SG_EXTERN int sg_httpres_zsendfile2(struct sg_httpres *res, int level,
+                                    uint64_t size, uint64_t max_size,
+                                    uint64_t offset, const char *filename,
+                                    const char *disposition,
                                     unsigned int status);
 
 /**
@@ -1209,8 +1242,10 @@ SG_EXTERN int sg_httpres_zsendfile2(struct sg_httpres *res, int level, uint64_t 
  * \retval Z_<ERROR> zlib error as negative number.
  * \note When compression succeeds, the header `Content-Encoding: gzip` is automatically added to the response.
  */
-SG_EXTERN int sg_httpres_zsendfile(struct sg_httpres *res, uint64_t size, uint64_t max_size, uint64_t offset,
-                                   const char *filename, bool downloaded, unsigned int status);
+SG_EXTERN int sg_httpres_zsendfile(struct sg_httpres *res, uint64_t size,
+                                   uint64_t max_size, uint64_t offset,
+                                   const char *filename, bool downloaded,
+                                   unsigned int status);
 
 #endif
 
@@ -1232,8 +1267,10 @@ SG_EXTERN int sg_httpres_clear(struct sg_httpres *res);
  * \retval NULL If no memory space is available.
  * \retval NULL If the \pr{req_cb} or \pr{err_cb} is null and sets the `errno` to `EINVAL`.
  */
-SG_EXTERN struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb, sg_httpreq_cb req_cb, sg_err_cb err_cb, void *cls)
-__SG_MALLOC;
+SG_EXTERN struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb,
+                                             sg_httpreq_cb req_cb,
+                                             sg_err_cb err_cb,
+                                             void *cls) __SG_MALLOC;
 
 /**
  * Creates a new HTTP server handle.
@@ -1242,8 +1279,8 @@ __SG_MALLOC;
  * \return New HTTP server handle.
  * \retval NULL If the \pr{cb} is null and sets the `errno` to `EINVAL`.
  */
-SG_EXTERN struct sg_httpsrv *sg_httpsrv_new(sg_httpreq_cb cb, void *cls)
-__SG_MALLOC;
+SG_EXTERN struct sg_httpsrv *sg_httpsrv_new(sg_httpreq_cb cb,
+                                            void *cls) __SG_MALLOC;
 
 /**
  * Frees the server handle previously allocated by #sg_httpsrv_new() or #sg_httpsrv_new2().
@@ -1269,8 +1306,10 @@ SG_EXTERN void sg_httpsrv_free(struct sg_httpsrv *srv);
  * \retval true If the server is started, `false` otherwise. If \pr{srv} is null, sets the `errno` to `EINVAL`.
  * \note If port is `0`, the operating system will assign an unused port randomly.
  */
-SG_EXTERN bool sg_httpsrv_tls_listen2(struct sg_httpsrv *srv, const char *key, const char *pwd, const char *cert,
-                                      const char *trust, const char *dhparams, uint16_t port, bool threaded);
+SG_EXTERN bool sg_httpsrv_tls_listen2(struct sg_httpsrv *srv, const char *key,
+                                      const char *pwd, const char *cert,
+                                      const char *trust, const char *dhparams,
+                                      uint16_t port, bool threaded);
 
 /**
  * Starts the HTTPS server.
@@ -1282,8 +1321,9 @@ SG_EXTERN bool sg_httpsrv_tls_listen2(struct sg_httpsrv *srv, const char *key, c
  * \retval true If the server is started, `false` otherwise. If \pr{srv} is null, sets the `errno` to `EINVAL`.
  * \note If port is `0`, the operating system will assign an unused port randomly.
  */
-SG_EXTERN bool sg_httpsrv_tls_listen(struct sg_httpsrv *srv, const char *key, const char *cert,
-                                     uint16_t port, bool threaded);
+SG_EXTERN bool sg_httpsrv_tls_listen(struct sg_httpsrv *srv, const char *key,
+                                     const char *cert, uint16_t port,
+                                     bool threaded);
 
 #endif
 
@@ -1295,7 +1335,8 @@ SG_EXTERN bool sg_httpsrv_tls_listen(struct sg_httpsrv *srv, const char *key, co
  * \retval true If the server is started, `false` otherwise. If \pr{srv} is null, sets the `errno` to `EINVAL`.
  * \note If port is `0`, the operating system will assign randomly an unused port.
  */
-SG_EXTERN bool sg_httpsrv_listen(struct sg_httpsrv *srv, uint16_t port, bool threaded);
+SG_EXTERN bool sg_httpsrv_listen(struct sg_httpsrv *srv, uint16_t port,
+                                 bool threaded);
 
 /**
  * Stops the server not to accept new connections.
@@ -1332,8 +1373,10 @@ SG_EXTERN bool sg_httpsrv_is_threaded(struct sg_httpsrv *srv);
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  */
-SG_EXTERN int sg_httpsrv_set_upld_cbs(struct sg_httpsrv *srv, sg_httpupld_cb cb, void *cls, sg_write_cb write_cb,
-                                      sg_free_cb free_cb, sg_save_cb save_cb, sg_save_as_cb save_as_cb);
+SG_EXTERN int sg_httpsrv_set_upld_cbs(struct sg_httpsrv *srv, sg_httpupld_cb cb,
+                                      void *cls, sg_write_cb write_cb,
+                                      sg_free_cb free_cb, sg_save_cb save_cb,
+                                      sg_save_as_cb save_as_cb);
 
 /**
  * Sets the directory to save the uploaded files.
@@ -1393,7 +1436,8 @@ SG_EXTERN size_t sg_httpsrv_payld_limit(struct sg_httpsrv *srv);
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  */
-SG_EXTERN int sg_httpsrv_set_uplds_limit(struct sg_httpsrv *srv, uint64_t limit);
+SG_EXTERN int sg_httpsrv_set_uplds_limit(struct sg_httpsrv *srv,
+                                         uint64_t limit);
 
 /**
  * Gets the limit of the total uploads.
@@ -1410,7 +1454,8 @@ SG_EXTERN uint64_t sg_httpsrv_uplds_limit(struct sg_httpsrv *srv);
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  */
-SG_EXTERN int sg_httpsrv_set_thr_pool_size(struct sg_httpsrv *srv, unsigned int size);
+SG_EXTERN int sg_httpsrv_set_thr_pool_size(struct sg_httpsrv *srv,
+                                           unsigned int size);
 
 /**
  * Gets the size of the thread pool.
@@ -1427,7 +1472,8 @@ SG_EXTERN unsigned int sg_httpsrv_thr_pool_size(struct sg_httpsrv *srv);
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  */
-SG_EXTERN int sg_httpsrv_set_con_timeout(struct sg_httpsrv *srv, unsigned int timeout);
+SG_EXTERN int sg_httpsrv_set_con_timeout(struct sg_httpsrv *srv,
+                                         unsigned int timeout);
 
 /**
  * Gets the inactivity time to a client get time out.
@@ -1444,7 +1490,8 @@ SG_EXTERN unsigned int sg_httpsrv_con_timeout(struct sg_httpsrv *srv);
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  */
-SG_EXTERN int sg_httpsrv_set_con_limit(struct sg_httpsrv *srv, unsigned int limit);
+SG_EXTERN int sg_httpsrv_set_con_limit(struct sg_httpsrv *srv,
+                                       unsigned int limit);
 
 /**
  * Gets the limit of concurrent connections.
@@ -1487,7 +1534,8 @@ SG_EXTERN const char *sg_entrypoint_name(struct sg_entrypoint *entrypoint);
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  */
-SG_EXTERN int sg_entrypoint_set_user_data(struct sg_entrypoint *entrypoint, void *data);
+SG_EXTERN int sg_entrypoint_set_user_data(struct sg_entrypoint *entrypoint,
+                                          void *data);
 
 /**
  * Gets user data from the entry-point handle.
@@ -1510,15 +1558,15 @@ struct sg_entrypoints;
  * \retval 0 Success.
  * \retval E<ERROR> User-defined error to stop the items iteration.
  */
-typedef int (*sg_entrypoints_iter_cb)(void *cls, struct sg_entrypoint *entrypoint);
+typedef int (*sg_entrypoints_iter_cb)(void *cls,
+                                      struct sg_entrypoint *entrypoint);
 
 /**
  * Creates a new entry-points handle.
  * \return Entry-points handle.
  * \retval NULL If no memory space is available.
  */
-SG_EXTERN struct sg_entrypoints *sg_entrypoints_new(void)
-__SG_MALLOC;
+SG_EXTERN struct sg_entrypoints *sg_entrypoints_new(void) __SG_MALLOC;
 
 /**
  * Frees the entry-points handle previously allocated by #sg_entrypoints_new().
@@ -1536,7 +1584,8 @@ SG_EXTERN void sg_entrypoints_free(struct sg_entrypoints *entrypoints);
  * \retval ENOMEM Out of memory.
  * \retval EALREADY Entry-point already added.
  */
-SG_EXTERN int sg_entrypoints_add(struct sg_entrypoints *entrypoints, const char *path, void *user_data);
+SG_EXTERN int sg_entrypoints_add(struct sg_entrypoints *entrypoints,
+                                 const char *path, void *user_data);
 
 /**
  * Removes an entry-point item from the entry-points \pr{entrypoints}.
@@ -1547,7 +1596,8 @@ SG_EXTERN int sg_entrypoints_add(struct sg_entrypoints *entrypoints, const char 
  * \retval ENOMEM Out of memory.
  * \retval ENOENT Entry-point already removed.
  */
-SG_EXTERN int sg_entrypoints_rm(struct sg_entrypoints *entrypoints, const char *path);
+SG_EXTERN int sg_entrypoints_rm(struct sg_entrypoints *entrypoints,
+                                const char *path);
 
 /**
  * Iterates over entry-point items.
@@ -1558,7 +1608,8 @@ SG_EXTERN int sg_entrypoints_rm(struct sg_entrypoints *entrypoints, const char *
  * \retval EINVAL Invalid argument.
  * \return Callback result when it is different from `0`.
  */
-SG_EXTERN int sg_entrypoints_iter(struct sg_entrypoints *entrypoints, sg_entrypoints_iter_cb cb, void *cls);
+SG_EXTERN int sg_entrypoints_iter(struct sg_entrypoints *entrypoints,
+                                  sg_entrypoints_iter_cb cb, void *cls);
 
 /**
  * Clears all existing entry-point items in the entry-points \pr{entrypoints}.
@@ -1578,7 +1629,8 @@ SG_EXTERN int sg_entrypoints_clear(struct sg_entrypoints *entrypoints);
  * \retval ENOMEM Out of memory.
  * \retval ENOENT Pair not found.
  */
-SG_EXTERN int sg_entrypoints_find(struct sg_entrypoints *entrypoints, struct sg_entrypoint **entrypoint,
+SG_EXTERN int sg_entrypoints_find(struct sg_entrypoints *entrypoints,
+                                  struct sg_entrypoint **entrypoint,
                                   const char *path);
 
 /**
@@ -1596,7 +1648,8 @@ struct sg_route;
  * \retval 0 Success.
  * \retval E<ERROR> User-defined error to stop the segments iteration.
  */
-typedef int (*sg_segments_iter_cb)(void *cls, unsigned int index, const char *segment);
+typedef int (*sg_segments_iter_cb)(void *cls, unsigned int index,
+                                   const char *segment);
 
 /**
  * Callback signature used by #sg_route_vars_iter() to iterate the path variables.
@@ -1656,8 +1709,7 @@ SG_EXTERN const char *sg_route_rawpattern(struct sg_route *route);
  * \retval NULL If no memory space is available and sets the `errno` to `ENOMEM`.
  * \warning The caller must free the returned value.
  */
-SG_EXTERN char *sg_route_pattern(struct sg_route *route)
-__SG_MALLOC;
+SG_EXTERN char *sg_route_pattern(struct sg_route *route) __SG_MALLOC;
 
 /**
  * Returns the route path.
@@ -1676,7 +1728,8 @@ SG_EXTERN const char *sg_route_path(struct sg_route *route);
  * \retval EINVAL Invalid argument.
  * \return Callback result when it is different from `0`.
  */
-SG_EXTERN int sg_route_segments_iter(struct sg_route *route, sg_segments_iter_cb cb, void *cls);
+SG_EXTERN int sg_route_segments_iter(struct sg_route *route,
+                                     sg_segments_iter_cb cb, void *cls);
 
 /**
  * Iterates over path variables.
@@ -1688,7 +1741,8 @@ SG_EXTERN int sg_route_segments_iter(struct sg_route *route, sg_segments_iter_cb
  * \retval ENOMEM Out of memory.
  * \return Callback result when it is different from `0`.
  */
-SG_EXTERN int sg_route_vars_iter(struct sg_route *route, sg_vars_iter_cb cb, void *cls);
+SG_EXTERN int sg_route_vars_iter(struct sg_route *route, sg_vars_iter_cb cb,
+                                 void *cls);
 
 /**
  * Gets user data from the route handle.
@@ -1715,8 +1769,9 @@ SG_EXTERN void *sg_route_user_data(struct sg_route *route);
  * \note The escape sequence \\K is not supported. It causes `EINVAL` if used.
  * \note The pattern is compiled using just-in-time optimization (JIT) when it is supported.
  */
-SG_EXTERN int sg_routes_add2(struct sg_route **routes, struct sg_route **route, const char *pattern,
-                             char *errmsg, size_t errlen, sg_route_cb cb, void *cls);
+SG_EXTERN int sg_routes_add2(struct sg_route **routes, struct sg_route **route,
+                             const char *pattern, char *errmsg, size_t errlen,
+                             sg_route_cb cb, void *cls);
 
 /**
  * Adds a route item to the route list \pr{routes}. It uses the `stderr` to print the validation errors.
@@ -1732,7 +1787,8 @@ SG_EXTERN int sg_routes_add2(struct sg_route **routes, struct sg_route **route, 
  * \note The escape sequence \\K is not supported. It causes `EINVAL` if used.
  * \note The pattern is compiled using just-in-time optimization (JIT) when it is supported.
  */
-SG_EXTERN bool sg_routes_add(struct sg_route **routes, const char *pattern, sg_route_cb cb, void *cls);
+SG_EXTERN bool sg_routes_add(struct sg_route **routes, const char *pattern,
+                             sg_route_cb cb, void *cls);
 
 /**
  * Removes a route item from the route list \pr{routes}.
@@ -1753,7 +1809,8 @@ SG_EXTERN int sg_routes_rm(struct sg_route **routes, const char *pattern);
  * \retval EINVAL Invalid argument.
  * \retval E<ERROR> User-defined error to abort the list iteration.
  */
-SG_EXTERN int sg_routes_iter(struct sg_route *routes, sg_routes_iter_cb cb, void *cls);
+SG_EXTERN int sg_routes_iter(struct sg_route *routes, sg_routes_iter_cb cb,
+                             void *cls);
 
 /**
  * Returns the next route int the route list.
@@ -1791,7 +1848,8 @@ struct sg_router;
  * \retval 0 Success.
  * \retval E<ERROR> User-defined error to stop the route dispatching loop.
  */
-typedef int (*sg_router_dispatch_cb)(void *cls, const char *path, struct sg_route *route);
+typedef int (*sg_router_dispatch_cb)(void *cls, const char *path,
+                                     struct sg_route *route);
 
 /**
  * Callback signature used by #sg_router_dispatch2 when the path matches the pattern before the route dispatching.
@@ -1808,8 +1866,7 @@ typedef int (*sg_router_match_cb)(void *cls, struct sg_route *route);
  * \return New router handle.
  * \retval NULL If the \pr{routes} is null and sets the `errno` to `EINVAL` or no memory space.
  */
-SG_EXTERN struct sg_router *sg_router_new(struct sg_route *routes)
-__SG_MALLOC;
+SG_EXTERN struct sg_router *sg_router_new(struct sg_route *routes) __SG_MALLOC;
 
 /**
  * Frees the router handle previously allocated by #sg_router_new().
@@ -1832,8 +1889,10 @@ SG_EXTERN void sg_router_free(struct sg_router *router);
  * \note The route callback #sg_route_cb is triggered when the path matches the route pattern.
  * \note The match logic uses just-in-time optimization (JIT) when it is supported.
  */
-SG_EXTERN int sg_router_dispatch2(struct sg_router *router, const char *path, void *user_data,
-                                  sg_router_dispatch_cb dispatch_cb, void *cls, sg_router_match_cb match_cb);
+SG_EXTERN int sg_router_dispatch2(struct sg_router *router, const char *path,
+                                  void *user_data,
+                                  sg_router_dispatch_cb dispatch_cb, void *cls,
+                                  sg_router_match_cb match_cb);
 
 /**
  * Dispatches a route that its pattern matches the path passed in \pr{path}.
@@ -1847,7 +1906,8 @@ SG_EXTERN int sg_router_dispatch2(struct sg_router *router, const char *path, vo
  * \note The route callback #sg_route_cb is triggered when the path matches the route pattern.
  * \note The match logic uses just-in-time optimization (JIT) when it is supported.
  */
-SG_EXTERN int sg_router_dispatch(struct sg_router *router, const char *path, void *user_data);
+SG_EXTERN int sg_router_dispatch(struct sg_router *router, const char *path,
+                                 void *user_data);
 
 /** \} */
 

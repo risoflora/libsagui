@@ -36,98 +36,103 @@
 #include "sg_httpauth.h"
 
 struct sg_httpauth *sg__httpauth_new(struct sg_httpres *res) {
-    struct sg_httpauth *auth = sg_alloc(sizeof(struct sg_httpauth));
-    if (!auth)
-        return NULL;
-    auth->usr = MHD_basic_auth_get_username_password(res->con, &auth->pwd);
-    auth->res = res;
-    return auth;
+  struct sg_httpauth *auth = sg_alloc(sizeof(struct sg_httpauth));
+  if (!auth)
+    return NULL;
+  auth->usr = MHD_basic_auth_get_username_password(res->con, &auth->pwd);
+  auth->res = res;
+  return auth;
 }
 
 void sg__httpauth_free(struct sg_httpauth *auth) {
-    if (!auth)
-        return;
-    sg_free(auth->usr);
-    sg_free(auth->pwd);
-    sg_free(auth->realm);
-    sg_free(auth);
+  if (!auth)
+    return;
+  sg_free(auth->usr);
+  sg_free(auth->pwd);
+  sg_free(auth->realm);
+  sg_free(auth);
 }
 
 bool sg__httpauth_dispatch(struct sg_httpauth *auth) {
-    if (auth->res->ret) {
-        auth->res->ret = MHD_YES;
-        goto done;
-    }
-    if (auth->canceled) {
-        auth->res->ret = auth->res->handle ? MHD_YES : MHD_NO;
-        goto done;
-    }
-    if (auth->res->handle) {
-        sg_strmap_iter(auth->res->headers, sg__strmap_iter, auth->res->handle);
-        if (auth->res->status == MHD_HTTP_UNAUTHORIZED)
-            auth->res->ret = MHD_queue_basic_auth_fail_response(auth->res->con,
-                                                                auth->realm ? auth->realm : _("Sagui realm"),
-                                                                auth->res->handle);
-        else
-            auth->res->ret = MHD_queue_response(auth->res->con, auth->res->status, auth->res->handle);
-    }
-    return false;
+  if (auth->res->ret) {
+    auth->res->ret = MHD_YES;
+    goto done;
+  }
+  if (auth->canceled) {
+    auth->res->ret = auth->res->handle ? MHD_YES : MHD_NO;
+    goto done;
+  }
+  if (auth->res->handle) {
+    sg_strmap_iter(auth->res->headers, sg__strmap_iter, auth->res->handle);
+    if (auth->res->status == MHD_HTTP_UNAUTHORIZED)
+      auth->res->ret = MHD_queue_basic_auth_fail_response(
+        auth->res->con, auth->realm ? auth->realm : _("Sagui realm"),
+        auth->res->handle);
+    else
+      auth->res->ret = MHD_queue_response(auth->res->con, auth->res->status,
+                                          auth->res->handle);
+  }
+  return false;
 done:
-    return auth->res->ret == MHD_YES;
+  return auth->res->ret == MHD_YES;
 }
 
 int sg_httpauth_set_realm(struct sg_httpauth *auth, const char *realm) {
-    if (!auth || !realm)
-        return EINVAL;
-    if (auth->realm)
-        return EALREADY;
-    auth->realm = strdup(realm);
-    if (!auth->realm)
-        return ENOMEM;
-    return 0;
+  if (!auth || !realm)
+    return EINVAL;
+  if (auth->realm)
+    return EALREADY;
+  auth->realm = strdup(realm);
+  if (!auth->realm)
+    return ENOMEM;
+  return 0;
 }
 
 const char *sg_httpauth_realm(struct sg_httpauth *auth) {
-    if (auth)
-        return auth->realm;
-    errno = EINVAL;
-    return NULL;
+  if (auth)
+    return auth->realm;
+  errno = EINVAL;
+  return NULL;
 }
 
-int sg_httpauth_deny2(struct sg_httpauth *auth, const char *reason, const char *content_type, unsigned int status) {
-    if (!auth || !reason || !content_type || (status < 100) || (status > 599))
-        return EINVAL;
-    if (auth->res->handle)
-        return EALREADY;
-    auth->res->handle = MHD_create_response_from_buffer(strlen(reason), (void *) reason, MHD_RESPMEM_MUST_COPY);
-    if (!auth->res->handle)
-        return ENOMEM;
-    auth->res->status = status;
-    return sg_strmap_add(&auth->res->headers, MHD_HTTP_HEADER_CONTENT_TYPE, content_type);
+int sg_httpauth_deny2(struct sg_httpauth *auth, const char *reason,
+                      const char *content_type, unsigned int status) {
+  if (!auth || !reason || !content_type || (status < 100) || (status > 599))
+    return EINVAL;
+  if (auth->res->handle)
+    return EALREADY;
+  auth->res->handle = MHD_create_response_from_buffer(
+    strlen(reason), (void *) reason, MHD_RESPMEM_MUST_COPY);
+  if (!auth->res->handle)
+    return ENOMEM;
+  auth->res->status = status;
+  return sg_strmap_add(&auth->res->headers, MHD_HTTP_HEADER_CONTENT_TYPE,
+                       content_type);
 }
 
-int sg_httpauth_deny(struct sg_httpauth *auth, const char *reason, const char *content_type) {
-    return sg_httpauth_deny2(auth, reason, content_type, MHD_HTTP_UNAUTHORIZED);
+int sg_httpauth_deny(struct sg_httpauth *auth, const char *reason,
+                     const char *content_type) {
+  return sg_httpauth_deny2(auth, reason, content_type, MHD_HTTP_UNAUTHORIZED);
 }
 
 int sg_httpauth_cancel(struct sg_httpauth *auth) {
-    if (!auth)
-        return EINVAL;
-    auth->res->status = MHD_HTTP_INTERNAL_SERVER_ERROR;
-    auth->canceled = true;
-    return 0;
+  if (!auth)
+    return EINVAL;
+  auth->res->status = MHD_HTTP_INTERNAL_SERVER_ERROR;
+  auth->canceled = true;
+  return 0;
 }
 
 const char *sg_httpauth_usr(struct sg_httpauth *auth) {
-    if (auth)
-        return auth->usr;
-    errno = EINVAL;
-    return NULL;
+  if (auth)
+    return auth->usr;
+  errno = EINVAL;
+  return NULL;
 }
 
 const char *sg_httpauth_pwd(struct sg_httpauth *auth) {
-    if (auth)
-        return auth->pwd;
-    errno = EINVAL;
-    return NULL;
+  if (auth)
+    return auth->pwd;
+  errno = EINVAL;
+  return NULL;
 }

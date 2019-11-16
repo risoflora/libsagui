@@ -32,15 +32,15 @@
 #include "sagui.h"
 
 struct sg_route {
-    struct sg_route *next;
-    pcre2_code *re;
-    pcre2_match_data *match;
-    PCRE2_SIZE *ovector;
-    sg_route_cb cb;
-    void *cls, *user_data;
-    const char *path;
-    char *pattern;
-    int rc;
+  struct sg_route *next;
+  pcre2_code *re;
+  pcre2_match_data *match;
+  PCRE2_SIZE *ovector;
+  sg_route_cb cb;
+  void *cls, *user_data;
+  const char *path;
+  char *pattern;
+  int rc;
 };
 
 #endif /* SG_ROUTES_H */

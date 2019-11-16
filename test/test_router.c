@@ -32,104 +32,115 @@
 #include "sg_router.h"
 #include <sagui.h>
 
-static void route_empty_cb(__SG_UNUSED void *cls, __SG_UNUSED struct sg_route *route) {
+static void route_empty_cb(__SG_UNUSED void *cls,
+                           __SG_UNUSED struct sg_route *route) {
 }
 
 static void route_cb(void *cls, struct sg_route *route) {
-    strcat(cls, sg_route_path(route));
-    strcat(cls, sg_route_rawpattern(route));
-    strcat(cls, sg_route_user_data(route));
+  strcat(cls, sg_route_path(route));
+  strcat(cls, sg_route_rawpattern(route));
+  strcat(cls, sg_route_user_data(route));
 }
 
-static int router_dispatch_empty_cb(__SG_UNUSED void *cls, __SG_UNUSED const char *path,
+static int router_dispatch_empty_cb(__SG_UNUSED void *cls,
+                                    __SG_UNUSED const char *path,
                                     __SG_UNUSED struct sg_route *route) {
-    return 0;
+  return 0;
 }
 
-static int router_dispatch_123_cb(__SG_UNUSED void *cls, __SG_UNUSED const char *path,
+static int router_dispatch_123_cb(__SG_UNUSED void *cls,
+                                  __SG_UNUSED const char *path,
                                   __SG_UNUSED struct sg_route *route) {
-    return 123;
+  return 123;
 }
 
-static int router_dispatch_concat_cb(void *cls, const char *path, struct sg_route *route) {
-    strcat(cls, path);
-    strcat(cls, sg_route_rawpattern(route));
-    return 0;
+static int router_dispatch_concat_cb(void *cls, const char *path,
+                                     struct sg_route *route) {
+  strcat(cls, path);
+  strcat(cls, sg_route_rawpattern(route));
+  return 0;
 }
 
-static int router_match_empty_cb(__SG_UNUSED void *cls, __SG_UNUSED struct sg_route *route) {
-    return 0;
+static int router_match_empty_cb(__SG_UNUSED void *cls,
+                                 __SG_UNUSED struct sg_route *route) {
+  return 0;
 }
 
-static int router_match_123_cb(__SG_UNUSED void *cls, __SG_UNUSED struct sg_route *route) {
-    return 123;
+static int router_match_123_cb(__SG_UNUSED void *cls,
+                               __SG_UNUSED struct sg_route *route) {
+  return 123;
 }
 
 static void test_router_new(void) {
-    struct sg_router *router;
-    struct sg_route *routes = NULL;
-    errno = 0;
-    ASSERT(!sg_router_new(NULL));
-    ASSERT(errno == EINVAL);
+  struct sg_router *router;
+  struct sg_route *routes = NULL;
+  errno = 0;
+  ASSERT(!sg_router_new(NULL));
+  ASSERT(errno == EINVAL);
 
-    ASSERT(sg_routes_add(&routes, "foo", route_empty_cb, "foo"));
-    ASSERT(sg_routes_add(&routes, "bar", route_empty_cb, "bar"));
-    router = sg_router_new(routes);
-    ASSERT(router);
-    ASSERT(router->routes == routes);
-    sg_routes_cleanup(&routes);
-    sg_router_free(router);
+  ASSERT(sg_routes_add(&routes, "foo", route_empty_cb, "foo"));
+  ASSERT(sg_routes_add(&routes, "bar", route_empty_cb, "bar"));
+  router = sg_router_new(routes);
+  ASSERT(router);
+  ASSERT(router->routes == routes);
+  sg_routes_cleanup(&routes);
+  sg_router_free(router);
 }
 
-static void test_router_dispatch2(struct sg_router *router, struct sg_route **routes) {
-    struct sg_router dummy_router;
-    char str[100];
-    ASSERT(sg_router_dispatch2(NULL, "foo", "bar", router_dispatch_empty_cb, "foobar",
-                               router_match_empty_cb) == EINVAL);
-    ASSERT(sg_router_dispatch2(router, NULL, "bar", router_dispatch_empty_cb, "foobar",
-                               router_match_empty_cb) == EINVAL);
-    dummy_router.routes = NULL;
-    ASSERT(sg_router_dispatch2(&dummy_router, "foo", "bar", router_dispatch_empty_cb, "foobar",
-                               router_match_empty_cb) == EINVAL);
+static void test_router_dispatch2(struct sg_router *router,
+                                  struct sg_route **routes) {
+  struct sg_router dummy_router;
+  char str[100];
+  ASSERT(sg_router_dispatch2(NULL, "foo", "bar", router_dispatch_empty_cb,
+                             "foobar", router_match_empty_cb) == EINVAL);
+  ASSERT(sg_router_dispatch2(router, NULL, "bar", router_dispatch_empty_cb,
+                             "foobar", router_match_empty_cb) == EINVAL);
+  dummy_router.routes = NULL;
+  ASSERT(sg_router_dispatch2(&dummy_router, "foo", "bar",
+                             router_dispatch_empty_cb, "foobar",
+                             router_match_empty_cb) == EINVAL);
 
-    ASSERT(sg_router_dispatch2(router, "foo", "bar", router_dispatch_123_cb, "foobar",
-                               router_match_empty_cb) == 123);
-    memset(str, 0, sizeof(str));
-    ASSERT(sg_router_dispatch2(router, "abc", "bar", router_dispatch_concat_cb, str, router_match_empty_cb) == ENOENT);
-    ASSERT(strcmp(str, "abc^foo$abc^bar$") == 0);
-    ASSERT(sg_router_dispatch2(router, "foo", "bar", router_dispatch_empty_cb, "foobar", router_match_123_cb) == 123);
+  ASSERT(sg_router_dispatch2(router, "foo", "bar", router_dispatch_123_cb,
+                             "foobar", router_match_empty_cb) == 123);
+  memset(str, 0, sizeof(str));
+  ASSERT(sg_router_dispatch2(router, "abc", "bar", router_dispatch_concat_cb,
+                             str, router_match_empty_cb) == ENOENT);
+  ASSERT(strcmp(str, "abc^foo$abc^bar$") == 0);
+  ASSERT(sg_router_dispatch2(router, "foo", "bar", router_dispatch_empty_cb,
+                             "foobar", router_match_123_cb) == 123);
 
-    memset(str, 0, sizeof(str));
-    ASSERT(sg_routes_add(routes, "/abc", route_cb, str));
-    ASSERT(sg_router_dispatch2(router, "/abc", "foo", router_dispatch_empty_cb, "bar", router_match_empty_cb) == 0);
-    ASSERT(strcmp(str, "/abc^/abc$foo") == 0);
+  memset(str, 0, sizeof(str));
+  ASSERT(sg_routes_add(routes, "/abc", route_cb, str));
+  ASSERT(sg_router_dispatch2(router, "/abc", "foo", router_dispatch_empty_cb,
+                             "bar", router_match_empty_cb) == 0);
+  ASSERT(strcmp(str, "/abc^/abc$foo") == 0);
 }
 
 static void test_router_dispatch(struct sg_router *router) {
-    struct sg_router dummy_router;
-    ASSERT(sg_router_dispatch(NULL, "foo", "bar") == EINVAL);
-    ASSERT(sg_router_dispatch(router, NULL, "bar") == EINVAL);
-    dummy_router.routes = NULL;
-    ASSERT(sg_router_dispatch(&dummy_router, "foo", "bar") == EINVAL);
+  struct sg_router dummy_router;
+  ASSERT(sg_router_dispatch(NULL, "foo", "bar") == EINVAL);
+  ASSERT(sg_router_dispatch(router, NULL, "bar") == EINVAL);
+  dummy_router.routes = NULL;
+  ASSERT(sg_router_dispatch(&dummy_router, "foo", "bar") == EINVAL);
 
-    ASSERT(sg_router_dispatch(router, "foo", NULL) == 0);
-    ASSERT(sg_router_dispatch(router, "bar", NULL) == 0);
+  ASSERT(sg_router_dispatch(router, "foo", NULL) == 0);
+  ASSERT(sg_router_dispatch(router, "bar", NULL) == 0);
 }
 
 int main(void) {
-    struct sg_router *router;
-    struct sg_route *routes = NULL;
+  struct sg_router *router;
+  struct sg_route *routes = NULL;
 
-    test_router_new();
+  test_router_new();
 
-    sg_routes_add(&routes, "foo", route_empty_cb, "foo");
-    sg_routes_add(&routes, "bar", route_empty_cb, "bar");
-    router = sg_router_new(routes);
+  sg_routes_add(&routes, "foo", route_empty_cb, "foo");
+  sg_routes_add(&routes, "bar", route_empty_cb, "bar");
+  router = sg_router_new(routes);
 
-    test_router_dispatch2(router, &routes);
-    test_router_dispatch(router);
+  test_router_dispatch2(router, &routes);
+  test_router_dispatch(router);
 
-    sg_routes_cleanup(&routes);
-    sg_router_free(router);
-    return EXIT_SUCCESS;
+  sg_routes_cleanup(&routes);
+  sg_router_free(router);
+  return EXIT_SUCCESS;
 }

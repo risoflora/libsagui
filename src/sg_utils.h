@@ -36,9 +36,9 @@
 #include "sagui.h"
 
 struct sg__memory_manager {
-    sg_malloc_func malloc;
-    sg_realloc_func realloc;
-    sg_free_func free;
+  sg_malloc_func malloc;
+  sg_realloc_func realloc;
+  sg_free_func free;
 };
 
 #ifdef _WIN32
@@ -56,7 +56,8 @@ SG__EXTERN int sg__rename(const char *old, const char *new);
 #define sg__rename rename
 #endif
 
-#if defined(_WIN32) || defined(__ANDROID__) || (defined(__linux__) && !defined(__gnu_linux__))
+#if defined(_WIN32) || defined(__ANDROID__) ||                                 \
+  (defined(__linux__) && !defined(__gnu_linux__))
 char *basename(const char *path);
 #endif
 

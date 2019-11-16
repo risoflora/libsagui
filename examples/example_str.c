@@ -31,9 +31,9 @@
 #include <sagui.h>
 
 int main(void) {
-    struct sg_str *str = sg_str_new();
-    sg_str_printf(str, "%s %s", "Hello", "world");
-    printf("%s", sg_str_content(str));
-    sg_str_free(str);
-    return EXIT_SUCCESS;
+  struct sg_str *str = sg_str_new();
+  sg_str_printf(str, "%s %s", "Hello", "world");
+  printf("%s", sg_str_content(str));
+  sg_str_free(str);
+  return EXIT_SUCCESS;
 }

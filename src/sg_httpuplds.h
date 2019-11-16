@@ -35,44 +35,51 @@
 #include "sg_httpsrv.h"
 
 struct sg_httpupld {
-    struct sg_httpupld *next;
-    sg_save_cb save_cb;
-    sg_save_as_cb save_as_cb;
-    void *handle;
-    char *dir;
-    char *field;
-    char *name;
-    char *mime;
-    char *encoding;
-    uint64_t size;
+  struct sg_httpupld *next;
+  sg_save_cb save_cb;
+  sg_save_as_cb save_as_cb;
+  void *handle;
+  char *dir;
+  char *field;
+  char *name;
+  char *mime;
+  char *encoding;
+  uint64_t size;
 };
 
 struct sg__httpupld {
-    struct sg_httpsrv *srv;
-    int fd;
-    char *path;
-    char *dest;
+  struct sg_httpsrv *srv;
+  int fd;
+  char *path;
+  char *dest;
 };
 
 struct sg__httpupld_holder {
-    struct sg_httpsrv *srv;
-    struct sg_httpreq *req;
+  struct sg_httpsrv *srv;
+  struct sg_httpreq *req;
 };
 
-SG__EXTERN bool sg__httpuplds_process(struct sg_httpsrv *srv, struct sg_httpreq *req, struct MHD_Connection *con,
-                                      const char *upld_data, size_t *upld_data_size, int *ret);
+SG__EXTERN bool sg__httpuplds_process(struct sg_httpsrv *srv,
+                                      struct sg_httpreq *req,
+                                      struct MHD_Connection *con,
+                                      const char *upld_data,
+                                      size_t *upld_data_size, int *ret);
 
-SG__EXTERN void sg__httpuplds_cleanup(struct sg_httpsrv *srv, struct sg_httpreq *req);
+SG__EXTERN void sg__httpuplds_cleanup(struct sg_httpsrv *srv,
+                                      struct sg_httpreq *req);
 
-SG__EXTERN int sg__httpupld_cb(void *cls, void **handle, const char *dir, const char *field, const char *name,
+SG__EXTERN int sg__httpupld_cb(void *cls, void **handle, const char *dir,
+                               const char *field, const char *name,
                                const char *mime, const char *encoding);
 
-SG__EXTERN ssize_t sg__httpupld_write_cb(void *handle, uint64_t offset, const char *buf, size_t size);
+SG__EXTERN ssize_t sg__httpupld_write_cb(void *handle, uint64_t offset,
+                                         const char *buf, size_t size);
 
 SG__EXTERN void sg__httpupld_free_cb(void *handle);
 
 SG__EXTERN int sg__httpupld_save_cb(void *handle, bool overwritten);
 
-SG__EXTERN int sg__httpupld_save_as_cb(void *handle, const char *path, bool overwritten);
+SG__EXTERN int sg__httpupld_save_as_cb(void *handle, const char *path,
+                                       bool overwritten);
 
 #endif /* SG_HTTPUPLDS_H */

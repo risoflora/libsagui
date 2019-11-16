@@ -31,18 +31,18 @@
 /* NOTE: Error checking has been omitted to make it clear. */
 
 static void route_cb(void *cls, struct sg_route *route) {
-    fprintf(stdout, "%s: %s\n", sg_route_path(route), (const char *) cls);
-    fflush(stdout);
+  fprintf(stdout, "%s: %s\n", sg_route_path(route), (const char *) cls);
+  fflush(stdout);
 }
 
 int main(void) {
-    struct sg_router *router;
-    struct sg_route *routes = NULL;
-    sg_routes_add(&routes, "/foo", route_cb, "foo-data");
-    sg_routes_add(&routes, "/bar", route_cb, "bar-data");
-    router = sg_router_new(routes);
-    sg_router_dispatch(router, "/foo", NULL);
-    sg_routes_cleanup(&routes);
-    sg_router_free(router);
-    return EXIT_SUCCESS;
+  struct sg_router *router;
+  struct sg_route *routes = NULL;
+  sg_routes_add(&routes, "/foo", route_cb, "foo-data");
+  sg_routes_add(&routes, "/bar", route_cb, "bar-data");
+  router = sg_router_new(routes);
+  sg_router_dispatch(router, "/foo", NULL);
+  sg_routes_cleanup(&routes);
+  sg_router_free(router);
+  return EXIT_SUCCESS;
 }

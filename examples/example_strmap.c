@@ -31,32 +31,33 @@
 #include <string.h>
 #include <sagui.h>
 
-static int map_sort(__SG_UNUSED void *cls, struct sg_strmap *pair_a, struct sg_strmap *pair_b) {
-    return strcmp(sg_strmap_val(pair_b), sg_strmap_val(pair_a)); /* desc */
+static int map_sort(__SG_UNUSED void *cls, struct sg_strmap *pair_a,
+                    struct sg_strmap *pair_b) {
+  return strcmp(sg_strmap_val(pair_b), sg_strmap_val(pair_a)); /* desc */
 }
 
 static int map_iter(__SG_UNUSED void *cls, struct sg_strmap *pair) {
-    const char *name = sg_strmap_name(pair);
-    printf("\t%c: %s\n", *name, name);
-    return 0;
+  const char *name = sg_strmap_name(pair);
+  printf("\t%c: %s\n", *name, name);
+  return 0;
 }
 
 static void chat(struct sg_strmap **map, const char *name, const char *msg) {
-    struct sg_strmap *pair;
-    sg_strmap_set(map, name, msg);
-    if (msg && (sg_strmap_find(*map, name, &pair) == 0))
-        printf("%c:\t%s\n", *sg_strmap_name(pair), sg_strmap_val(pair));
+  struct sg_strmap *pair;
+  sg_strmap_set(map, name, msg);
+  if (msg && (sg_strmap_find(*map, name, &pair) == 0))
+    printf("%c:\t%s\n", *sg_strmap_name(pair), sg_strmap_val(pair));
 }
 
 int main(void) {
-    struct sg_strmap *map = NULL;
-    chat(&map, "Clecio", "Hello!");
-    chat(&map, "Paim", "Hello. How are you?");
-    chat(&map, "Clecio", "I'm fine. And you?");
-    chat(&map, "Paim", "Me too.");
-    printf("\nChatters:\n");
-    sg_strmap_sort(&map, &map_sort, NULL);
-    sg_strmap_iter(map, &map_iter, NULL);
-    sg_strmap_cleanup(&map);
-    return EXIT_SUCCESS;
+  struct sg_strmap *map = NULL;
+  chat(&map, "Clecio", "Hello!");
+  chat(&map, "Paim", "Hello. How are you?");
+  chat(&map, "Clecio", "I'm fine. And you?");
+  chat(&map, "Paim", "Me too.");
+  printf("\nChatters:\n");
+  sg_strmap_sort(&map, &map_sort, NULL);
+  sg_strmap_iter(map, &map_iter, NULL);
+  sg_strmap_cleanup(&map);
+  return EXIT_SUCCESS;
 }

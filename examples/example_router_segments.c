@@ -30,27 +30,28 @@
 
 /* NOTE: Error checking has been omitted to make it clear. */
 
-static int segments_iter_cb(__SG_UNUSED void *cls, unsigned int index, const char *segment) {
-    fprintf(stdout, " %d: %s\n", index, segment);
-    return 0;
+static int segments_iter_cb(__SG_UNUSED void *cls, unsigned int index,
+                            const char *segment) {
+  fprintf(stdout, " %d: %s\n", index, segment);
+  return 0;
 }
 
 static void route_cb(void *cls, struct sg_route *route) {
-    fprintf(stdout, "%s: %s\n", sg_route_path(route), (const char *) cls);
-    sg_route_segments_iter(route, segments_iter_cb, NULL);
+  fprintf(stdout, "%s: %s\n", sg_route_path(route), (const char *) cls);
+  sg_route_segments_iter(route, segments_iter_cb, NULL);
 }
 
 int main(void) {
-    struct sg_router *router;
-    struct sg_route *routes = NULL;
-    sg_routes_add(&routes, "/foo/[0-9]+", route_cb, "foo-data");
-    sg_routes_add(&routes, "/bar/([a-zA-Z]+)/([0-9]+)", route_cb, "bar-data");
-    router = sg_router_new(routes);
-    sg_router_dispatch(router, "/foo/123", NULL);
-    fprintf(stdout, "---\n");
-    sg_router_dispatch(router, "/bar/abc/123", NULL);
-    sg_routes_cleanup(&routes);
-    sg_router_free(router);
-    fflush(stdout);
-    return EXIT_SUCCESS;
+  struct sg_router *router;
+  struct sg_route *routes = NULL;
+  sg_routes_add(&routes, "/foo/[0-9]+", route_cb, "foo-data");
+  sg_routes_add(&routes, "/bar/([a-zA-Z]+)/([0-9]+)", route_cb, "bar-data");
+  router = sg_router_new(routes);
+  sg_router_dispatch(router, "/foo/123", NULL);
+  fprintf(stdout, "---\n");
+  sg_router_dispatch(router, "/bar/abc/123", NULL);
+  sg_routes_cleanup(&routes);
+  sg_router_free(router);
+  fflush(stdout);
+  return EXIT_SUCCESS;
 }

@@ -31,90 +31,91 @@
 #include <sagui.h>
 
 static void test_str_write(struct sg_str *str, const char *val, size_t len) {
-    ASSERT(sg_str_write(NULL, val, len) == EINVAL);
-    ASSERT(sg_str_write(str, NULL, len) == EINVAL);
-    ASSERT(sg_str_write(str, val, 0) == EINVAL);
+  ASSERT(sg_str_write(NULL, val, len) == EINVAL);
+  ASSERT(sg_str_write(str, NULL, len) == EINVAL);
+  ASSERT(sg_str_write(str, val, 0) == EINVAL);
 
-    sg_str_clear(str);
-    ASSERT(sg_str_write(str, val, len) == 0);
-    ASSERT(sg_str_length(str) == len);
+  sg_str_clear(str);
+  ASSERT(sg_str_write(str, val, len) == 0);
+  ASSERT(sg_str_length(str) == len);
 }
 
-static void test_str_printf_va(struct sg_str *str, const char *fmt, va_list ap) {
-    ASSERT(sg_str_printf_va(NULL, fmt, ap) == EINVAL);
-    ASSERT(sg_str_printf_va(str, NULL, ap) == EINVAL);
+static void test_str_printf_va(struct sg_str *str, const char *fmt,
+                               va_list ap) {
+  ASSERT(sg_str_printf_va(NULL, fmt, ap) == EINVAL);
+  ASSERT(sg_str_printf_va(str, NULL, ap) == EINVAL);
 #ifndef __arm__
-    ASSERT(sg_str_printf_va(str, fmt, NULL) == EINVAL);
+  ASSERT(sg_str_printf_va(str, fmt, NULL) == EINVAL);
 #endif
 
-    sg_str_clear(str);
-    sg_str_printf_va(str, fmt, ap);
-    ASSERT(strcmp(sg_str_content(str), "abc123def456") == 0);
+  sg_str_clear(str);
+  sg_str_printf_va(str, fmt, ap);
+  ASSERT(strcmp(sg_str_content(str), "abc123def456") == 0);
 }
 
 static void test_str_printf(struct sg_str *str, const char *fmt, ...) {
-    va_list ap;
-    ASSERT(sg_str_printf(NULL, "%s", "") == EINVAL);
-    ASSERT(sg_str_printf(str, NULL) == EINVAL);
+  va_list ap;
+  ASSERT(sg_str_printf(NULL, "%s", "") == EINVAL);
+  ASSERT(sg_str_printf(str, NULL) == EINVAL);
 
-    sg_str_clear(str);
-    ASSERT(sg_str_printf(str, "%s", "") == 0);
-    ASSERT(strlen(sg_str_content(str)) == 0);
-    ASSERT(sg_str_printf(str, "%s%d", "abc", 123) == 0);
-    ASSERT(strcmp(sg_str_content(str), "abc123") == 0);
+  sg_str_clear(str);
+  ASSERT(sg_str_printf(str, "%s", "") == 0);
+  ASSERT(strlen(sg_str_content(str)) == 0);
+  ASSERT(sg_str_printf(str, "%s%d", "abc", 123) == 0);
+  ASSERT(strcmp(sg_str_content(str), "abc123") == 0);
 
-    va_start(ap, fmt);
-    test_str_printf_va(str, fmt, ap);
-    va_end(ap);
+  va_start(ap, fmt);
+  test_str_printf_va(str, fmt, ap);
+  va_end(ap);
 }
 
 static void test_str_content(struct sg_str *str, const char *val, size_t len) {
-    errno = 0;
-    ASSERT(!sg_str_content(NULL));
-    ASSERT(errno == EINVAL);
+  errno = 0;
+  ASSERT(!sg_str_content(NULL));
+  ASSERT(errno == EINVAL);
 
-    sg_str_clear(str);
-    ASSERT(strlen(sg_str_content(str)) == 0);
-    sg_str_write(str, val, len);
-    ASSERT(strcmp(sg_str_content(str), val) == 0);
+  sg_str_clear(str);
+  ASSERT(strlen(sg_str_content(str)) == 0);
+  sg_str_write(str, val, len);
+  ASSERT(strcmp(sg_str_content(str), val) == 0);
 }
 
 static void test_str_length(struct sg_str *str, const char *val, size_t len) {
-    errno = 0;
-    ASSERT(sg_str_length(NULL) == 0);
-    ASSERT(errno == EINVAL);
+  errno = 0;
+  ASSERT(sg_str_length(NULL) == 0);
+  ASSERT(errno == EINVAL);
 
-    sg_str_clear(str);
-    ASSERT(sg_str_length(str) == 0);
-    sg_str_write(str, val, len);
-    ASSERT(sg_str_length(str) == len);
+  sg_str_clear(str);
+  ASSERT(sg_str_length(str) == 0);
+  sg_str_write(str, val, len);
+  ASSERT(sg_str_length(str) == len);
 }
 
 static void test_str_clear(struct sg_str *str, const char *val, size_t len) {
-    ASSERT(sg_str_clear(NULL) == EINVAL);
+  ASSERT(sg_str_clear(NULL) == EINVAL);
 
-    sg_str_clear(str);
-    sg_str_write(str, val, len);
-    ASSERT(sg_str_length(str) > 0);
-    sg_str_clear(str);
-    ASSERT(sg_str_length(str) == 0);
+  sg_str_clear(str);
+  sg_str_write(str, val, len);
+  ASSERT(sg_str_length(str) > 0);
+  sg_str_clear(str);
+  ASSERT(sg_str_length(str) == 0);
 }
 
 int main(void) {
-    struct sg_str *str;
-    const char *val = "abc123def456";
-    const size_t len = strlen(val);
+  struct sg_str *str;
+  const char *val = "abc123def456";
+  const size_t len = strlen(val);
 
-    str = sg_str_new();
-    ASSERT(str);
+  str = sg_str_new();
+  ASSERT(str);
 
-    test_str_write(str, val, len);
-    test_str_printf(str, "%s%d%s%d", "abc", 123, "def", 456);
-    /* the function `sg_str_printf_va()` is already tested by `test_str_printf()`. */
-    test_str_content(str, val, len);
-    test_str_length(str, val, len);
-    test_str_clear(str, val, len);
+  test_str_write(str, val, len);
+  test_str_printf(str, "%s%d%s%d", "abc", 123, "def", 456);
+  /* the function `sg_str_printf_va()` is already tested by `test_str_printf()`. */
+  test_str_content(str, val, len);
+  test_str_length(str, val, len);
+  test_str_clear(str, val, len);
 
-    sg_str_free(str);
-    return EXIT_SUCCESS;
+  sg_str_free(str);
+  return EXIT_SUCCESS;
 }

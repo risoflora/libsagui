@@ -40,49 +40,51 @@
 #define COOKIE_NAME "refresh_count"
 
 static int strtoint(const char *str) {
-    if (!str)
-        return 0;
-    return (int) strtol(str, NULL, 10);
+  if (!str)
+    return 0;
+  return (int) strtol(str, NULL, 10);
 }
 
-static void req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_httpres *res) {
-    struct sg_strmap **cookies;
-    char str[100];
-    int count;
-    if (strcmp(sg_httpreq_path(req), "/favicon.ico") == 0) {
-        sg_httpres_send(res, "", "", 204);
-        return;
-    }
-    cookies = sg_httpreq_cookies(req);
-    count = cookies ? strtoint(sg_strmap_get(*cookies, COOKIE_NAME)) : 0;
-    if (count == 0) {
-        snprintf(str, sizeof(str), INITIAL_PAGE);
-        count = 1;
-    } else {
-        snprintf(str, sizeof(str), COUNT_PAGE, count);
-        count++;
-    }
-    sg_httpres_send(res, str, CONTENT_TYPE, 200);
-    snprintf(str, sizeof(str), "%d", count);
-    sg_httpres_set_cookie(res, COOKIE_NAME, str);
+static void req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req,
+                   struct sg_httpres *res) {
+  struct sg_strmap **cookies;
+  char str[100];
+  int count;
+  if (strcmp(sg_httpreq_path(req), "/favicon.ico") == 0) {
+    sg_httpres_send(res, "", "", 204);
+    return;
+  }
+  cookies = sg_httpreq_cookies(req);
+  count = cookies ? strtoint(sg_strmap_get(*cookies, COOKIE_NAME)) : 0;
+  if (count == 0) {
+    snprintf(str, sizeof(str), INITIAL_PAGE);
+    count = 1;
+  } else {
+    snprintf(str, sizeof(str), COUNT_PAGE, count);
+    count++;
+  }
+  sg_httpres_send(res, str, CONTENT_TYPE, 200);
+  snprintf(str, sizeof(str), "%d", count);
+  sg_httpres_set_cookie(res, COOKIE_NAME, str);
 }
 
 int main(int argc, const char *argv[]) {
-    struct sg_httpsrv *srv;
-    uint16_t port;
-    if (argc != 2) {
-        printf("%s <PORT>\n", argv[0]);
-        return EXIT_FAILURE;
-    }
-    port = strtol(argv[1], NULL, 10);
-    srv = sg_httpsrv_new(req_cb, NULL);
-    if (!sg_httpsrv_listen(srv, port, false)) {
-        sg_httpsrv_free(srv);
-        return EXIT_FAILURE;
-    }
-    fprintf(stdout, "Server running at http://localhost:%d\n", sg_httpsrv_port(srv));
-    fflush(stdout);
-    getchar();
+  struct sg_httpsrv *srv;
+  uint16_t port;
+  if (argc != 2) {
+    printf("%s <PORT>\n", argv[0]);
+    return EXIT_FAILURE;
+  }
+  port = strtol(argv[1], NULL, 10);
+  srv = sg_httpsrv_new(req_cb, NULL);
+  if (!sg_httpsrv_listen(srv, port, false)) {
     sg_httpsrv_free(srv);
-    return EXIT_SUCCESS;
+    return EXIT_FAILURE;
+  }
+  fprintf(stdout, "Server running at http://localhost:%d\n",
+          sg_httpsrv_port(srv));
+  fflush(stdout);
+  getchar();
+  sg_httpsrv_free(srv);
+  return EXIT_SUCCESS;
 }

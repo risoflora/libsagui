@@ -35,20 +35,24 @@
 #include "sg_strmap.h"
 #include "sagui.h"
 
-SG__EXTERN int sg__convals_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind, const char *key, const char *val);
+SG__EXTERN int sg__convals_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind,
+                                const char *key, const char *val);
 
 SG__EXTERN int sg__strmap_iter(void *cls, struct sg_strmap *map);
 
 #ifdef SG_HTTP_COMPRESSION
 
-SG__EXTERN voidpf sg__zalloc(__SG_UNUSED voidpf opaque, unsigned items, unsigned size);
+SG__EXTERN voidpf sg__zalloc(__SG_UNUSED voidpf opaque, unsigned items,
+                             unsigned size);
 
 SG__EXTERN void sg__zfree(__SG_UNUSED voidpf opaque, voidpf ptr);
 
-SG__EXTERN int sg__zcompress(z_const Bytef *src, uLong src_size, Bytef *dest, uLongf *dest_size, int level);
+SG__EXTERN int sg__zcompress(z_const Bytef *src, uLong src_size, Bytef *dest,
+                             uLongf *dest_size, int level);
 
-SG__EXTERN int sg__zdeflate(z_stream *stream, Bytef *zbuf, int flush, z_const Bytef *src, uInt src_size,
-                            Bytef **dest, z_size_t *dest_size);
+SG__EXTERN int sg__zdeflate(z_stream *stream, Bytef *zbuf, int flush,
+                            z_const Bytef *src, uInt src_size, Bytef **dest,
+                            z_size_t *dest_size);
 
 #endif
 

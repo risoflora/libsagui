@@ -30,34 +30,37 @@
 
 /* NOTE: Error checking has been omitted to make it clear. */
 
-static int vars_iter_cb(__SG_UNUSED void *cls, const char *name, const char *val) {
-    fprintf(stdout, " %s: %s\n", name, val);
-    return 0;
+static int vars_iter_cb(__SG_UNUSED void *cls, const char *name,
+                        const char *val) {
+  fprintf(stdout, " %s: %s\n", name, val);
+  return 0;
 }
 
 static void route_cb(void *cls, struct sg_route *route) {
-    fprintf(stdout, "%s: %s\n", sg_route_path(route), (const char *) cls);
-    sg_route_vars_iter(route, vars_iter_cb, NULL);
+  fprintf(stdout, "%s: %s\n", sg_route_path(route), (const char *) cls);
+  sg_route_vars_iter(route, vars_iter_cb, NULL);
 }
 
 int main(void) {
-    struct sg_router *router;
-    struct sg_route *routes = NULL;
-    sg_routes_add(&routes, "/foo/bar", route_cb, "foo-bar-data");
-    sg_routes_add(&routes, "/bar", route_cb, "bar-data");
-    sg_routes_add(&routes, "/customer/(?P<name>[a-zA-Z]+)", route_cb, "customer-data");
-    sg_routes_add(&routes, "/product/(?P<id>[0-9]+)", route_cb, "product-data");
-    sg_routes_add(&routes, "/employee/(?P<id>[0-9]+)/[a|i]", route_cb, "employee-data");
-    router = sg_router_new(routes);
-    sg_router_dispatch(router, "/foo/bar", NULL);
-    fprintf(stdout, "---\n");
-    sg_router_dispatch(router, "/customer/Torvalds", NULL);
-    fprintf(stdout, "---\n");
-    sg_router_dispatch(router, "/product/123", NULL);
-    fprintf(stdout, "---\n");
-    sg_router_dispatch(router, "/employee/123/i", NULL);
-    sg_routes_cleanup(&routes);
-    sg_router_free(router);
-    fflush(stdout);
-    return EXIT_SUCCESS;
+  struct sg_router *router;
+  struct sg_route *routes = NULL;
+  sg_routes_add(&routes, "/foo/bar", route_cb, "foo-bar-data");
+  sg_routes_add(&routes, "/bar", route_cb, "bar-data");
+  sg_routes_add(&routes, "/customer/(?P<name>[a-zA-Z]+)", route_cb,
+                "customer-data");
+  sg_routes_add(&routes, "/product/(?P<id>[0-9]+)", route_cb, "product-data");
+  sg_routes_add(&routes, "/employee/(?P<id>[0-9]+)/[a|i]", route_cb,
+                "employee-data");
+  router = sg_router_new(routes);
+  sg_router_dispatch(router, "/foo/bar", NULL);
+  fprintf(stdout, "---\n");
+  sg_router_dispatch(router, "/customer/Torvalds", NULL);
+  fprintf(stdout, "---\n");
+  sg_router_dispatch(router, "/product/123", NULL);
+  fprintf(stdout, "---\n");
+  sg_router_dispatch(router, "/employee/123/i", NULL);
+  sg_routes_cleanup(&routes);
+  sg_router_free(router);
+  fflush(stdout);
+  return EXIT_SUCCESS;
 }

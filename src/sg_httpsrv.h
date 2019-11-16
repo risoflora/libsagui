@@ -32,24 +32,24 @@
 #include "sagui.h"
 
 struct sg_httpsrv {
-    struct MHD_Daemon *handle;
-    sg_httpauth_cb auth_cb;
-    sg_httpupld_cb upld_cb;
-    sg_write_cb upld_write_cb;
-    sg_free_cb upld_free_cb;
-    sg_save_cb upld_save_cb;
-    sg_save_as_cb upld_save_as_cb;
-    sg_httpreq_cb req_cb;
-    sg_err_cb err_cb;
-    void *upld_cls;
-    void *cls;
-    char *uplds_dir;
-    size_t post_buf_size;
-    size_t payld_limit;
-    uint64_t uplds_limit;
-    unsigned int thr_pool_size;
-    unsigned int con_timeout;
-    unsigned int con_limit;
+  struct MHD_Daemon *handle;
+  sg_httpauth_cb auth_cb;
+  sg_httpupld_cb upld_cb;
+  sg_write_cb upld_write_cb;
+  sg_free_cb upld_free_cb;
+  sg_save_cb upld_save_cb;
+  sg_save_as_cb upld_save_as_cb;
+  sg_httpreq_cb req_cb;
+  sg_err_cb err_cb;
+  void *upld_cls;
+  void *cls;
+  char *uplds_dir;
+  size_t post_buf_size;
+  size_t payld_limit;
+  uint64_t uplds_limit;
+  unsigned int thr_pool_size;
+  unsigned int con_timeout;
+  unsigned int con_limit;
 };
 
 #endif /* SG_HTTPSRV_H */

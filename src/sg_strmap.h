@@ -31,8 +31,8 @@
 #include "uthash.h"
 
 struct sg_strmap {
-    char *key, *name, *val;
-    UT_hash_handle hh;
+  char *key, *name, *val;
+  UT_hash_handle hh;
 };
 
 SG__EXTERN struct sg_strmap *sg__strmap_new(const char *name, const char *val);

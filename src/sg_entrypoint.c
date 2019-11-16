@@ -28,32 +28,34 @@
 #include <errno.h>
 #include "sg_entrypoint.h"
 
-void sg__entrypoint_prepare(struct sg_entrypoint *entrypoint, char *name, void *user_data) {
-    entrypoint->name = name;
-    entrypoint->user_data = user_data;
+void sg__entrypoint_prepare(struct sg_entrypoint *entrypoint, char *name,
+                            void *user_data) {
+  entrypoint->name = name;
+  entrypoint->user_data = user_data;
 }
 
 int sg__entrypoint_cmp(const void *a, const void *b) {
-    return strcmp(((struct sg_entrypoint *) a)->name, ((struct sg_entrypoint *) b)->name);
+  return strcmp(((struct sg_entrypoint *) a)->name,
+                ((struct sg_entrypoint *) b)->name);
 }
 
 const char *sg_entrypoint_name(struct sg_entrypoint *entrypoint) {
-    if (entrypoint)
-        return entrypoint->name;
-    errno = EINVAL;
-    return NULL;
+  if (entrypoint)
+    return entrypoint->name;
+  errno = EINVAL;
+  return NULL;
 }
 
 int sg_entrypoint_set_user_data(struct sg_entrypoint *entrypoint, void *data) {
-    if (!entrypoint)
-        return EINVAL;
-    entrypoint->user_data = data;
-    return 0;
+  if (!entrypoint)
+    return EINVAL;
+  entrypoint->user_data = data;
+  return 0;
 }
 
 void *sg_entrypoint_user_data(struct sg_entrypoint *entrypoint) {
-    if (entrypoint)
-        return entrypoint->user_data;
-    errno = EINVAL;
-    return NULL;
+  if (entrypoint)
+    return entrypoint->user_data;
+  errno = EINVAL;
+  return NULL;
 }

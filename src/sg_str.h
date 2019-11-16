@@ -31,7 +31,7 @@
 #include "utstring.h"
 
 struct sg_str {
-    UT_string *buf;
+  UT_string *buf;
 };
 
 #endif /* SG_STR_H */

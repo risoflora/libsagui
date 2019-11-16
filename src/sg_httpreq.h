@@ -35,28 +35,30 @@
 #include "sg_httpres.h"
 
 struct sg_httpreq {
-    struct MHD_Connection *con;
-    struct MHD_PostProcessor *pp;
-    struct sg_httpauth *auth;
-    struct sg_httpres *res;
-    struct sg_httpupld *uplds;
-    struct sg_httpupld *curr_upld;
-    struct sg_strmap *curr_field;
-    struct sg_strmap *headers;
-    struct sg_strmap *cookies;
-    struct sg_strmap *params;
-    struct sg_strmap *fields;
-    struct sg_str *payload;
-    const char *version;
-    const char *method;
-    const char *path;
-    void *user_data;
-    uint64_t total_uplds_size;
-    size_t total_fields_size;
-    bool is_uploading;
+  struct MHD_Connection *con;
+  struct MHD_PostProcessor *pp;
+  struct sg_httpauth *auth;
+  struct sg_httpres *res;
+  struct sg_httpupld *uplds;
+  struct sg_httpupld *curr_upld;
+  struct sg_strmap *curr_field;
+  struct sg_strmap *headers;
+  struct sg_strmap *cookies;
+  struct sg_strmap *params;
+  struct sg_strmap *fields;
+  struct sg_str *payload;
+  const char *version;
+  const char *method;
+  const char *path;
+  void *user_data;
+  uint64_t total_uplds_size;
+  size_t total_fields_size;
+  bool is_uploading;
 };
 
-SG__EXTERN struct sg_httpreq *sg__httpreq_new(struct MHD_Connection *con, const char *version, const char *method,
+SG__EXTERN struct sg_httpreq *sg__httpreq_new(struct MHD_Connection *con,
+                                              const char *version,
+                                              const char *method,
                                               const char *path);
 
 SG__EXTERN void sg__httpreq_free(struct sg_httpreq *req);

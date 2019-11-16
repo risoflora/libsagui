@@ -31,8 +31,8 @@
 #include "sagui.h"
 
 struct sg_entrypoints {
-    struct sg_entrypoint *list;
-    unsigned int count;
+  struct sg_entrypoint *list;
+  unsigned int count;
 };
 
 #endif /* SG_ENTRYPOINTS_H */

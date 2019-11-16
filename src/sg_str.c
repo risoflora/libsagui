@@ -29,71 +29,71 @@
 #include "sagui.h"
 
 struct sg_str *sg_str_new(void) {
-    struct sg_str *str = sg_alloc(sizeof(struct sg_str));
-    if (str) {
-        utstring_new(str->buf);
-        if (!str->buf) {
-            sg_free(str);
-            return NULL;
-        }
+  struct sg_str *str = sg_alloc(sizeof(struct sg_str));
+  if (str) {
+    utstring_new(str->buf);
+    if (!str->buf) {
+      sg_free(str);
+      return NULL;
     }
-    return str;
+  }
+  return str;
 }
 
 void sg_str_free(struct sg_str *str) {
-    if (!str)
-        return;
-    utstring_free(str->buf);
-    sg_free(str);
+  if (!str)
+    return;
+  utstring_free(str->buf);
+  sg_free(str);
 }
 
 int sg_str_write(struct sg_str *str, const char *val, size_t len) {
-    if (!str || !val || (len < 1))
-        return EINVAL;
-    utstring_bincpy(str->buf, val, len);
-    return 0;
+  if (!str || !val || (len < 1))
+    return EINVAL;
+  utstring_bincpy(str->buf, val, len);
+  return 0;
 }
 
 int sg_str_printf_va(struct sg_str *str, const char *fmt, va_list ap) {
-    if (!str || !fmt)
-        return EINVAL;
+  if (!str || !fmt)
+    return EINVAL;
 #if !defined(__arm__) && !defined(__aarch64__)
-    if (!ap)
-        return EINVAL;
+  if (!ap)
+    return EINVAL;
 #endif
-    utstring_printf_va(str->buf, fmt, ap);
-    return 0;
+  utstring_printf_va(str->buf, fmt, ap);
+  return 0;
 }
 
 int sg_str_printf(struct sg_str *str, const char *fmt, ...) {
-    va_list ap;
-    if (!str || !fmt)
-        return EINVAL;
-    va_start(ap, fmt);
-    utstring_printf_va(str->buf, fmt, ap);
-    va_end(ap);
-    return 0;
+  va_list ap;
+  if (!str || !fmt)
+    return EINVAL;
+  va_start(ap, fmt);
+  utstring_printf_va(str->buf, fmt, ap);
+  va_end(ap);
+  return 0;
 }
 
 const char *sg_str_content(struct sg_str *str) {
-    if (!str) {
-        errno = EINVAL;
-        return NULL;
-    }
-    return utstring_body(str->buf);
+  if (!str) {
+    errno = EINVAL;
+    return NULL;
+  }
+  return utstring_body(str->buf);
 }
 
 size_t sg_str_length(struct sg_str *str) {
-    if (!str) {
-        errno = EINVAL;
-        return 0;
-    }
-    return utstring_len(str->buf);
+  if (!str) {
+    errno = EINVAL;
+    return 0;
+  }
+  return utstring_len(str->buf);
 }
 
 int sg_str_clear(struct sg_str *str) {
-    if (!str)
-        return EINVAL;
-    utstring_clear(str->buf);
-    return 0;
+  if (!str)
+    return EINVAL;
+  utstring_clear(str->buf);
+  return 0;
 }

@@ -33,50 +33,56 @@
 /* NOTE: Error checking has been omitted to make it clear. */
 
 static bool strmatch(const char *s1, const char *s2) {
-    if (!s1 || !s2)
-        return false;
-    return strcmp(s1, s2) == 0;
+  if (!s1 || !s2)
+    return false;
+  return strcmp(s1, s2) == 0;
 }
 
-static bool auth_cb(__SG_UNUSED void *cls, struct sg_httpauth *auth, __SG_UNUSED struct sg_httpreq *req,
+static bool auth_cb(__SG_UNUSED void *cls, struct sg_httpauth *auth,
+                    __SG_UNUSED struct sg_httpreq *req,
                     __SG_UNUSED struct sg_httpres *res) {
-    bool pass;
-    sg_httpauth_set_realm(auth, "My realm");
-    pass = strmatch(sg_httpauth_usr(auth), "abc") && strmatch(sg_httpauth_pwd(auth), "123");
-    if (!pass)
-        sg_httpauth_deny(auth,
-                         "<html><head><title>Denied</title></head><body><font color=\"red\">Go away</font></body></html>",
-                         "text/html; charset=utf-8");
-    return pass;
+  bool pass;
+  sg_httpauth_set_realm(auth, "My realm");
+  pass = strmatch(sg_httpauth_usr(auth), "abc") &&
+         strmatch(sg_httpauth_pwd(auth), "123");
+  if (!pass)
+    sg_httpauth_deny(auth,
+                     "<html><head><title>Denied</title></head><body><font "
+                     "color=\"red\">Go away</font></body></html>",
+                     "text/html; charset=utf-8");
+  return pass;
 }
 
 static void err_cb(__SG_UNUSED void *cls, const char *err) {
-    fprintf(stderr, "%s", err);
-    fflush(stderr);
+  fprintf(stderr, "%s", err);
+  fflush(stderr);
 }
 
-static void req_cb(__SG_UNUSED void *cls, __SG_UNUSED struct sg_httpreq *req, struct sg_httpres *res) {
-    sg_httpres_send(res,
-                    "<html><head><title>Secret</title></head><body><font color=\"green\">Secret page</font></body></html>",
-                    "text/html; charset=utf-8", 200);
+static void req_cb(__SG_UNUSED void *cls, __SG_UNUSED struct sg_httpreq *req,
+                   struct sg_httpres *res) {
+  sg_httpres_send(res,
+                  "<html><head><title>Secret</title></head><body><font "
+                  "color=\"green\">Secret page</font></body></html>",
+                  "text/html; charset=utf-8", 200);
 }
 
 int main(int argc, const char *argv[]) {
-    struct sg_httpsrv *srv;
-    uint16_t port;
-    if (argc != 2) {
-        printf("%s <PORT>\n", argv[0]);
-        return EXIT_FAILURE;
-    }
-    port = strtol(argv[1], NULL, 10);
-    srv = sg_httpsrv_new2(auth_cb, req_cb, err_cb, NULL);
-    if (!sg_httpsrv_listen(srv, port, false)) {
-        sg_httpsrv_free(srv);
-        return EXIT_FAILURE;
-    }
-    fprintf(stdout, "Server running at http://localhost:%d\n", sg_httpsrv_port(srv));
-    fflush(stdout);
-    getchar();
+  struct sg_httpsrv *srv;
+  uint16_t port;
+  if (argc != 2) {
+    printf("%s <PORT>\n", argv[0]);
+    return EXIT_FAILURE;
+  }
+  port = strtol(argv[1], NULL, 10);
+  srv = sg_httpsrv_new2(auth_cb, req_cb, err_cb, NULL);
+  if (!sg_httpsrv_listen(srv, port, false)) {
     sg_httpsrv_free(srv);
-    return EXIT_SUCCESS;
+    return EXIT_FAILURE;
+  }
+  fprintf(stdout, "Server running at http://localhost:%d\n",
+          sg_httpsrv_port(srv));
+  fflush(stdout);
+  getchar();
+  sg_httpsrv_free(srv);
+  return EXIT_SUCCESS;
 }

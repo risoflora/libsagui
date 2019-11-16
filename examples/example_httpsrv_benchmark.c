@@ -38,48 +38,52 @@
 static unsigned int get_cpu_count(void) {
 #ifdef _WIN32
 #ifndef _SC_NPROCESSORS_ONLN
-    SYSTEM_INFO info;
-    GetSystemInfo(&info);
+  SYSTEM_INFO info;
+  GetSystemInfo(&info);
 #define sysconf(void) info.dwNumberOfProcessors
 #define _SC_NPROCESSORS_ONLN
 #endif
 #endif
 #ifdef _SC_NPROCESSORS_ONLN
-    return (unsigned int) sysconf(_SC_NPROCESSORS_ONLN);
+  return (unsigned int) sysconf(_SC_NPROCESSORS_ONLN);
 #else
-    return 0;
+  return 0;
 #endif
 }
 
-static void req_cb(__SG_UNUSED void *cls, __SG_UNUSED struct sg_httpreq *req, struct sg_httpres *res) {
-    sg_httpres_send(res, "<html><head><title>Hello world</title></head><body>Hello world</body></html>",
-                    "text/html", 200);
+static void req_cb(__SG_UNUSED void *cls, __SG_UNUSED struct sg_httpreq *req,
+                   struct sg_httpres *res) {
+  sg_httpres_send(res,
+                  "<html><head><title>Hello world</title></head><body>Hello "
+                  "world</body></html>",
+                  "text/html", 200);
 }
 
 int main(int argc, const char *argv[]) {
-    struct sg_httpsrv *srv;
-    unsigned int cpu_count;
-    unsigned int con_limit;
-    uint16_t port;
-    if (argc != 2) {
-        printf("%s <PORT>\n", argv[0]);
-        return EXIT_FAILURE;
-    }
-    port = strtol(argv[1], NULL, 10);
-    cpu_count = get_cpu_count();
-    con_limit = 1000; /* Change to 10000 for C10K problem. */
-    srv = sg_httpsrv_new(req_cb, NULL);
-    sg_httpsrv_set_thr_pool_size(srv, cpu_count);
-    sg_httpsrv_set_con_limit(srv, con_limit);
-    if (!sg_httpsrv_listen(srv, port, false)) {
-        sg_httpsrv_free(srv);
-        return EXIT_FAILURE;
-    }
-    fprintf(stdout, "Number of processors: %d\n", cpu_count);
-    fprintf(stdout, "Connections limit: %d\n", con_limit);
-    fprintf(stdout, "Server running at http://localhost:%d\n", sg_httpsrv_port(srv));
-    fflush(stdout);
-    getchar();
+  struct sg_httpsrv *srv;
+  unsigned int cpu_count;
+  unsigned int con_limit;
+  uint16_t port;
+  if (argc != 2) {
+    printf("%s <PORT>\n", argv[0]);
+    return EXIT_FAILURE;
+  }
+  port = strtol(argv[1], NULL, 10);
+  cpu_count = get_cpu_count();
+  con_limit = 1000; /* Change to 10000 for C10K problem. */
+  srv = sg_httpsrv_new(req_cb, NULL);
+  sg_httpsrv_set_thr_pool_size(srv, cpu_count);
+  sg_httpsrv_set_con_limit(srv, con_limit);
+  if (!sg_httpsrv_listen(srv, port, false)) {
     sg_httpsrv_free(srv);
-    return EXIT_SUCCESS;
+    return EXIT_FAILURE;
+  }
+  fprintf(stdout, "Number of processors: %d\n", cpu_count);
+  fprintf(stdout, "Connections limit: %d\n", con_limit);
+  fprintf(stdout, "Server running at http://localhost:%d\n",
+          sg_httpsrv_port(srv));
+  fflush(stdout);
+  getchar();
+  sg_httpsrv_free(srv);
+  return EXIT_SUCCESS;
 }

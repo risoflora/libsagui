@@ -46,64 +46,77 @@
 /* NOTE: Error checking has been omitted to make it clear. */
 
 struct holder {
-    struct sg_httpreq *req;
-    struct sg_httpres *res;
+  struct sg_httpreq *req;
+  struct sg_httpres *res;
 };
 
-static int route_download_file_cb(void *cls, const char *name, const char *val) {
-    sprintf(cls, "%s: %s", name, val);
-    return 0;
+static int route_download_file_cb(void *cls, const char *name,
+                                  const char *val) {
+  sprintf(cls, "%s: %s", name, val);
+  return 0;
 }
 
 static void route_home_cb(__SG_UNUSED void *cls, struct sg_route *route) {
-    struct holder *holder = sg_route_user_data(route);
-    sg_httpres_send(holder->res, "<html><head><title>Home</title></head><body>Home</body></html>", "text/html", 200);
+  struct holder *holder = sg_route_user_data(route);
+  sg_httpres_send(
+    holder->res,
+    "<html><head><title>Home</title></head><body>Home</body></html>",
+    "text/html", 200);
 }
 
 static void route_download_cb(__SG_UNUSED void *cls, struct sg_route *route) {
-    struct holder *holder = sg_route_user_data(route);
-    struct sg_str *page = sg_str_new();
-    char file[256];
-    memset(file, 0, sizeof(file));
-    sg_route_vars_iter(route, route_download_file_cb, file);
-    if (strlen(file) == 0)
-        strcpy(file, "Download");
-    sg_str_printf(page, "<html><head><title>Download</title></head><body>%s</body></html>", file);
-    sg_httpres_send(holder->res, sg_str_content(page), "text/html", 200);
-    sg_str_free(page);
+  struct holder *holder = sg_route_user_data(route);
+  struct sg_str *page = sg_str_new();
+  char file[256];
+  memset(file, 0, sizeof(file));
+  sg_route_vars_iter(route, route_download_file_cb, file);
+  if (strlen(file) == 0)
+    strcpy(file, "Download");
+  sg_str_printf(
+    page, "<html><head><title>Download</title></head><body>%s</body></html>",
+    file);
+  sg_httpres_send(holder->res, sg_str_content(page), "text/html", 200);
+  sg_str_free(page);
 }
 
 static void route_about_cb(__SG_UNUSED void *cls, struct sg_route *route) {
-    struct holder *holder = sg_route_user_data(route);
-    sg_httpres_send(holder->res, "<html><head><title>About</title></head><body>About</body></html>", "text/html", 200);
+  struct holder *holder = sg_route_user_data(route);
+  sg_httpres_send(
+    holder->res,
+    "<html><head><title>About</title></head><body>About</body></html>",
+    "text/html", 200);
 }
 
-static void req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_httpres *res) {
-    struct sg_router *router = cls;
-    struct holder holder = {req, res};
-    if (sg_router_dispatch(router, sg_httpreq_path(req), &holder) != 0)
-        sg_httpres_send(res, "<html><head><title>Not found</title></head><body>404</body></html>", "text/html", 404);
+static void req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req,
+                   struct sg_httpres *res) {
+  struct sg_router *router = cls;
+  struct holder holder = {req, res};
+  if (sg_router_dispatch(router, sg_httpreq_path(req), &holder) != 0)
+    sg_httpres_send(
+      res, "<html><head><title>Not found</title></head><body>404</body></html>",
+      "text/html", 404);
 }
 
 int main(void) {
-    struct sg_route *routes = NULL;
-    struct sg_router *router;
-    struct sg_httpsrv *srv;
-    sg_routes_add(&routes, "/home", route_home_cb, NULL);
-    sg_routes_add(&routes, "/download", route_download_cb, NULL);
-    sg_routes_add(&routes, "/download/(?P<file>[a-z]+)", route_download_cb, NULL);
-    sg_routes_add(&routes, "/about", route_about_cb, NULL);
-    router = sg_router_new(routes);
-    srv = sg_httpsrv_new(req_cb, router);
-    if (!sg_httpsrv_listen(srv, 0 /* 0 = port chosen randomly */, false)) {
-        sg_httpsrv_free(srv);
-        return EXIT_FAILURE;
-    }
-    fprintf(stdout, "Server running at http://localhost:%d\n", sg_httpsrv_port(srv));
-    fflush(stdout);
-    getchar();
+  struct sg_route *routes = NULL;
+  struct sg_router *router;
+  struct sg_httpsrv *srv;
+  sg_routes_add(&routes, "/home", route_home_cb, NULL);
+  sg_routes_add(&routes, "/download", route_download_cb, NULL);
+  sg_routes_add(&routes, "/download/(?P<file>[a-z]+)", route_download_cb, NULL);
+  sg_routes_add(&routes, "/about", route_about_cb, NULL);
+  router = sg_router_new(routes);
+  srv = sg_httpsrv_new(req_cb, router);
+  if (!sg_httpsrv_listen(srv, 0 /* 0 = port chosen randomly */, false)) {
     sg_httpsrv_free(srv);
-    sg_routes_cleanup(&routes);
-    sg_router_free(router);
-    return EXIT_SUCCESS;
+    return EXIT_FAILURE;
+  }
+  fprintf(stdout, "Server running at http://localhost:%d\n",
+          sg_httpsrv_port(srv));
+  fflush(stdout);
+  getchar();
+  sg_httpsrv_free(srv);
+  sg_routes_cleanup(&routes);
+  sg_router_free(router);
+  return EXIT_SUCCESS;
 }

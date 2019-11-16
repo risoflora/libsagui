@@ -73,133 +73,148 @@
 #define CA_FILE SG_EXAMPLES_CERTS_DIR "/ca.pem"
 
 #define ERR_SIZE 256
-#define PAGE_FMT "<html><head><title>Hello world</title></head><body><font color=\"%s\">%s</font></font></body></html>"
+#define PAGE_FMT                                                               \
+  "<html><head><title>Hello world</title></head><body><font "                  \
+  "color=\"%s\">%s</font></font></body></html>"
 #define SECRET_MSG "Secret"
 
 static void concat(char *s1, ...) {
-    va_list ap;
-    const char *s;
-    va_start(ap, s1);
-    while ((s = va_arg(ap, const char *)))
-        strcat(s1, s);
-    va_end(ap);
+  va_list ap;
+  const char *s;
+  va_start(ap, s1);
+  while ((s = va_arg(ap, const char *)))
+    strcat(s1, s);
+  va_end(ap);
 }
 
-static bool sess_verify_cert(gnutls_session_t tls_session, const char *line_break, char *err) {
-    gnutls_x509_crt_t cert = NULL;
-    const gnutls_datum_t *certs;
-    size_t len;
-    unsigned int status, certs_size;
-    int ret;
-    if (!tls_session || !line_break || !err) {
-        sg_strerror(EINVAL, err, ERR_SIZE);
-        return false;
-    }
-    if ((ret = gnutls_certificate_verify_peers2(tls_session, &status)) != GNUTLS_E_SUCCESS) {
-        concat(err, "Error verifying peers: ", gnutls_strerror(ret), line_break, NULL);
-        goto error;
-    }
-    if (status & GNUTLS_CERT_INVALID)
-        concat(err, "The certificate is not trusted", line_break, NULL);
-    if (status & GNUTLS_CERT_SIGNER_NOT_FOUND)
-        concat(err, "The certificate has not got a known issuer", line_break, NULL);
-    if (status & GNUTLS_CERT_REVOKED)
-        concat(err, "The certificate has been revoked", line_break, NULL);
-    if (gnutls_certificate_type_get(tls_session) != GNUTLS_CRT_X509) {
-        concat(err, "The certificate type is not X.509", line_break, NULL);
-        goto error;
-    }
-    if ((ret = gnutls_x509_crt_init(&cert)) != GNUTLS_E_SUCCESS) {
-        concat(err, "Error in the certificate initialization: ", gnutls_strerror(ret), line_break, NULL);
-        goto error;
-    }
-    if (!(certs = gnutls_certificate_get_peers(tls_session, &certs_size))) {
-        concat(err, "No certificate was found", line_break, NULL);
-        goto error;
-    }
-    if ((ret = gnutls_x509_crt_import(cert, &certs[0], GNUTLS_X509_FMT_DER)) != GNUTLS_E_SUCCESS) {
-        concat(err, "Error parsing certificate: ", gnutls_strerror(ret), line_break, NULL);
-        goto error;
-    }
-    if (gnutls_x509_crt_get_expiration_time(cert) < time(NULL)) {
-        concat(err, "The certificate has expired", line_break, NULL);
-        goto error;
-    }
-    if (gnutls_x509_crt_get_activation_time(cert) > time(NULL)) {
-        concat(err, "The certificate has not been activated yet", line_break, NULL);
-        goto error;
-    }
+static bool sess_verify_cert(gnutls_session_t tls_session,
+                             const char *line_break, char *err) {
+  gnutls_x509_crt_t cert = NULL;
+  const gnutls_datum_t *certs;
+  size_t len;
+  unsigned int status, certs_size;
+  int ret;
+  if (!tls_session || !line_break || !err) {
+    sg_strerror(EINVAL, err, ERR_SIZE);
+    return false;
+  }
+  if ((ret = gnutls_certificate_verify_peers2(tls_session, &status)) !=
+      GNUTLS_E_SUCCESS) {
+    concat(err, "Error verifying peers: ", gnutls_strerror(ret), line_break,
+           NULL);
+    goto error;
+  }
+  if (status & GNUTLS_CERT_INVALID)
+    concat(err, "The certificate is not trusted", line_break, NULL);
+  if (status & GNUTLS_CERT_SIGNER_NOT_FOUND)
+    concat(err, "The certificate has not got a known issuer", line_break, NULL);
+  if (status & GNUTLS_CERT_REVOKED)
+    concat(err, "The certificate has been revoked", line_break, NULL);
+  if (gnutls_certificate_type_get(tls_session) != GNUTLS_CRT_X509) {
+    concat(err, "The certificate type is not X.509", line_break, NULL);
+    goto error;
+  }
+  if ((ret = gnutls_x509_crt_init(&cert)) != GNUTLS_E_SUCCESS) {
+    concat(err,
+           "Error in the certificate initialization: ", gnutls_strerror(ret),
+           line_break, NULL);
+    goto error;
+  }
+  if (!(certs = gnutls_certificate_get_peers(tls_session, &certs_size))) {
+    concat(err, "No certificate was found", line_break, NULL);
+    goto error;
+  }
+  if ((ret = gnutls_x509_crt_import(cert, &certs[0], GNUTLS_X509_FMT_DER)) !=
+      GNUTLS_E_SUCCESS) {
+    concat(err, "Error parsing certificate: ", gnutls_strerror(ret), line_break,
+           NULL);
+    goto error;
+  }
+  if (gnutls_x509_crt_get_expiration_time(cert) < time(NULL)) {
+    concat(err, "The certificate has expired", line_break, NULL);
+    goto error;
+  }
+  if (gnutls_x509_crt_get_activation_time(cert) > time(NULL)) {
+    concat(err, "The certificate has not been activated yet", line_break, NULL);
+    goto error;
+  }
 error:
-    len = strlen(err);
-    err[len - strlen("<br>")] = '\0';
-    gnutls_x509_crt_deinit(cert);
-    return len == 0;
+  len = strlen(err);
+  err[len - strlen("<br>")] = '\0';
+  gnutls_x509_crt_deinit(cert);
+  return len == 0;
 }
 
-static void req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_httpres *res) {
-    char msg[ERR_SIZE];
-    char *color, *page;
-    size_t page_size;
-    unsigned int status;
-    if (sess_verify_cert(sg_httpreq_tls_session(req), "<br>", msg)) {
-        strcpy(msg, SECRET_MSG);
-        color = "green";
-        status = 200;
-    } else {
-        color = "red";
-        status = 500;
-    }
-    page_size = (size_t) snprintf(NULL, 0, PAGE_FMT, color, msg);
-    page = sg_alloc(page_size);
-    snprintf(page, page_size, PAGE_FMT, color, msg);
-    sg_httpres_send(res, page, "text/html; charset=utf-8", status);
-    sg_free(page);
+static void req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req,
+                   struct sg_httpres *res) {
+  char msg[ERR_SIZE];
+  char *color, *page;
+  size_t page_size;
+  unsigned int status;
+  if (sess_verify_cert(sg_httpreq_tls_session(req), "<br>", msg)) {
+    strcpy(msg, SECRET_MSG);
+    color = "green";
+    status = 200;
+  } else {
+    color = "red";
+    status = 500;
+  }
+  page_size = (size_t) snprintf(NULL, 0, PAGE_FMT, color, msg);
+  page = sg_alloc(page_size);
+  snprintf(page, page_size, PAGE_FMT, color, msg);
+  sg_httpres_send(res, page, "text/html; charset=utf-8", status);
+  sg_free(page);
 }
 
 int main(int argc, const char *argv[]) {
-    struct sg_httpsrv *srv;
-    gnutls_datum_t key_file, cert_file, ca_file;
-    int ret, status;
-    uint16_t port;
-    if (argc != 2) {
-        printf("%s <PORT>\n", argv[0]);
-        return EXIT_FAILURE;
-    }
-    port = strtol(argv[1], NULL, 10);
-    status = EXIT_FAILURE;
-    srv = sg_httpsrv_new(req_cb, NULL);
-    memset(&key_file, 0, sizeof(gnutls_datum_t));
-    memset(&cert_file, 0, sizeof(gnutls_datum_t));
-    memset(&ca_file, 0, sizeof(gnutls_datum_t));
-    if ((ret = gnutls_load_file(KEY_FILE, &key_file)) != GNUTLS_E_SUCCESS) {
-        fprintf(stderr, "Error loading the private key \"%s\": %s\n", KEY_FILE, gnutls_strerror(ret));
-        fflush(stdout);
-        goto error;
-    }
-    if ((ret = gnutls_load_file(CERT_FILE, &cert_file)) != GNUTLS_E_SUCCESS) {
-        fprintf(stderr, "Error loading the certificate \"%s\": %s\n", CERT_FILE, gnutls_strerror(ret));
-        fflush(stdout);
-        goto error;
-    }
-    if ((ret = gnutls_load_file(CA_FILE, &ca_file)) != GNUTLS_E_SUCCESS) {
-        fprintf(stderr, "Error loading the CA \"%s\": %s\n", CA_FILE, gnutls_strerror(ret));
-        fflush(stdout);
-        goto error;
-    }
-    if (sg_httpsrv_tls_listen2(srv, (const char *) key_file.data, NULL, (const char *) cert_file.data,
-                               (const char *) ca_file.data, NULL, port, false)) {
-        status = EXIT_SUCCESS;
-        fprintf(stdout, "Server running at https://localhost:%d\n", sg_httpsrv_port(srv));
-        fflush(stdout);
-        getchar();
-    }
+  struct sg_httpsrv *srv;
+  gnutls_datum_t key_file, cert_file, ca_file;
+  int ret, status;
+  uint16_t port;
+  if (argc != 2) {
+    printf("%s <PORT>\n", argv[0]);
+    return EXIT_FAILURE;
+  }
+  port = strtol(argv[1], NULL, 10);
+  status = EXIT_FAILURE;
+  srv = sg_httpsrv_new(req_cb, NULL);
+  memset(&key_file, 0, sizeof(gnutls_datum_t));
+  memset(&cert_file, 0, sizeof(gnutls_datum_t));
+  memset(&ca_file, 0, sizeof(gnutls_datum_t));
+  if ((ret = gnutls_load_file(KEY_FILE, &key_file)) != GNUTLS_E_SUCCESS) {
+    fprintf(stderr, "Error loading the private key \"%s\": %s\n", KEY_FILE,
+            gnutls_strerror(ret));
+    fflush(stdout);
+    goto error;
+  }
+  if ((ret = gnutls_load_file(CERT_FILE, &cert_file)) != GNUTLS_E_SUCCESS) {
+    fprintf(stderr, "Error loading the certificate \"%s\": %s\n", CERT_FILE,
+            gnutls_strerror(ret));
+    fflush(stdout);
+    goto error;
+  }
+  if ((ret = gnutls_load_file(CA_FILE, &ca_file)) != GNUTLS_E_SUCCESS) {
+    fprintf(stderr, "Error loading the CA \"%s\": %s\n", CA_FILE,
+            gnutls_strerror(ret));
+    fflush(stdout);
+    goto error;
+  }
+  if (sg_httpsrv_tls_listen2(srv, (const char *) key_file.data, NULL,
+                             (const char *) cert_file.data,
+                             (const char *) ca_file.data, NULL, port, false)) {
+    status = EXIT_SUCCESS;
+    fprintf(stdout, "Server running at https://localhost:%d\n",
+            sg_httpsrv_port(srv));
+    fflush(stdout);
+    getchar();
+  }
 error:
-    sg_httpsrv_free(srv);
-    if (key_file.size > 0)
-        gnutls_free(key_file.data);
-    if (cert_file.size > 0)
-        gnutls_free(cert_file.data);
-    if (ca_file.size > 0)
-        gnutls_free(ca_file.data);
-    return status;
+  sg_httpsrv_free(srv);
+  if (key_file.size > 0)
+    gnutls_free(key_file.data);
+  if (cert_file.size > 0)
+    gnutls_free(cert_file.data);
+  if (ca_file.size > 0)
+    gnutls_free(ca_file.data);
+  return status;
 }

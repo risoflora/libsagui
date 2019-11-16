@@ -33,11 +33,11 @@
 #include "sg_httpres.h"
 
 struct sg_httpauth {
-    struct sg_httpres *res;
-    char *realm;
-    char *usr;
-    char *pwd;
-    bool canceled;
+  struct sg_httpres *res;
+  char *realm;
+  char *usr;
+  char *pwd;
+  bool canceled;
 };
 
 SG__EXTERN struct sg_httpauth *sg__httpauth_new(struct sg_httpres *res);

@@ -31,7 +31,7 @@
 #include "sagui.h"
 
 struct sg_router {
-    struct sg_route *routes;
+  struct sg_route *routes;
 };
 
 #endif /* SG_ROUTER_H */

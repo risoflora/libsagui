@@ -38,27 +38,29 @@
 
 /* NOTE: Error checking has been omitted to make it clear. */
 
-static void req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req, struct sg_httpres *res) {
-    struct sg_str *payload = sg_httpreq_payload(req);
-    sg_httpres_send(res, sg_str_content(payload), "text/plain", 200);
+static void req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req,
+                   struct sg_httpres *res) {
+  struct sg_str *payload = sg_httpreq_payload(req);
+  sg_httpres_send(res, sg_str_content(payload), "text/plain", 200);
 }
 
 int main(int argc, const char *argv[]) {
-    struct sg_httpsrv *srv;
-    uint16_t port;
-    if (argc != 2) {
-        printf("%s <PORT>\n", argv[0]);
-        return EXIT_FAILURE;
-    }
-    port = strtol(argv[1], NULL, 10);
-    srv = sg_httpsrv_new(req_cb, NULL);
-    if (!sg_httpsrv_listen(srv, port, false)) {
-        sg_httpsrv_free(srv);
-        return EXIT_FAILURE;
-    }
-    fprintf(stdout, "Server running at http://localhost:%d\n", sg_httpsrv_port(srv));
-    fflush(stdout);
-    getchar();
+  struct sg_httpsrv *srv;
+  uint16_t port;
+  if (argc != 2) {
+    printf("%s <PORT>\n", argv[0]);
+    return EXIT_FAILURE;
+  }
+  port = strtol(argv[1], NULL, 10);
+  srv = sg_httpsrv_new(req_cb, NULL);
+  if (!sg_httpsrv_listen(srv, port, false)) {
     sg_httpsrv_free(srv);
-    return EXIT_SUCCESS;
+    return EXIT_FAILURE;
+  }
+  fprintf(stdout, "Server running at http://localhost:%d\n",
+          sg_httpsrv_port(srv));
+  fflush(stdout);
+  getchar();
+  sg_httpsrv_free(srv);
+  return EXIT_SUCCESS;
 }

@@ -32,56 +32,59 @@
 #include "sagui.h"
 
 struct sg_router *sg_router_new(struct sg_route *routes) {
-    struct sg_router *router;
-    if (!routes) {
-        errno = EINVAL;
-        return NULL;
-    }
-    router = sg_alloc(sizeof(struct sg_router));
-    if (!router)
-        return NULL;
-    router->routes = routes;
-    return router;
+  struct sg_router *router;
+  if (!routes) {
+    errno = EINVAL;
+    return NULL;
+  }
+  router = sg_alloc(sizeof(struct sg_router));
+  if (!router)
+    return NULL;
+  router->routes = routes;
+  return router;
 }
 
 void sg_router_free(struct sg_router *router) {
-    sg_free(router);
+  sg_free(router);
 }
 
-int sg_router_dispatch2(struct sg_router *router, const char *path, void *user_data,
-                        sg_router_dispatch_cb dispatch_cb, void *cls, sg_router_match_cb match_cb) {
-    struct sg_route *route;
-    int ret;
-    if (!router || !path || !router->routes)
-        return EINVAL;
-    LL_FOREACH(router->routes, route) {
-        if (dispatch_cb) {
-            ret = dispatch_cb(cls, path, route);
-            if (ret != 0)
-                return ret;
-        }
+int sg_router_dispatch2(struct sg_router *router, const char *path,
+                        void *user_data, sg_router_dispatch_cb dispatch_cb,
+                        void *cls, sg_router_match_cb match_cb) {
+  struct sg_route *route;
+  int ret;
+  if (!router || !path || !router->routes)
+    return EINVAL;
+  LL_FOREACH(router->routes, route) {
+    if (dispatch_cb) {
+      ret = dispatch_cb(cls, path, route);
+      if (ret != 0)
+        return ret;
+    }
 #ifdef PCRE2_JIT_SUPPORT
 #define SG__PCRE2_MATCH pcre2_jit_match
 #else
 #define SG__PCRE2_MATCH pcre2_match
 #endif
-        route->rc = SG__PCRE2_MATCH(route->re, (PCRE2_SPTR) path, strlen(path), 0, 0, route->match, NULL);
+    route->rc = SG__PCRE2_MATCH(route->re, (PCRE2_SPTR) path, strlen(path), 0,
+                                0, route->match, NULL);
 #undef SG__PCRE2_MATCH
-        if (route->rc >= 0) {
-            route->path = path;
-            route->user_data = user_data;
-            if (match_cb) {
-                ret = match_cb(cls, route);
-                if (ret != 0)
-                    return ret;
-            }
-            route->cb(route->cls, route);
-            return 0;
-        }
+    if (route->rc >= 0) {
+      route->path = path;
+      route->user_data = user_data;
+      if (match_cb) {
+        ret = match_cb(cls, route);
+        if (ret != 0)
+          return ret;
+      }
+      route->cb(route->cls, route);
+      return 0;
     }
-    return ENOENT;
+  }
+  return ENOENT;
 }
 
-int sg_router_dispatch(struct sg_router *router, const char *path, void *user_data) {
-    return sg_router_dispatch2(router, path, user_data, NULL, NULL, NULL);
+int sg_router_dispatch(struct sg_router *router, const char *path,
+                       void *user_data) {
+  return sg_router_dispatch2(router, path, user_data, NULL, NULL, NULL);
 }

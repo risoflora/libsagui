@@ -31,11 +31,12 @@
 #include "sagui.h"
 
 struct sg_entrypoint {
-    char *name;
-    void *user_data;
+  char *name;
+  void *user_data;
 };
 
-SG__EXTERN void sg__entrypoint_prepare(struct sg_entrypoint *entrypoint, char *name, void *user_data);
+SG__EXTERN void sg__entrypoint_prepare(struct sg_entrypoint *entrypoint,
+                                       char *name, void *user_data);
 
 SG__EXTERN int sg__entrypoint_cmp(const void *a, const void *b);
 
