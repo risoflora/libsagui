@@ -36,6 +36,7 @@
 #include "sg_macros.h"
 #include "pcre2.h"
 #include "sg_routes.c"
+#include <sagui.h>
 
 static void route_cb(__SG_UNUSED void *cls,
                      __SG_UNUSED struct sg_route *route) {

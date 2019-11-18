@@ -31,6 +31,7 @@
 #include <string.h>
 #include <errno.h>
 #include "sg_strmap.c"
+#include <sagui.h>
 
 static void test__strmap_new(void) {
   struct sg_strmap *pair = sg__strmap_new("ABC", "123");

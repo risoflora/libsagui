@@ -30,6 +30,7 @@
 
 #include <string.h>
 #include "sg_httpres.c"
+#include <sagui.h>
 
 #ifndef TEST_HTTPRES_BASE_PATH
 #ifdef __ANDROID__

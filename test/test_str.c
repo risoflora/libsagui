@@ -56,7 +56,7 @@ static void test_str_printf_va(struct sg_str *str, const char *fmt,
 static void test_str_printf(struct sg_str *str, const char *fmt, ...) {
   va_list ap;
   ASSERT(sg_str_printf(NULL, "%s", "") == EINVAL);
-  ASSERT(sg_str_printf(str, NULL) == EINVAL);
+  ASSERT(sg_str_printf(str, NULL) == EINVAL); //-V::575,618
 
   sg_str_clear(str);
   ASSERT(sg_str_printf(str, "%s", "") == 0);
