@@ -1,3 +1,81 @@
+2019-11-17  silvioprog  <silvioprog@gmail.com>
+
+	Bump v2.4.7
+
+	Added EditorConfig configuration.
+
+2019-11-16  silvioprog  <silvioprog@gmail.com>
+
+	Adopted new Code Style based on LLVM. (Fix #33)
+
+2019-11-15  silvioprog  <silvioprog@gmail.com>
+
+	All sources of Sagui library are already under LGPL-2.1.
+
+	Removed debug symbols from binaries when making package. (Fix #36)
+
+	Fixed build on MinGW if TLS is enabled. (Fix #34)
+
+	Fixed build on MinGW.
+
+	Fixed build on Alpine Linux.
+
+	Upgraded PCRE library.
+
+	Upgraded MHD library.
+
+	Upgraded utstring library.
+
+	Improved HTTP examples allowing to specify the server port at run time.
+
+2019-09-17  silvioprog  <silvioprog@gmail.com>
+
+	Added GitHub templates to guide users with new issues.
+
+2019-08-09  silvioprog  <silvioprog@gmail.com>
+
+	Fixed broken compilation for AArch64.
+
+2019-08-05  silvioprog  <silvioprog@gmail.com>
+
+	Fixed build for Win32/64 under Linux. (Fix #35)
+
+2019-07-26  silvioprog  <silvioprog@gmail.com>
+
+	Fixed build on Fedora/Debian and added new member (welcome @frbaroni!). (Fix #32)
+
+2019-07-06  silvioprog  <silvioprog@gmail.com>
+
+	Fixed wrong error code returned by "sg_extract_entrypoint()".
+
+2019-06-29  silvioprog  <silvioprog@gmail.com>
+
+	Fixed LGTM alert "Multiplication result converted to larger type". (Fix #31)
+
+2019-06-04  silvioprog  <silvioprog@gmail.com>
+
+	Fixed broken build when the routing/compression is disabled.
+
+2019-05-20  silvioprog  <silvioprog@gmail.com>
+
+	Reverted "wait for clients" logic due to locking when the server is shutting down on Windows.
+
+2019-05-19  silvioprog  <silvioprog@gmail.com>
+
+	Improved logic which waits for the clients before server is shutting down.
+
+2019-05-18  silvioprog  <silvioprog@gmail.com>
+
+	Configured the server to wait for the clients to be closed before shutting down. (Fix #30)
+
+2019-05-02  silvioprog  <silvioprog@gmail.com>
+
+	Fixed typos in the documentation.
+
+2019-04-30  silvioprog  <silvioprog@gmail.com>
+
+	Initialized the Gzip header to avoid undefined behavior when a client decompresses the content. (Fix #28)
+
 2019-04-22  silvioprog  <silvioprog@gmail.com>
 
 	Bump v2.4.0
