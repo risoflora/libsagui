@@ -136,6 +136,16 @@ Sagui is released under GNU Lesser General Public License v2.1. Check the [LICEN
 
 The documentation has been written in [Doxygen](https://www.stack.nl/~dimitri/doxygen) and is available in [HTML](https://risoflora.github.io/libsagui-docs/index.html) and [PDF](https://risoflora.github.io/libsagui-docs/ref.html).
 
+# Docker
+
+Official images of Sagui library are available for Linux64 at [Docker Hub](https://hub.docker.com). To use Sagui from containers:
+
+```bash
+docker pull risoflora/libsagui
+```
+
+or visit the [official repository](https://hub.docker.com/r/risoflora/libsagui) for more information.
+
 # Downloading
 
 All stable releases are available for download at the [releases page](https://github.com/risoflora/libsagui/releases). For Windows, the packages `libsagui-N.N.N-dll.zip` (and their respective GPG signature) contains the compiled DLLs for 32 and 64 bits. For other systems, the packages `Source code (tar.gz|zip)` contains the library source.
