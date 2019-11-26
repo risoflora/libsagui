@@ -8,12 +8,12 @@
 #
 # ::
 #
-#   SG_VERSION_MAJOR - Major version.
-#   SG_VERSION_MINOR - Minor version.
-#   SG_VERSION_PATCH - Patch version.
-#   SOVERSION - Composed by "SG_VERSION_MAJOR".
-#   VERSION - Composed by "SG_VERSION_MAJOR.SG_VERSION_MINOR.SG_VERSION_PATCH".
-#   VERSION_SUFFIX - Composed by "-SG_VERSION_MAJOR" (Windows only).
+# SG_VERSION_MAJOR - Major version.
+# SG_VERSION_MINOR - Minor version.
+# SG_VERSION_PATCH - Patch version.
+# SOVERSION - Composed by "SG_VERSION_MAJOR".
+# VERSION - Composed by "SG_VERSION_MAJOR.SG_VERSION_MINOR.SG_VERSION_PATCH".
+# VERSION_SUFFIX - Composed by "-SG_VERSION_MAJOR" (Windows only).
 
 #                         _
 #   ___  __ _  __ _ _   _(_)
@@ -41,23 +41,25 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
-if (__SG_VERSION_INCLUDED)
-    return()
-endif ()
+if(__SG_VERSION_INCLUDED)
+  return()
+endif()
 set(__SG_VERSION_INCLUDED ON)
 
-if (EXISTS ${SG_INCLUDE_DIR}/sagui.h)
-    set(_version_list MAJOR MINOR PATCH)
-    foreach (v ${_version_list})
-        set(_regex_version "^#define SG_VERSION_${v} ([0-9])")
-        file(STRINGS "${SG_INCLUDE_DIR}/sagui.h" SG_VERSION_${v} REGEX "${_regex_version}")
-        string(REGEX REPLACE "${_regex_version}" "\\1" SG_VERSION_${v} "${SG_VERSION_${v}}")
-        unset(_regex_version)
-    endforeach ()
-    set(SOVERSION ${SG_VERSION_MAJOR})
-    set(VERSION ${SG_VERSION_MAJOR}.${SG_VERSION_MINOR}.${SG_VERSION_PATCH})
-    if (WIN32)
-        set(VERSION_SUFFIX -${SG_VERSION_MAJOR})
-    endif ()
-    unset(_version_list)
-endif ()
+if(EXISTS ${SG_INCLUDE_DIR}/sagui.h)
+  set(_version_list MAJOR MINOR PATCH)
+  foreach(v ${_version_list})
+    set(_regex_version "^#define SG_VERSION_${v} ([0-9])")
+    file(STRINGS "${SG_INCLUDE_DIR}/sagui.h" SG_VERSION_${v}
+         REGEX "${_regex_version}")
+    string(REGEX REPLACE "${_regex_version}" "\\1" SG_VERSION_${v}
+                         "${SG_VERSION_${v}}")
+    unset(_regex_version)
+  endforeach()
+  set(SOVERSION ${SG_VERSION_MAJOR})
+  set(VERSION ${SG_VERSION_MAJOR}.${SG_VERSION_MINOR}.${SG_VERSION_PATCH})
+  if(WIN32)
+    set(VERSION_SUFFIX -${SG_VERSION_MAJOR})
+  endif()
+  unset(_version_list)
+endif()

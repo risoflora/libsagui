@@ -32,16 +32,14 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
-if (__SG_UNINSTALL_INCLUDED)
-    return()
-endif ()
+if(__SG_UNINSTALL_INCLUDED)
+  return()
+endif()
 set(__SG_UNINSTALL_INCLUDED ON)
 
-if (NOT TARGET uninstall)
-    configure_file(
-            ${CMAKE_MODULE_PATH}/CMakeUninstall.cmake.in
-            ${CMAKE_BINARY_DIR}/cmake_uninstall.cmake
-            IMMEDIATE @ONLY)
-    add_custom_target(uninstall
-            COMMAND ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/cmake_uninstall.cmake)
-endif ()
+if(NOT TARGET uninstall)
+  configure_file(${CMAKE_MODULE_PATH}/CMakeUninstall.cmake.in
+                 ${CMAKE_BINARY_DIR}/cmake_uninstall.cmake IMMEDIATE @ONLY)
+  add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P
+                                      ${CMAKE_BINARY_DIR}/cmake_uninstall.cmake)
+endif()

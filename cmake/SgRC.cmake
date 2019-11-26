@@ -8,7 +8,7 @@
 #
 # ::
 #
-#   SG_LIBSAGUI_RC - RC file path.
+# SG_LIBSAGUI_RC - RC file path.
 
 #                         _
 #   ___  __ _  __ _ _   _(_)
@@ -36,43 +36,43 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
-if (__SG_RC_INCLUDED)
-    return()
-endif ()
+if(__SG_RC_INCLUDED)
+  return()
+endif()
 set(__SG_RC_INCLUDED ON)
 
 set(SG_LIBSAGUI_RC ${CMAKE_BINARY_DIR}/libsagui.rc)
 
-if (${CMAKE_BUILD_TYPE} MATCHES "[Dd]ebug|DEBUG")
-    set(FILEFLAGS VS_FF_DEBUG)
-else ()
-    set(FILEFLAGS 0)
-endif ()
+if(${CMAKE_BUILD_TYPE} MATCHES "[Dd]ebug|DEBUG")
+  set(FILEFLAGS VS_FF_DEBUG)
+else()
+  set(FILEFLAGS 0)
+endif()
 
 set(RC_FILE_DESC "Sagui library for")
-if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(RC_FILE_DESC "${RC_FILE_DESC} Win64")
-else ()
-    set(RC_FILE_DESC "${RC_FILE_DESC} Win32")
-endif ()
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+  set(RC_FILE_DESC "${RC_FILE_DESC} Win64")
+else()
+  set(RC_FILE_DESC "${RC_FILE_DESC} Win32")
+endif()
 
 unset(RC_FILE_DESC_MODS)
-if (SG_HTTPS_SUPPORT)
-    list(APPEND RC_FILE_DESC_MODS "TLS")
-endif ()
-if (SG_HTTP_COMPRESSION)
-    list(APPEND RC_FILE_DESC_MODS "ZLIB")
-endif ()
-if (SG_PATH_ROUTING)
-    list(APPEND RC_FILE_DESC_MODS "PCRE2")
-endif ()
-if (RC_FILE_DESC_MODS)
-    string(REPLACE ";" "," RC_FILE_DESC_MODS "${RC_FILE_DESC_MODS}")
-    set(RC_FILE_DESC "${RC_FILE_DESC} (${RC_FILE_DESC_MODS})")
-endif ()
+if(SG_HTTPS_SUPPORT)
+  list(APPEND RC_FILE_DESC_MODS "TLS")
+endif()
+if(SG_HTTP_COMPRESSION)
+  list(APPEND RC_FILE_DESC_MODS "ZLIB")
+endif()
+if(SG_PATH_ROUTING)
+  list(APPEND RC_FILE_DESC_MODS "PCRE2")
+endif()
+if(RC_FILE_DESC_MODS)
+  string(REPLACE ";" "," RC_FILE_DESC_MODS "${RC_FILE_DESC_MODS}")
+  set(RC_FILE_DESC "${RC_FILE_DESC} (${RC_FILE_DESC_MODS})")
+endif()
 
 configure_file(${CMAKE_MODULE_PATH}/libsagui.rc.cmake.in
-        ${CMAKE_BINARY_DIR}/libsagui.rc @ONLY)
+               ${CMAKE_BINARY_DIR}/libsagui.rc @ONLY)
 
 unset(FILEFLAGS)
 unset(RC_FILE_DESC)

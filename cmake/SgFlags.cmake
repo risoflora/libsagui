@@ -8,7 +8,7 @@
 #
 # ::
 #
-#   SG_PICKY_COMPILER - Enable/disable the compiler warnings.
+# SG_PICKY_COMPILER - Enable/disable the compiler warnings.
 
 #                         _
 #   ___  __ _  __ _ _   _(_)
@@ -38,29 +38,32 @@
 
 #TODO: -fsanitize=address/leak
 
-if (__SG_FLAGS_INCLUDED)
-    return()
-endif ()
+if(__SG_FLAGS_INCLUDED)
+  return()
+endif()
 set(__SG_FLAGS_INCLUDED ON)
 
 option(SG_PICKY_COMPILER "Enable picky compiler options" ON)
 
-if (MINGW)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static")
-endif ()
+if(MINGW)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static")
+endif()
 
-if (BUILD_TESTING)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--allow-multiple-definition")
-endif ()
+if(BUILD_TESTING)
+  set(CMAKE_EXE_LINKER_FLAGS
+      "${CMAKE_EXE_LINKER_FLAGS} -Wl,--allow-multiple-definition")
+endif()
 
-if (SG_PICKY_COMPILER)
-    if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
-        #-Wsign-conversion - needs to fix (un)signed bugs in utstring.h
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -Wextra -Wpedantic -Wdeclaration-after-statement -Wstrict-prototypes -Wmissing-declarations -Wredundant-decls -Wnested-externs -Winline")
-        if (ANDROID)
-            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-command-line-argument")
-        endif ()
-    else ()
-        message(FATAL_ERROR "Unknown C compiler: ${CMAKE_C_COMPILER}")
-    endif ()
-endif ()
+if(SG_PICKY_COMPILER)
+  if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
+    #-Wsign-conversion - needs to fix (un)signed bugs in utstring.h
+    set(CMAKE_C_FLAGS
+        "${CMAKE_C_FLAGS} -Wall -Werror -Wextra -Wpedantic -Wdeclaration-after-statement -Wstrict-prototypes -Wmissing-declarations -Wredundant-decls -Wnested-externs -Winline"
+    )
+    if(ANDROID)
+      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-command-line-argument")
+    endif()
+  else()
+    message(FATAL_ERROR "Unknown C compiler: ${CMAKE_C_COMPILER}")
+  endif()
+endif()

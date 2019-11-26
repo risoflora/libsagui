@@ -8,11 +8,13 @@
 #
 # ::
 #
-#   SG_EXAMPLES_SOURCE_DIR - Directory containing the library examples.
-#   SG_EXAMPLES_CERTS_DIR - Directory containing the example certificates if -DSG_HTTPS_SUPPORT=ON.
-#   SG_EXAMPLES - All available examples.
-#   SG_EXAMPLES_SOURCE - All available example source.
-#   SG_BUILD_<EXAMPLE>_EXAMPLE - Enable/disable a <SG_EXAMPLE> listed by SG_EXAMPLES, e.g: -DSG_BUILD_STR_EXAMPLE=ON.
+# SG_EXAMPLES_SOURCE_DIR - Directory containing the library examples.
+# SG_EXAMPLES_CERTS_DIR - Directory containing the example certificates
+# if -DSG_HTTPS_SUPPORT=ON.
+# SG_EXAMPLES - All available examples.
+# SG_EXAMPLES_SOURCE - All available example source.
+# SG_BUILD_<EXAMPLE>_EXAMPLE - Enable/disable a <SG_EXAMPLE> listed
+# by SG_EXAMPLES, e.g: -DSG_BUILD_STR_EXAMPLE=ON.
 
 #                         _
 #   ___  __ _  __ _ _   _(_)
@@ -40,58 +42,59 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
-if (__SG_EXAMPLES_INCLUDED)
-    return()
-endif ()
+if(__SG_EXAMPLES_INCLUDED)
+  return()
+endif()
 set(__SG_EXAMPLES_INCLUDED ON)
 
 option(SG_BUILD_EXAMPLES "Enable the library examples building" ON)
 
-if (SG_BUILD_EXAMPLES)
-    if (WIN32)
-        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-    endif ()
-    set(SG_EXAMPLES_SOURCE_DIR ${CMAKE_SOURCE_DIR}/examples)
-    list(APPEND SG_EXAMPLES
-            str
-            strmap
-            httpauth
-            httpcookie
-            httpsrv
-            httpuplds
-            httpsrv_benchmark
-            httpreq_payload)
-    if (SG_HTTPS_SUPPORT AND GNUTLS_FOUND)
-        set(SG_EXAMPLES_CERTS_DIR "${SG_EXAMPLES_SOURCE_DIR}/certs")
-        add_definitions(-DSG_EXAMPLES_CERTS_DIR="${SG_EXAMPLES_CERTS_DIR}")
-        list(APPEND SG_EXAMPLES httpsrv_tls)
-        list(APPEND SG_EXAMPLES httpsrv_tls_cert_auth)
-    endif ()
-    if (SG_HTTP_COMPRESSION)
-        list(APPEND SG_EXAMPLES
-                httpcomp)
-    endif ()
-    if (SG_PATH_ROUTING)
-        list(APPEND SG_EXAMPLES
-                entrypoint
-                router_simple
-                router_segments
-                router_vars
-                router_srv)
-    endif ()
-    set(SG_EXAMPLES ${SG_EXAMPLES} PARENT_SCOPE)
-    list(APPEND _libs sagui)
-    foreach (_example ${SG_EXAMPLES})
-        string(TOUPPER ${_example} _EXAMPLE)
-        option(SG_BUILD_${_EXAMPLE}_EXAMPLE "Build sg_${_example} example" ON)
-        if (SG_BUILD_${_EXAMPLE}_EXAMPLE)
-            list(APPEND SG_EXAMPLES_SOURCE ${SG_EXAMPLES_SOURCE_DIR}/example_${_example}.c)
-            add_executable(example_${_example}
-                    ${SG_EXAMPLES_SOURCE_DIR}/example_${_example}.c)
-            target_link_libraries(example_${_example} ${_libs})
-        endif ()
-        unset(_EXAMPLE)
-    endforeach ()
-    unset(_libs)
-    set(SG_EXAMPLES_SOURCE ${SG_EXAMPLES_SOURCE} PARENT_SCOPE)
-endif ()
+if(SG_BUILD_EXAMPLES)
+  if(WIN32)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+  endif()
+  set(SG_EXAMPLES_SOURCE_DIR ${CMAKE_SOURCE_DIR}/examples)
+  list(
+    APPEND SG_EXAMPLES
+           str
+           strmap
+           httpauth
+           httpcookie
+           httpsrv
+           httpuplds
+           httpsrv_benchmark
+           httpreq_payload)
+  if(SG_HTTPS_SUPPORT AND GNUTLS_FOUND)
+    set(SG_EXAMPLES_CERTS_DIR "${SG_EXAMPLES_SOURCE_DIR}/certs")
+    add_definitions(-DSG_EXAMPLES_CERTS_DIR="${SG_EXAMPLES_CERTS_DIR}")
+    list(APPEND SG_EXAMPLES httpsrv_tls)
+    list(APPEND SG_EXAMPLES httpsrv_tls_cert_auth)
+  endif()
+  if(SG_HTTP_COMPRESSION)
+    list(APPEND SG_EXAMPLES httpcomp)
+  endif()
+  if(SG_PATH_ROUTING)
+    list(APPEND SG_EXAMPLES entrypoint router_simple router_segments
+                router_vars router_srv)
+  endif()
+  set(SG_EXAMPLES
+      ${SG_EXAMPLES}
+      PARENT_SCOPE)
+  list(APPEND _libs sagui)
+  foreach(_example ${SG_EXAMPLES})
+    string(TOUPPER ${_example} _EXAMPLE)
+    option(SG_BUILD_${_EXAMPLE}_EXAMPLE "Build sg_${_example} example" ON)
+    if(SG_BUILD_${_EXAMPLE}_EXAMPLE)
+      list(APPEND SG_EXAMPLES_SOURCE
+                  ${SG_EXAMPLES_SOURCE_DIR}/example_${_example}.c)
+      add_executable(example_${_example}
+                     ${SG_EXAMPLES_SOURCE_DIR}/example_${_example}.c)
+      target_link_libraries(example_${_example} ${_libs})
+    endif()
+    unset(_EXAMPLE)
+  endforeach()
+  unset(_libs)
+  set(SG_EXAMPLES_SOURCE
+      ${SG_EXAMPLES_SOURCE}
+      PARENT_SCOPE)
+endif()

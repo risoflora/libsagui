@@ -8,9 +8,8 @@
 #
 # ::
 #
-#   MHD_INCLUDE_DIR - Directory of includes.
-#   MHD_ARCHIVE_LIB - AR archive library.
-#
+# MHD_INCLUDE_DIR - Directory of includes.
+# MHD_ARCHIVE_LIB - AR archive library.
 
 #                         _
 #   ___  __ _  __ _ _   _(_)
@@ -38,67 +37,72 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
-if (__SG_MHD_INCLUDED)
-    return()
-endif ()
+if(__SG_MHD_INCLUDED)
+  return()
+endif()
 set(__SG_MHD_INCLUDED ON)
 
 set(MHD_NAME "libmicrohttpd")
 set(MHD_VER "0.9.68")
 set(MHD_FULL_NAME "${MHD_NAME}-${MHD_VER}")
 set(MHD_URL "https://ftp.gnu.org/gnu/libmicrohttpd/${MHD_FULL_NAME}.tar.gz")
-set(MHD_URL_MIRROR "https://espejito.fder.edu.uy/gnu/libmicrohttpd/${MHD_FULL_NAME}.tar.gz")
-set(MHD_SHA256 "c5716e2a2899abc9e16c8fa7a1a58da88f81aca96a0b7e68a5d4d89e21610b61")
+set(MHD_URL_MIRROR
+    "https://espejito.fder.edu.uy/gnu/libmicrohttpd/${MHD_FULL_NAME}.tar.gz")
+set(MHD_SHA256
+    "c5716e2a2899abc9e16c8fa7a1a58da88f81aca96a0b7e68a5d4d89e21610b61")
 set(_libdir ${CMAKE_BINARY_DIR}/${MHD_FULL_NAME}/lib)
-if (${CMAKE_VERSION} VERSION_LESS "3.7")
-    unset(MHD_URL_MIRROR)
-endif ()
-if (SG_HTTPS_SUPPORT AND GNUTLS_FOUND)
-    set(_enable_https "yes")
-else ()
-    set(_enable_https "no")
-endif ()
+if(${CMAKE_VERSION} VERSION_LESS "3.7")
+  unset(MHD_URL_MIRROR)
+endif()
+if(SG_HTTPS_SUPPORT AND GNUTLS_FOUND)
+  set(_enable_https "yes")
+else()
+  set(_enable_https "no")
+endif()
 set(MHD_OPTIONS
-        --libdir=${_libdir}
-        --enable-static=yes
-        --enable-shared=no
-        --enable-messages=yes
-        --enable-https=${_enable_https}
-        --enable-asserts=no
-        --enable-coverage=no
-        --disable-httpupgrade
-        --disable-dauth
-        --disable-doc
-        --disable-examples
-        --disable-curl)
+    --libdir=${_libdir}
+    --enable-static=yes
+    --enable-shared=no
+    --enable-messages=yes
+    --enable-https=${_enable_https}
+    --enable-asserts=no
+    --enable-coverage=no
+    --disable-httpupgrade
+    --disable-dauth
+    --disable-doc
+    --disable-examples
+    --disable-curl)
 unset(_enable_https)
-if (MINGW)
-    set(MHD_OPTIONS ${MHD_OPTIONS} --quiet)
-    set(_manifest_tool MANIFEST_TOOL=:)
-    set(_log_configure OFF)
-elseif (UNIX)
-    #if (CMAKE_POSITION_INDEPENDENT_CODE)
-    set(MHD_OPTIONS ${MHD_OPTIONS} --with-pic)
-    #endif ()
-    set(_log_configure ON)
-else ()
-    set(_log_configure ON)
-endif ()
+if(MINGW)
+  set(MHD_OPTIONS ${MHD_OPTIONS} --quiet)
+  set(_manifest_tool MANIFEST_TOOL=:)
+  set(_log_configure OFF)
+elseif(UNIX)
+  #if (CMAKE_POSITION_INDEPENDENT_CODE)
+  set(MHD_OPTIONS ${MHD_OPTIONS} --with-pic)
+  #endif ()
+  set(_log_configure ON)
+else()
+  set(_log_configure ON)
+endif()
 
-ExternalProject_Add(${MHD_FULL_NAME}
-        URL ${MHD_URL} ${MHD_URL_MIRROR}
-        URL_HASH SHA256=${MHD_SHA256}
-        TIMEOUT 15
-        DOWNLOAD_DIR ${CMAKE_SOURCE_DIR}/lib
-        PREFIX ${CMAKE_BINARY_DIR}/${MHD_FULL_NAME}
-        SOURCE_DIR ${CMAKE_SOURCE_DIR}/lib/${MHD_FULL_NAME}
-        CONFIGURE_COMMAND <SOURCE_DIR>/configure ${_manifest_tool} --host=${CMAKE_C_MACHINE} --prefix=<INSTALL_DIR> ${MHD_OPTIONS}
-        BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
-        INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
-        LOG_DOWNLOAD ON
-        LOG_CONFIGURE ${_log_configure}
-        LOG_BUILD ON
-        LOG_INSTALL ON)
+ExternalProject_Add(
+  ${MHD_FULL_NAME}
+  URL ${MHD_URL} ${MHD_URL_MIRROR}
+  URL_HASH SHA256=${MHD_SHA256}
+  TIMEOUT 15
+  DOWNLOAD_DIR ${CMAKE_SOURCE_DIR}/lib
+  PREFIX ${CMAKE_BINARY_DIR}/${MHD_FULL_NAME}
+  SOURCE_DIR ${CMAKE_SOURCE_DIR}/lib/${MHD_FULL_NAME}
+  CONFIGURE_COMMAND
+    <SOURCE_DIR>/configure ${_manifest_tool} --host=${CMAKE_C_MACHINE}
+    --prefix=<INSTALL_DIR> ${MHD_OPTIONS}
+  BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+  INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
+  LOG_DOWNLOAD ON
+  LOG_CONFIGURE ${_log_configure}
+  LOG_BUILD ON
+  LOG_INSTALL ON)
 
 ExternalProject_Get_Property(${MHD_FULL_NAME} INSTALL_DIR)
 set(MHD_INCLUDE_DIR ${INSTALL_DIR}/include)

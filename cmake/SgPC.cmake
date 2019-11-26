@@ -4,9 +4,10 @@
 #
 # `pkg-config` file generation.
 #
-# Generates and install the `libsagui.pc` file. When it is successfully installed, the `pkg-config` tool can be used to
-# get info regarding the library, e.g: `pkg-config libsagui --modversion` returns the library version. More:
-# [`pkg-config(1)`](https://linux.die.net/man/1/pkg-config).
+# Generates and install the `libsagui.pc` file. When it is successfully
+# installed, the `pkg-config` tool can be used to get info regarding the
+# library, e.g: `pkg-config libsagui --modversion` returns the library
+# version. More: [`pkg-config(1)`](https://linux.die.net/man/1/pkg-config).
 
 #                         _
 #   ___  __ _  __ _ _   _(_)
@@ -34,13 +35,15 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
-if (__SG_PC_INCLUDED)
-    return()
-endif ()
+if(__SG_PC_INCLUDED)
+  return()
+endif()
 set(__SG_PC_INCLUDED ON)
 
 configure_file(${CMAKE_MODULE_PATH}/libsagui.pc.cmake.in
-        ${CMAKE_BINARY_DIR}/libsagui.pc @ONLY)
+               ${CMAKE_BINARY_DIR}/libsagui.pc @ONLY)
 
-install(FILES ${CMAKE_BINARY_DIR}/libsagui.pc
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig COMPONENT dev)
+install(
+  FILES ${CMAKE_BINARY_DIR}/libsagui.pc
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+  COMPONENT dev)

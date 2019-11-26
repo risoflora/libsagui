@@ -4,7 +4,8 @@
 #
 # PVS-Studio analysis.
 #
-# This script allows to check the library sources using the PVS-Studio, offering more security for Sagui library users.
+# This script allows to check the library sources using the PVS-Studio,
+# offering more security for Sagui library users.
 
 #                         _
 #   ___  __ _  __ _ _   _(_)
@@ -32,22 +33,23 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
-if (__SG_PVS_STUDIO_INCLUDED)
-    return()
-endif ()
+if(__SG_PVS_STUDIO_INCLUDED)
+  return()
+endif()
 set(__SG_PVS_STUDIO_INCLUDED ON)
 
 option(SG_PVS_STUDIO "Enable PVS-Studio analysis" OFF)
 
-if (SG_PVS_STUDIO)
-    include(PVS-Studio)
-    if (NOT CMAKE_EXPORT_COMPILE_COMMANDS)
-        set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-    endif ()
-    include_directories(${SG_SOURCE_DIR})
-    pvs_studio_add_target(TARGET pvs_studio_analysis ALL
-            FORMAT fullhtml
-            ANALYZE ${PROJECT_NAME}
-            SOURCES ${SG_SOURCE} ${SG_TESTS_SOURCE}
-            LOG pvs_studio_fullhtml)
-endif ()
+if(SG_PVS_STUDIO)
+  include(PVS-Studio)
+  if(NOT CMAKE_EXPORT_COMPILE_COMMANDS)
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+  endif()
+  include_directories(${SG_SOURCE_DIR})
+  pvs_studio_add_target(
+    TARGET pvs_studio_analysis ALL
+    FORMAT fullhtml
+    ANALYZE ${PROJECT_NAME}
+    SOURCES ${SG_SOURCE} ${SG_TESTS_SOURCE}
+    LOG pvs_studio_fullhtml)
+endif()

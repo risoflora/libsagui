@@ -8,7 +8,8 @@
 #
 # ::
 #
-#   _GNU_SOURCE - True if `_GNU_SOURCE` is available. If so, a `-D_GNU_SOURCE` is declared too.
+# _GNU_SOURCE - True if `_GNU_SOURCE` is available. If so, a `-D_GNU_SOURCE` is
+# declared too.
 
 #                         _
 #   ___  __ _  __ _ _   _(_)
@@ -36,22 +37,22 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
-if (__SG_GNU_SOURCE_INCLUDED)
-    return()
-endif ()
+if(__SG_GNU_SOURCE_INCLUDED)
+  return()
+endif()
 set(__SG_GNU_SOURCE_INCLUDED ON)
 
 include(CheckSymbolExists)
 
-if (NOT _GNU_SOURCE)
-    check_symbol_exists(__GNU_LIBRARY__ "features.h" _GNU_SOURCE)
+if(NOT _GNU_SOURCE)
+  check_symbol_exists(__GNU_LIBRARY__ "features.h" _GNU_SOURCE)
 
-    if (NOT _GNU_SOURCE)
-        unset(_GNU_SOURCE CACHE)
-        check_symbol_exists(_GNU_SOURCE "features.h" _GNU_SOURCE)
-    endif ()
-endif ()
+  if(NOT _GNU_SOURCE)
+    unset(_GNU_SOURCE CACHE)
+    check_symbol_exists(_GNU_SOURCE "features.h" _GNU_SOURCE)
+  endif()
+endif()
 
-if (_GNU_SOURCE)
-    add_definitions(-D_GNU_SOURCE)
-endif ()
+if(_GNU_SOURCE)
+  add_definitions(-D_GNU_SOURCE)
+endif()
