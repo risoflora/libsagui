@@ -147,6 +147,12 @@ static bool dummy_httpreq_httpauth_cb(void *cls, struct sg_httpauth *auth,
   return true;
 }
 
+static void dummy_httpsrv_cli_cb(void *cls, const void *client, bool *closed) {
+  (void) cls;
+  (void) client;
+  (void) closed;
+}
+
 static int dummy_httpupld_cb(void *cls, void **handle, const char *dir,
                              const char *field, const char *name,
                              const char *mime, const char *encoding) {
@@ -557,6 +563,16 @@ static void test_httpsrv_is_threaded(struct sg_httpsrv *srv) {
   ASSERT(errno == 0);
 }
 
+static void test__httpsrv_set_cli_cb(struct sg_httpsrv *srv) {
+  int dummy = 123;
+  ASSERT(sg_httpsrv_set_cli_cb(NULL, dummy_httpsrv_cli_cb, &dummy) == EINVAL);
+  ASSERT(sg_httpsrv_set_cli_cb(srv, NULL, &dummy) == EINVAL);
+
+  ASSERT(sg_httpsrv_set_cli_cb(srv, dummy_httpsrv_cli_cb, &dummy) == 0);
+  ASSERT(srv->cli_cb == dummy_httpsrv_cli_cb);
+  ASSERT(*((int *) srv->cli_cls) == 123);
+}
+
 static void test__httpsrv_set_upld_cbs(struct sg_httpsrv *srv) {
   int dummy = 123;
 
@@ -734,6 +750,7 @@ int main(void) {
   test_httpsrv_shutdown(srv);
   test_httpsrv_port(srv);
   test_httpsrv_is_threaded(srv);
+  test__httpsrv_set_cli_cb(srv);
   test__httpsrv_set_upld_cbs(srv);
   test_httpsrv_set_upld_dir(srv);
   test_httpsrv_upld_dir(srv);

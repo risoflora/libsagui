@@ -73,8 +73,8 @@ extern "C" {
 #endif
 
 #define SG_VERSION_MAJOR 2
-#define SG_VERSION_MINOR 4
-#define SG_VERSION_PATCH 7
+#define SG_VERSION_MINOR 5
+#define SG_VERSION_PATCH 0
 #define SG_VERSION_HEX                                                         \
   ((SG_VERSION_MAJOR << 16) | (SG_VERSION_MINOR << 8) | (SG_VERSION_PATCH))
 
@@ -577,6 +577,15 @@ struct sg_httpres;
  * \struct sg_httpsrv
  */
 struct sg_httpsrv;
+
+/**
+ * Callback signature used to handle client events.
+ * \param[out] cls User-defined closure.
+ * \param[out] client Socket handle of the client.
+ * \param[in,out] closed Indicates if the client is connected allowing to
+ * close it.
+ */
+typedef void (*sg_httpsrv_cli_cb)(void *cls, const void *client, bool *closed);
 
 /**
  * Callback signature used to grant or deny the user access to the server
@@ -1417,6 +1426,17 @@ SG_EXTERN uint16_t sg_httpsrv_port(struct sg_httpsrv *srv);
  * \pr{srv} is null, sets the `errno` to `EINVAL`.
  */
 SG_EXTERN bool sg_httpsrv_is_threaded(struct sg_httpsrv *srv);
+
+/**
+ * Sets the server callback for client events.
+ * \param[in] srv Server handle.
+ * \param[in] cb Callback to handle client events.
+ * \param[in] cls User-defined closure.
+ * \retval 0 Success.
+ * \retval EINVAL Invalid argument.
+ */
+SG_EXTERN int sg_httpsrv_set_cli_cb(struct sg_httpsrv *srv,
+                                    sg_httpsrv_cli_cb cb, void *cls);
 
 /**
  * Sets the server uploading callbacks.

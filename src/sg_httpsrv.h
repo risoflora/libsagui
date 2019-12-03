@@ -33,6 +33,7 @@
 
 struct sg_httpsrv {
   struct MHD_Daemon *handle;
+  sg_httpsrv_cli_cb cli_cb;
   sg_httpauth_cb auth_cb;
   sg_httpupld_cb upld_cb;
   sg_write_cb upld_write_cb;
@@ -41,6 +42,7 @@ struct sg_httpsrv {
   sg_save_as_cb upld_save_as_cb;
   sg_httpreq_cb req_cb;
   sg_err_cb err_cb;
+  void *cli_cls;
   void *upld_cls;
   void *cls;
   char *uplds_dir;

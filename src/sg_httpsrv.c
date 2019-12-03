@@ -54,6 +54,17 @@ static int sg__httpsrv_ahc(void *cls, struct MHD_Connection *con,
                            size_t *upld_data_size, void **con_cls) {
   struct sg_httpsrv *srv = cls;
   struct sg_httpreq *req = *con_cls;
+  const union MHD_ConnectionInfo *info;
+#ifdef SG_TESTING
+  if (con) {
+#endif
+    info =
+      MHD_get_connection_info(con, MHD_CONNECTION_INFO_SOCKET_CONTEXT, NULL);
+    if (info && info->socket_context)
+      return MHD_NO;
+#ifdef SG_TESTING
+  }
+#endif
   if (!req) {
     req = sg__httpreq_new(con, version, method, url);
     if (!req)
@@ -85,6 +96,30 @@ static void sg__httpsrv_rcc(void *cls, __SG_UNUSED struct MHD_Connection *con,
   *con_cls = NULL;
 }
 
+static void sg__httpsrv_ncc(void *cls, __SG_UNUSED struct MHD_Connection *con,
+                            __SG_UNUSED void **socket_ctx,
+                            enum MHD_ConnectionNotificationCode toe) {
+  struct sg_httpsrv *srv = cls;
+  const union MHD_ConnectionInfo *info;
+  bool closed;
+  if (!srv->cli_cb)
+    return;
+  info = MHD_get_connection_info(con, MHD_CONNECTION_INFO_CLIENT_ADDRESS);
+  switch (toe) {
+    case MHD_CONNECTION_NOTIFY_STARTED:
+      closed = false;
+      srv->cli_cb(srv->cli_cls, info->client_addr, &closed);
+      *((bool *) socket_ctx) = closed;
+      break;
+    case MHD_CONNECTION_NOTIFY_CLOSED:
+      closed = true;
+      srv->cli_cb(srv->cli_cls, info->client_addr, &closed);
+      break;
+    default:
+      break;
+  }
+}
+
 static void sg__httpsrv_addopt(struct MHD_OptionItem ops[8], unsigned char *pos,
                                enum MHD_OPTION opt, intptr_t val, void *ptr) {
   ops[*pos].option = opt;
@@ -113,6 +148,8 @@ static bool sg__httpsrv_listen(struct sg_httpsrv *srv, const char *key,
                      (intptr_t) sg__httpsrv_oel, srv);
   sg__httpsrv_addopt(ops, &pos, MHD_OPTION_NOTIFY_COMPLETED,
                      (intptr_t) sg__httpsrv_rcc, srv);
+  sg__httpsrv_addopt(ops, &pos, MHD_OPTION_NOTIFY_CONNECTION,
+                     (intptr_t) sg__httpsrv_ncc, srv);
   if (srv->con_limit > 0)
     sg__httpsrv_addopt(ops, &pos, MHD_OPTION_CONNECTION_LIMIT, srv->con_limit,
                        NULL);
@@ -261,6 +298,15 @@ bool sg_httpsrv_is_threaded(struct sg_httpsrv *srv) {
             MHD_USE_THREAD_PER_CONNECTION);
   errno = EINVAL;
   return false;
+}
+
+int sg_httpsrv_set_cli_cb(struct sg_httpsrv *srv, sg_httpsrv_cli_cb cb,
+                          void *cls) {
+  if (!srv || !cb)
+    return EINVAL;
+  srv->cli_cb = cb;
+  srv->cli_cls = cls;
+  return 0;
 }
 
 int sg_httpsrv_set_upld_cbs(struct sg_httpsrv *srv, sg_httpupld_cb cb,
