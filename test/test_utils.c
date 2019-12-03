@@ -447,8 +447,6 @@ static void test_ip(void) {
   ASSERT(sg_ip(NULL, buf, sizeof(buf)) == EINVAL);
   ASSERT(sg_ip(&sa, NULL, sizeof(buf)) == EINVAL);
   ASSERT(sg_ip(&sa, buf, -1) == EINVAL);
-  sa.sa_family = 123;
-  ASSERT(sg_ip(&sa, buf, sizeof(buf)) == EINVAL);
 
   sa.sa_family = AF_INET;
   ASSERT(sg_ip(&sa, buf, 16) == 0);

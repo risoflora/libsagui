@@ -374,22 +374,21 @@ done:
 
 int sg_ip(const void *socket, char *buf, size_t size) {
   const struct sockaddr *sa;
+  const void *addr6;
+  size_t len;
   if (!socket || !buf || (ssize_t) size < 0)
     return EINVAL;
   sa = socket;
-  switch (sa->sa_family) {
-    case AF_INET:
-      if (!inet_ntop(AF_INET, &(((struct sockaddr_in *) sa)->sin_addr), buf,
-                     size))
-        return errno;
-      break;
-    case AF_INET6:
-      if (!inet_ntop(AF_INET6, &(((struct sockaddr_in6 *) sa)->sin6_addr), buf,
-                     size))
-        return errno;
-      break;
-    default:
-      return EINVAL;
+  if (sa->sa_family == AF_INET6) {
+    addr6 = &(((struct sockaddr_in6 *) sa)->sin6_addr);
+    if (!inet_ntop(AF_INET6, addr6, buf, size))
+      return errno;
+    len = strlen("::ffff:");
+    if (IN6_IS_ADDR_V4MAPPED(addr6) && (size > len))
+      memcpy(buf, buf + len, strlen(buf + len) + 1);
+    return 0;
   }
+  if (!inet_ntop(AF_INET, &(((struct sockaddr_in *) sa)->sin_addr), buf, size))
+    return errno;
   return 0;
 }
