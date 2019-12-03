@@ -45,7 +45,10 @@ static void sg__httpsrv_oel(void *cls, const char *fmt, va_list ap) {
   struct sg_httpsrv *srv = cls;
   char err[SG_ERR_SIZE];
   vsnprintf(err, sizeof(err), fmt, ap);
-  srv->err_cb(srv->cls, err);
+  if (strcmp(err,
+             _("Application reported internal error, closing connection.\n")) !=
+      0)
+    srv->err_cb(srv->cls, err);
 }
 
 static int sg__httpsrv_ahc(void *cls, struct MHD_Connection *con,
