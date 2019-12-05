@@ -87,7 +87,7 @@ Sagui library 2.4.0 - building summary:
 -- Build files have been written to: ~/libsagui/build
 ```
 
-Finally, build the shared library: 
+Finally, build the shared library:
 
 ```bash
 make sagui
@@ -154,7 +154,7 @@ Scanning dependencies of target sagui
 [ 97%] Building C object src/CMakeFiles/sagui.dir/sg_router.c.o
 [100%] Linking C shared library libsagui.so
 [100%] Built target sagui
-``` 
+```
 
 # Building the shared library (.so/.dll)
 
