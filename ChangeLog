@@ -1,3 +1,29 @@
+2019-12-05  silvioprog  <silvioprog@gmail.com>
+
+	Bump v2.5.2
+
+2019-12-04  silvioprog  <silvioprog@gmail.com>
+
+	Applied EditorConfig lint.
+
+	Updated INSTALL.md file. (Fix #39)
+
+2019-12-03  silvioprog  <silvioprog@gmail.com>
+
+	Fixed sg_ip() allowing to retrieve IPv4 mapped in IPv6.
+
+	Silenced errors "Application reported internal error, closing connection".
+
+	Implemented client events.
+
+2019-11-25  silvioprog  <silvioprog@gmail.com>
+
+	Adopted new Code Style for CMake files.
+
+2019-11-18  silvioprog  <silvioprog@gmail.com>
+
+	Published the official Docker image. (Fix #38)
+
 2019-11-17  silvioprog  <silvioprog@gmail.com>
 
 	Bump v2.4.7
