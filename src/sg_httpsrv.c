@@ -196,6 +196,7 @@ struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb, sg_httpreq_cb req_cb,
   srv->req_cb = req_cb;
   srv->err_cb = err_cb;
   srv->cls = cls;
+  srv->con_timeout = 15; /* 15 secs */
   srv->upld_cb = sg__httpupld_cb;
   srv->upld_cls = srv;
   srv->upld_write_cb = sg__httpupld_write_cb;
@@ -273,10 +274,13 @@ int sg_httpsrv_shutdown(struct sg_httpsrv *srv) {
         shutdown(fd, SHUT_RDWR);
         close(fd);
 #endif
-        while (
-          MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_CURRENT_CONNECTIONS)
-            ->num_connections > 0)
+        for (unsigned char i = 0; i < (srv->con_timeout * 10); i++) {
+          if (MHD_get_daemon_info(srv->handle,
+                                  MHD_DAEMON_INFO_CURRENT_CONNECTIONS)
+                ->num_connections < 1)
+            break;
           usleep(100 * 1000);
+        }
       }
     }
     MHD_stop_daemon(srv->handle);

@@ -74,7 +74,7 @@ extern "C" {
 
 #define SG_VERSION_MAJOR 2
 #define SG_VERSION_MINOR 5
-#define SG_VERSION_PATCH 2
+#define SG_VERSION_PATCH 3
 #define SG_VERSION_HEX                                                         \
   ((SG_VERSION_MAJOR << 16) | (SG_VERSION_MINOR << 8) | (SG_VERSION_PATCH))
 
@@ -1547,7 +1547,7 @@ SG_EXTERN unsigned int sg_httpsrv_thr_pool_size(struct sg_httpsrv *srv);
 /**
  * Sets the inactivity time to a client get time out.
  * \param[in] srv Server handle.
- * \param[in] timeout Timeout (in seconds). Use zero for infinity timeout.
+ * \param[in] timeout Timeout (in seconds). Use zero for infinity timeout. Default: 15 seconds.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  */
