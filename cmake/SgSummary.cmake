@@ -15,7 +15,7 @@
 #
 # Cross-platform library which helps to develop web servers or frameworks.
 #
-# Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+# Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
 #
 # Sagui library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -115,34 +115,6 @@ else()
   set(_build_html "No")
 endif()
 
-if(SG_BUILD_PDF AND SG_GENERATE_PDF)
-  if(_is_release)
-    set(_build_pdf "Yes")
-    if(${_build_html} MATCHES "Yes")
-      if(NOT DOXYGEN_PDFLATEX_EXECUTABLE)
-        set(_missing_tool "pdflatex")
-      elseif(NOT DOXYGEN_MAKEINDEX_EXECUTABLE)
-        set(_missing_tool "makeindex")
-      endif()
-      if(_missing_tool)
-        set(_build_pdf "No (missing tool: ${_missing_tool})")
-      endif()
-    else()
-      set(_build_pdf "No (disabled by \"Build HTML: ${_build_html}\")")
-    endif()
-  else()
-    set(_build_pdf "No (unavailable in build type: ${_build_type})")
-  endif()
-else()
-  set(_build_pdf "No")
-endif()
-
-#if(SG_BUILD_MAN_PAGES AND SG_GENERATE_MAN_PAGES)
-#  set(_build_man_pages "Yes")
-#else()
-#  set(_build_man_pages "No")
-#endif()
-
 if(BUILD_TESTING)
   if(_is_debug)
     set(_build_testing "Yes")
@@ -169,31 +141,6 @@ else()
   set(_curl "No")
 endif()
 
-#message(
-#  "
-#Sagui library ${VERSION} - building summary:
-#
-#  Generator: ${CMAKE_GENERATOR}
-#  Install: ${CMAKE_INSTALL_PREFIX}
-#  System: ${_system_name}
-#  Compiler:
-#    Executable: ${CMAKE_C_COMPILER}
-#    Version: ${CMAKE_C_COMPILER_VERSION}
-#    Machine: ${CMAKE_C_MACHINE}
-#    CFLAGS: ${_cflags}
-#  Build: ${_build_type}-${_build_arch} (${_lib_type})
-#  HTTPS: ${_https_support}
-#  Compression: ${_http_compression}
-#  Routing: ${_routing}
-#  Examples: ${_build_examples}
-#  Docs:
-#    HTML: ${_build_html}
-#    PDF: ${_build_pdf}
-#    man pages: ${_build_man_pages}
-#  Run tests: ${_build_testing}
-#  cURL tests: ${_curl}
-#")
-
 message(
   "
 Sagui library ${VERSION} - building summary:
@@ -211,9 +158,7 @@ Sagui library ${VERSION} - building summary:
   Compression: ${_http_compression}
   Routing: ${_routing}
   Examples: ${_build_examples}
-  Docs:
-    HTML: ${_build_html}
-    PDF: ${_build_pdf}
+  Docs: ${_build_html}
   Run tests: ${_build_testing}
   cURL tests: ${_curl}
 ")
@@ -228,6 +173,5 @@ unset(_http_compression)
 unset(_routing)
 unset(_build_examples)
 unset(_build_html)
-unset(_build_pdf)
 unset(_build_testing)
 unset(_curl)

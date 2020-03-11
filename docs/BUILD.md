@@ -2,14 +2,14 @@
 
 The Sagui library is compatible with the following compilers:
 
-* GCC - [GNU Compiler Collection](https://gcc.gnu.org).
-* LLVM - [CLang Project](https://clang.llvm.org).
+- GCC - [GNU Compiler Collection](https://gcc.gnu.org).
+- LLVM - [CLang Project](https://clang.llvm.org).
 
 and was successfully compiled in:
 
-* GCC/CLang on many Linux distributions like openSUSE, Debian, Ubuntu, Raspbian etc.
-* MinGW-w64 on Linux and Windows.
-* Google's [NDK](https://developer.android.com/ndk/) on Linux.
+- GCC/CLang on many Linux distributions like openSUSE, Debian, Ubuntu, Raspbian etc.
+- MinGW-w64 on Linux and Windows.
+- Google's [NDK](https://developer.android.com/ndk/) on Linux.
 
 # Build options
 
@@ -18,7 +18,6 @@ There are a few options of the Sagui building, they are:
 ```bash
 -DSG_ABI_COMPLIANCE_CHECKER=<ON|OFF>
 -DSG_BUILD_HTML=<ON|OFF>
--DSG_BUILD_PDF=<ON|OFF>
 -DSG_PICKY_COMPILER=<ON|OFF>
 -DPCRE2_JIT_SUPPORT=<ON|OFF>
 -DSG_PVS_STUDIO=<ON|OFF>
@@ -45,7 +44,7 @@ cmake ..
 it prints a build summary as following (assuming you are using Sagui 2.4.0):
 
 ```bash
--- The C compiler identification is GNU 8.3.1
+-- The C compiler identification is GNU 9.2.1
 -- Check for working C compiler: /usr/bin/cc
 -- Check for working C compiler: /usr/bin/cc -- works
 -- Detecting C compiler ABI info
@@ -61,24 +60,22 @@ it prints a build summary as following (assuming you are using Sagui 2.4.0):
 -- Looking for inet_ntop
 -- Looking for inet_ntop - found
 
-Sagui library 2.4.0 - building summary:
+Sagui library 2.5.3 - building summary:
 
   Generator: Unix Makefiles
   Install: /usr/local
-  System: Linux-5.0.8-1-default x86_64
+  System: Linux-5.5.8-100.fc30.x86_64 x86_64
   Compiler:
     Executable: /usr/bin/cc
-    Version: 8.3.1
-    Machine: x86_64-suse-linux
-    CFLAGS: -O3 -DNDEBUG -Wall -Werror -Wextra -Wpedantic -Wdeclaration-after-statement -Wstrict-prototypes -Wmissing-declarations -Wredundant-decls -Wnested-externs -Winline
+    Version: 9.2.1
+    Machine: x86_64-redhat-linux
+    CFLAGS: -O2 -DNDEBUG -Wall -Werror -Wextra -Wpedantic -Wdeclaration-after-statement -Wstrict-prototypes -Wmissing-declarations -Wredundant-decls -Wnested-externs -Winline
   Build: Release-x86_64 (shared)
   HTTPS: No
   Compression: Yes
   Routing: Yes
   Examples: Yes (str, strmap, httpauth, httpcookie, httpsrv, httpuplds, httpsrv_benchmark, httpreq_payload, httpcomp, entrypoint, router_simple, router_segments, router_vars, router_srv)
-  Docs:
-    HTML: No
-    PDF: No
+  Docs: No
   Run tests: No
   cURL tests: No
 
@@ -96,48 +93,48 @@ make sagui
 it prints a log as following:
 
 ```bash
-Scanning dependencies of target pcre2-10.32
-[  2%] Creating directories for 'pcre2-10.32'
-[  5%] Performing download step (download, verify and extract) for 'pcre2-10.32'
--- pcre2-10.32 download command succeeded.  See also ~/libsagui/build/pcre2-10.32/src/pcre2-10.32-stamp/pcre2-10.32-download-*.log
-[  7%] No patch step for 'pcre2-10.32'
-[ 10%] No update step for 'pcre2-10.32'
-[ 13%] Performing configure step for 'pcre2-10.32'
--- pcre2-10.32 configure command succeeded.  See also ~/libsagui/build/pcre2-10.32/src/pcre2-10.32-stamp/pcre2-10.32-configure-*.log
-[ 15%] Performing build step for 'pcre2-10.32'
--- pcre2-10.32 build command succeeded.  See also ~/libsagui/build/pcre2-10.32/src/pcre2-10.32-stamp/pcre2-10.32-build-*.log
-[ 18%] Performing install step for 'pcre2-10.32'
--- pcre2-10.32 install command succeeded.  See also ~/libsagui/build/pcre2-10.32/src/pcre2-10.32-stamp/pcre2-10.32-install-*.log
-[ 21%] Completed 'pcre2-10.32'
-[ 21%] Built target pcre2-10.32
+Scanning dependencies of target pcre2-10.34
+[  2%] Creating directories for 'pcre2-10.34'
+[  5%] Performing download step (download, verify and extract) for 'pcre2-10.34'
+-- pcre2-10.34 download command succeeded.  See also ~/libsagui/build/pcre2-10.34/src/pcre2-10.34-stamp/pcre2-10.34-download-*.log
+[  7%] No patch step for 'pcre2-10.34'
+[ 10%] No update step for 'pcre2-10.34'
+[ 13%] Performing configure step for 'pcre2-10.34'
+-- pcre2-10.34 configure command succeeded.  See also ~/libsagui/build/pcre2-10.34/src/pcre2-10.34-stamp/pcre2-10.34-configure-*.log
+[ 15%] Performing build step for 'pcre2-10.34'
+-- pcre2-10.34 build command succeeded.  See also ~/libsagui/build/pcre2-10.34/src/pcre2-10.34-stamp/pcre2-10.34-build-*.log
+[ 18%] Performing install step for 'pcre2-10.34'
+-- pcre2-10.34 install command succeeded.  See also ~/libsagui/build/pcre2-10.34/src/pcre2-10.34-stamp/pcre2-10.34-install-*.log
+[ 21%] Completed 'pcre2-10.34'
+[ 21%] Built target pcre2-10.34
+Scanning dependencies of target libmicrohttpd-0.9.70
+[ 23%] Creating directories for 'libmicrohttpd-0.9.70'
+[ 26%] Performing download step (download, verify and extract) for 'libmicrohttpd-0.9.70'
+-- libmicrohttpd-0.9.70 download command succeeded.  See also ~/libsagui/build/libmicrohttpd-0.9.70/src/libmicrohttpd-0.9.70-stamp/libmicrohttpd-0.9.70-download-*.log
+[ 28%] No patch step for 'libmicrohttpd-0.9.70'
+[ 31%] No update step for 'libmicrohttpd-0.9.70'
+[ 34%] Performing configure step for 'libmicrohttpd-0.9.70'
+-- libmicrohttpd-0.9.70 configure command succeeded.  See also ~/libsagui/build/libmicrohttpd-0.9.70/src/libmicrohttpd-0.9.70-stamp/libmicrohttpd-0.9.70-configure-*.log
+[ 36%] Performing build step for 'libmicrohttpd-0.9.70'
+-- libmicrohttpd-0.9.70 build command succeeded.  See also ~/libsagui/build/libmicrohttpd-0.9.70/src/libmicrohttpd-0.9.70-stamp/libmicrohttpd-0.9.70-build-*.log
+[ 39%] Performing install step for 'libmicrohttpd-0.9.70'
+-- libmicrohttpd-0.9.70 install command succeeded.  See also ~/libsagui/build/libmicrohttpd-0.9.70/src/libmicrohttpd-0.9.70-stamp/libmicrohttpd-0.9.70-install-*.log
+[ 42%] Completed 'libmicrohttpd-0.9.70'
+[ 42%] Built target libmicrohttpd-0.9.70
 Scanning dependencies of target zlib-1.2.11
-[ 23%] Creating directories for 'zlib-1.2.11'
-[ 26%] Performing download step (download, verify and extract) for 'zlib-1.2.11'
+[ 44%] Creating directories for 'zlib-1.2.11'
+[ 47%] Performing download step (download, verify and extract) for 'zlib-1.2.11'
 -- zlib-1.2.11 download command succeeded.  See also ~/libsagui/build/zlib-1.2.11/src/zlib-1.2.11-stamp/zlib-1.2.11-download-*.log
-[ 28%] No patch step for 'zlib-1.2.11'
-[ 31%] No update step for 'zlib-1.2.11'
-[ 34%] Performing configure step for 'zlib-1.2.11'
+[ 50%] No patch step for 'zlib-1.2.11'
+[ 52%] No update step for 'zlib-1.2.11'
+[ 55%] Performing configure step for 'zlib-1.2.11'
 -- zlib-1.2.11 configure command succeeded.  See also ~/libsagui/build/zlib-1.2.11/src/zlib-1.2.11-stamp/zlib-1.2.11-configure-*.log
-[ 36%] Performing build step for 'zlib-1.2.11'
+[ 57%] Performing build step for 'zlib-1.2.11'
 -- zlib-1.2.11 build command succeeded.  See also ~/libsagui/build/zlib-1.2.11/src/zlib-1.2.11-stamp/zlib-1.2.11-build-*.log
-[ 39%] Performing install step for 'zlib-1.2.11'
+[ 60%] Performing install step for 'zlib-1.2.11'
 -- zlib-1.2.11 install command succeeded.  See also ~/libsagui/build/zlib-1.2.11/src/zlib-1.2.11-stamp/zlib-1.2.11-install-*.log
-[ 42%] Completed 'zlib-1.2.11'
-[ 42%] Built target zlib-1.2.11
-Scanning dependencies of target libmicrohttpd-0.9.63
-[ 44%] Creating directories for 'libmicrohttpd-0.9.63'
-[ 47%] Performing download step (download, verify and extract) for 'libmicrohttpd-0.9.63'
--- libmicrohttpd-0.9.63 download command succeeded.  See also ~/libsagui/build/libmicrohttpd-0.9.63/src/libmicrohttpd-0.9.63-stamp/libmicrohttpd-0.9.63-download-*.log
-[ 50%] No patch step for 'libmicrohttpd-0.9.63'
-[ 52%] No update step for 'libmicrohttpd-0.9.63'
-[ 55%] Performing configure step for 'libmicrohttpd-0.9.63'
--- libmicrohttpd-0.9.63 configure command succeeded.  See also ~/libsagui/build/libmicrohttpd-0.9.63/src/libmicrohttpd-0.9.63-stamp/libmicrohttpd-0.9.63-configure-*.log
-[ 57%] Performing build step for 'libmicrohttpd-0.9.63'
--- libmicrohttpd-0.9.63 build command succeeded.  See also ~/libsagui/build/libmicrohttpd-0.9.63/src/libmicrohttpd-0.9.63-stamp/libmicrohttpd-0.9.63-build-*.log
-[ 60%] Performing install step for 'libmicrohttpd-0.9.63'
--- libmicrohttpd-0.9.63 install command succeeded.  See also ~/libsagui/build/libmicrohttpd-0.9.63/src/libmicrohttpd-0.9.63-stamp/libmicrohttpd-0.9.63-install-*.log
-[ 63%] Completed 'libmicrohttpd-0.9.63'
-[ 63%] Built target libmicrohttpd-0.9.63
+[ 63%] Completed 'zlib-1.2.11'
+[ 63%] Built target zlib-1.2.11
 Scanning dependencies of target sagui
 [ 65%] Building C object src/CMakeFiles/sagui.dir/sg_utils.c.o
 [ 68%] Building C object src/CMakeFiles/sagui.dir/sg_extra.c.o
@@ -187,48 +184,42 @@ Test project ~/libsagui/build
  3/14 Test  #3: test_str .........................   Passed    0.00 sec
       Start  4: test_strmap
  4/14 Test  #4: test_strmap ......................   Passed    0.00 sec
-      Start  5: test_entrypoint
- 5/14 Test  #5: test_entrypoint ..................   Passed    0.00 sec
-      Start  6: test_entrypoints
- 6/14 Test  #6: test_entrypoints .................   Passed    0.00 sec
-      Start  7: test_routes
- 7/14 Test  #7: test_routes ......................   Passed    0.00 sec
-      Start  8: test_router
- 8/14 Test  #8: test_router ......................   Passed    0.00 sec
-      Start  9: test_httpauth
- 9/14 Test  #9: test_httpauth ....................   Passed    0.00 sec
-      Start 10: test_httpuplds
-10/14 Test #10: test_httpuplds ...................   Passed    0.00 sec
-      Start 11: test_httpreq
-11/14 Test #11: test_httpreq .....................   Passed    0.00 sec
-      Start 12: test_httpres
-12/14 Test #12: test_httpres .....................   Passed    0.00 sec
-      Start 13: test_httpsrv
-13/14 Test #13: test_httpsrv .....................   Passed    0.01 sec
+      Start  5: test_httpauth
+ 5/14 Test  #5: test_httpauth ....................   Passed    0.00 sec
+      Start  6: test_httpuplds
+ 6/14 Test  #6: test_httpuplds ...................   Passed    0.00 sec
+      Start  7: test_httpreq
+ 7/14 Test  #7: test_httpreq .....................   Passed    0.00 sec
+      Start  8: test_httpres
+ 8/14 Test  #8: test_httpres .....................   Passed    0.01 sec
+      Start  9: test_httpsrv
+ 9/14 Test  #9: test_httpsrv .....................   Passed    0.00 sec
+      Start 10: test_entrypoint
+10/14 Test #10: test_entrypoint ..................   Passed    0.00 sec
+      Start 11: test_entrypoints
+11/14 Test #11: test_entrypoints .................   Passed    0.00 sec
+      Start 12: test_routes
+12/14 Test #12: test_routes ......................   Passed    0.00 sec
+      Start 13: test_router
+13/14 Test #13: test_router ......................   Passed    0.00 sec
       Start 14: test_httpsrv_curl
-14/14 Test #14: test_httpsrv_curl ................   Passed    0.03 sec
+14/14 Test #14: test_httpsrv_curl ................   Passed    0.05 sec
 
 100% tests passed, 0 tests failed out of 14
 
-Total Test time (real) =   0.07 sec
+Total Test time (real) =   0.06 sec
 ```
 
 # Building the documentation
 
-The documentation is available in HTML and PDF formats, both generated using the [Doxygen tool](https://www.stack.nl/~dimitri/doxygen). For example:
+The documentation is available in HTML format which can be generated using the [Doxygen tool](https://www.stack.nl/~dimitri/doxygen). For example:
 
 ```bash
 cmake -DSG_BUILD_HTML=ON ..
 make doc
 ```
 
-it generates the HTML documentation, to get it in PDF, perform:
-
-```
-make pdf
-```
-
-both HTML and PDF files are saved in the `build/docs` directory.
+it generates the HTML reference into `build/docs` directory.
 
 # Building the library with TLS (HTTPS support)
 
@@ -244,9 +235,9 @@ cmake -DCMAKE_C_COMPILER=clang -DSG_HTTPS_SUPPORT=ON ..
 
 Distribution packages are available in `TAR.GZ` and `ZIP` files containing:
 
-* library source
-* static library
-* shared library
+- library source
+- static library
+- shared library
 
 To distribute the library source, perform:
 
@@ -255,7 +246,7 @@ cmake ..
 make dist # or make package_source
 ```
 
-it generates the files `libsagui-2.4.0.tar.gz` and `libsagui-2.4.0.zip` containing the library source.
+it generates the files `libsagui-2.5.3.tar.gz` and `libsagui-2.5.3.zip` containing the library source.
 
 To distribute the static library:
 
@@ -267,12 +258,13 @@ make package
 the package content:
 
 ```bash
-libsagui-2.4.0/include/
-libsagui-2.4.0/include/sagui.h
-libsagui-2.4.0/lib/
-libsagui-2.4.0/lib/pkgconfig/
-libsagui-2.4.0/lib/pkgconfig/libsagui.pc
-libsagui-2.4.0/lib/libsagui.a
+tar -ztf libsagui-2.5.3.tar.gz
+libsagui-2.5.3/include/
+libsagui-2.5.3/include/sagui.h
+libsagui-2.5.3/lib64/
+libsagui-2.5.3/lib64/pkgconfig/
+libsagui-2.5.3/lib64/pkgconfig/libsagui.pc
+libsagui-2.5.3/lib64/libsagui.a
 ```
 
 To distribute the shared library:
@@ -285,14 +277,15 @@ make package
 the package content:
 
 ```bash
-libsagui-2.4.0/include/
-libsagui-2.4.0/include/sagui.h
-libsagui-2.4.0/lib/
-libsagui-2.4.0/lib/pkgconfig/
-libsagui-2.4.0/lib/pkgconfig/libsagui.pc
-libsagui-2.4.0/lib/libsagui.so <Symbolic link>
-libsagui-2.4.0/lib/libsagui.so.2 <Symbolic link>
-libsagui-2.4.0/lib/libsagui.so.2.4.0 <Symbolic link>
+tar -ztf libsagui-2.5.3.tar.gz
+libsagui-2.5.3/include/
+libsagui-2.5.3/include/sagui.h
+libsagui-2.5.3/lib64/
+libsagui-2.5.3/lib64/pkgconfig/
+libsagui-2.5.3/lib64/pkgconfig/libsagui.pc
+libsagui-2.5.3/lib64/libsagui.so <symbolic link>
+libsagui-2.5.3/lib64/libsagui.so.2.5.3
+libsagui-2.5.3/lib64/libsagui.so.2 <symbolic link>
 ```
 
 # Extra buildings

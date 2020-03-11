@@ -8,33 +8,33 @@ Sagui is a cross-platform C library which helps to develop web servers or framew
 
 # Features
 
-* **Requests processing through:**
-  * Event-driven - _single-thread + main loop + select/epoll_.
-  * Threaded - _one thread per request_.
-  * Thread pool - _thread pool + select/epoll_.
-* **High-performance path routing that supports:**
-  * Regular expressions using [PCRE2](https://www.pcre.org/current/doc/html/pcre2pattern.html) [syntax](https://www.pcre.org/current/doc/html/pcre2syntax.html).
-  * Just-in-time optimization ([JIT](https://www.pcre.org/current/doc/html/pcre2jit.html)).
-  * Binary search in path entry-points.
-* **HTTP compression:**
-  * [Deflate](https://en.wikipedia.org/wiki/DEFLATE) for static contents and streams compression.
-  * [Gzip](https://en.wikipedia.org/wiki/Gzip) for files compression.
-* **HTTPS support:**
-  * TLS 1.3 through [GnuTLS](https://www.gnutls.org) library.
-* **Dual stack:**
-  * Single socket for IPv4 and IPv6 support.
-* **Basic authentication:**
-  * For standard login using *user name/password*.
-* **Upload/download streaming by:**
-  * Payload - for raw data transferring as JSON, XML and other.
-  * File - for large data transferring as videos, images, binaries and so on.
-* **Dynamic strings:**
-  * Makes it easy strings operations in C.
-* **String map:**
-  * Fast key-value mapping.
-* **And more:**
-  * Fields, parameters, cookies, headers under hash table structure.
-  * Several callbacks for total library customization.
+- **Requests processing through:**
+  - Event-driven - _single-thread + main loop + select/epoll_.
+  - Threaded - _one thread per request_.
+  - Thread pool - _thread pool + select/epoll_.
+- **High-performance path routing that supports:**
+  - Regular expressions using [PCRE2](https://www.pcre.org/current/doc/html/pcre2pattern.html) [syntax](https://www.pcre.org/current/doc/html/pcre2syntax.html).
+  - Just-in-time optimization ([JIT](https://www.pcre.org/current/doc/html/pcre2jit.html)).
+  - Binary search in path entry-points.
+- **HTTP compression:**
+  - [Deflate](https://en.wikipedia.org/wiki/DEFLATE) for static contents and streams compression.
+  - [Gzip](https://en.wikipedia.org/wiki/Gzip) for files compression.
+- **HTTPS support:**
+  - TLS 1.3 through [GnuTLS](https://www.gnutls.org) library.
+- **Dual stack:**
+  - Single socket for IPv4 and IPv6 support.
+- **Basic authentication:**
+  - For standard login using _user name/password_.
+- **Upload/download streaming by:**
+  - Payload - for raw data transferring as JSON, XML and other.
+  - File - for large data transferring as videos, images, binaries and so on.
+- **Dynamic strings:**
+  - Makes it easy strings operations in C.
+- **String map:**
+  - Fast key-value mapping.
+- **And more:**
+  - Fields, parameters, cookies, headers under hash table structure.
+  - Several callbacks for total library customization.
 
 # Examples
 
@@ -134,17 +134,7 @@ Sagui is released under GNU Lesser General Public License v2.1. Check the [LICEN
 
 # Documentation
 
-The documentation has been written in [Doxygen](https://www.stack.nl/~dimitri/doxygen) and is available in [HTML](https://risoflora.github.io/libsagui-docs/index.html) and [PDF](https://risoflora.github.io/libsagui-docs/ref.html).
-
-# Docker
-
-Official images of Sagui library are available for Linux64 at [Docker Hub](https://hub.docker.com). To use Sagui from containers:
-
-```bash
-docker pull risoflora/libsagui
-```
-
-or visit the [official repository](https://hub.docker.com/r/risoflora/libsagui) for more information.
+The documentation has been written in [Doxygen](https://www.stack.nl/~dimitri/doxygen) and is available in HTML format at [libsagui-docs/index.html](https://risoflora.github.io/libsagui-docs/index.html).
 
 # Downloading
 
@@ -152,7 +142,9 @@ All stable releases are available for download at the [releases page](https://gi
 
 # Building/installing
 
-Check the [BUILD.md](https://github.com/risoflora/libsagui/blob/master/docs/BUILD.md) for instructions to build the library, examples, tests and documentation, then, follow the steps in [INSTALL.md](https://github.com/risoflora/libsagui/blob/master/docs/INSTALL.md) to install the library from sources on your system.
+The easiest way to build the library is using a Docker container as builder. Follow the instructions at [libsagui-docker/README.md](https://github.com/risoflora/libsagui-docker/blob/master/README.md) for more details.
+
+Check the [docs/BUILD.md](https://github.com/risoflora/libsagui/blob/master/docs/BUILD.md) for more instructions for how to build the examples, tests, documentation and the library. Also, take a look at [docs/INSTALL.md](https://github.com/risoflora/libsagui/blob/master/docs/INSTALL.md) for how to install the library from sources on your system.
 
 # Compatibility
 
@@ -162,7 +154,7 @@ See also [Checking backward API/ABI compatibility of Sagui library versions](htt
 
 # Projects using Sagui
 
-* [Brook framework](https://github.com/risoflora/brookframework) -  Pascal framework which helps to develop web applications.
+- [Brook framework](https://github.com/risoflora/brookframework) - Pascal framework which helps to develop web applications.
 
 # Contributing
 
