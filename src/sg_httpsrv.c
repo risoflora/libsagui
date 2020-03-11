@@ -27,12 +27,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#ifdef _WIN32
-#include <winsock2.h>
-#else
-#include <unistd.h>
-#include <sys/socket.h>
-#endif
 #include "sg_macros.h"
 #include "microhttpd.h"
 #include "sagui.h"
@@ -196,7 +190,6 @@ struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb, sg_httpreq_cb req_cb,
   srv->req_cb = req_cb;
   srv->err_cb = err_cb;
   srv->cls = cls;
-  srv->con_timeout = 15; /* 15 secs */
   srv->upld_cb = sg__httpupld_cb;
   srv->upld_cls = srv;
   srv->upld_write_cb = sg__httpupld_write_cb;
@@ -260,29 +253,9 @@ bool sg_httpsrv_listen(struct sg_httpsrv *srv, uint16_t port, bool threaded) {
 }
 
 int sg_httpsrv_shutdown(struct sg_httpsrv *srv) {
-  MHD_socket fd;
   if (!srv)
     return EINVAL;
   if (srv->handle) {
-    if (srv->con_timeout > 0) {
-      fd = MHD_quiesce_daemon(srv->handle);
-      if (fd != MHD_INVALID_SOCKET) {
-#ifdef _WIN32
-        shutdown(fd, SD_BOTH);
-        closesocket(fd);
-#else
-        shutdown(fd, SHUT_RDWR);
-        close(fd);
-#endif
-        for (unsigned char i = 0; i < (srv->con_timeout * 10); i++) {
-          if (MHD_get_daemon_info(srv->handle,
-                                  MHD_DAEMON_INFO_CURRENT_CONNECTIONS)
-                ->num_connections < 1)
-            break;
-          usleep(100 * 1000);
-        }
-      }
-    }
     MHD_stop_daemon(srv->handle);
     srv->handle = NULL;
   }
