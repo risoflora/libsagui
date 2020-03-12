@@ -34,6 +34,7 @@
 #include "sg_str.h"
 #include "sg_strmap.h"
 #include "sg_httpreq.h"
+#include "sg_httpsrv.h"
 
 static void sg__httpuplds_free(struct sg_httpsrv *srv, struct sg_httpreq *req);
 
@@ -75,15 +76,6 @@ static void sg__httpuplds_free(struct sg_httpsrv *srv, struct sg_httpreq *req) {
   sg_free(req->curr_upld);
 }
 
-static void sg__httpuplds_err(struct sg_httpsrv *srv, const char *fmt, ...) {
-  va_list ap;
-  char err[SG_ERR_SIZE];
-  va_start(ap, fmt);
-  vsnprintf(err, sizeof(err), fmt, ap);
-  va_end(ap);
-  srv->err_cb(srv->cls, err);
-}
-
 static int sg__httpuplds_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind,
                               const char *key, const char *filename,
                               const char *content_type,
@@ -110,7 +102,7 @@ static int sg__httpuplds_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind,
       if (holder->srv->uplds_limit > 0) {
         holder->req->total_uplds_size += size;
         if (holder->req->total_uplds_size > holder->srv->uplds_limit) {
-          sg__httpuplds_err(holder->srv, _("Upload too large.\n"));
+          sg__httpsrv_eprintf(holder->srv, _("Upload too large.\n"));
           return MHD_NO;
         }
       }
@@ -192,13 +184,13 @@ int sg__httpupld_cb(void *cls, void **handle, const char *dir,
   upld->fd = -1;
   upld->srv = cls;
   if (stat(dir, &sbuf)) {
-    sg__httpuplds_err(cls, _("Cannot find uploads directory \"%s\": %s.\n"),
-                      dir, sg_strerror(errno, err, sizeof(err)));
+    sg__httpsrv_eprintf(cls, _("Cannot find uploads directory \"%s\": %s.\n"),
+                        dir, sg_strerror(errno, err, sizeof(err)));
     return ENOENT;
   }
   if (!S_ISDIR(sbuf.st_mode)) {
-    sg__httpuplds_err(cls, _("Cannot access uploads directory \"%s\": %s.\n"),
-                      dir, sg_strerror(ENOTDIR, err, sizeof(err)));
+    sg__httpsrv_eprintf(cls, _("Cannot access uploads directory \"%s\": %s.\n"),
+                        dir, sg_strerror(ENOTDIR, err, sizeof(err)));
     return ENOTDIR;
   }
   upld->path = sg__strjoin(PATH_SEP, dir, "sg_upld_tmp_XXXXXX");
@@ -214,9 +206,9 @@ int sg__httpupld_cb(void *cls, void **handle, const char *dir,
   upld->fd = mkstemp(upld->path);
   if (upld->fd == -1) {
     errnum = errno;
-    sg__httpuplds_err(cls,
-                      _("Cannot create temporary upload file in \"%s\": %s.\n"),
-                      dir, sg_strerror(errnum, err, sizeof(err)));
+    sg__httpsrv_eprintf(
+      cls, _("Cannot create temporary upload file in \"%s\": %s.\n"), dir,
+      sg_strerror(errnum, err, sizeof(err)));
     goto fail;
   }
   *handle = upld;

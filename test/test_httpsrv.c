@@ -121,6 +121,10 @@ const char certificate[] =
   "0TVbmdKpoMAfw8u+1NAmY6DrpHRTUOzJ6bsjwi9pUbP79A==\n"
   "-----END CERTIFICATE-----";
 
+static void dummy_err_cb(void *cls, const char *err) {
+  strcpy(cls, err);
+}
+
 static void dummy_httpreq_cb(void *cls, struct sg_httpreq *req,
                              struct sg_httpres *res) {
   (void) cls;
@@ -246,6 +250,18 @@ static void test__httpsrv_addopt(void) {
   ASSERT(ops[2].option == MHD_OPTION_END);
   ASSERT(ops[2].value == 0);
   ASSERT(!ops[2].ptr_value);
+}
+
+static void test__httpsrv_eprintf(void) {
+  char err[256], str[256];
+  struct sg_httpsrv *srv =
+    sg_httpsrv_new2(NULL, dummy_httpreq_cb, dummy_err_cb, err);
+  memset(err, 0, sizeof(err));
+  sg__httpsrv_eprintf(srv, "%s%d", "abc", 123);
+  memset(str, 0, sizeof(str));
+  snprintf(str, sizeof(str), "abc123");
+  ASSERT(strcmp(err, str) == 0);
+  sg_httpsrv_free(srv);
 }
 
 static void test_httpsrv_new2(void) {
@@ -739,6 +755,7 @@ int main(void) {
   test__httpsrv_ahc(srv);
   test__httpsrv_rcc();
   test__httpsrv_addopt();
+  test__httpsrv_eprintf();
   test_httpsrv_new2();
   test_httpsrv_new();
   test_httpsrv_free();

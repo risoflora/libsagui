@@ -28,6 +28,7 @@
 #define SG_HTTPSRV_H
 
 #include <stdint.h>
+#include "sg_macros.h"
 #include "microhttpd.h"
 #include "sagui.h"
 
@@ -53,5 +54,8 @@ struct sg_httpsrv {
   unsigned int con_timeout;
   unsigned int con_limit;
 };
+
+SG__EXTERN void sg__httpsrv_eprintf(struct sg_httpsrv *srv, const char *fmt,
+                                    ...);
 
 #endif /* SG_HTTPSRV_H */

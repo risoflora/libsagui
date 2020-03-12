@@ -24,6 +24,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
@@ -174,6 +175,15 @@ static bool sg__httpsrv_listen(struct sg_httpsrv *srv, const char *key,
   srv->handle = MHD_start_daemon(flags, port, NULL, NULL, sg__httpsrv_ahc, srv,
                                  MHD_OPTION_ARRAY, ops, MHD_OPTION_END);
   return srv->handle != NULL;
+}
+
+void sg__httpsrv_eprintf(struct sg_httpsrv *srv, const char *fmt, ...) {
+  char err[SG_ERR_SIZE];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(err, sizeof(err), fmt, ap);
+  va_end(ap);
+  srv->err_cb(srv->cls, err);
 }
 
 struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb, sg_httpreq_cb req_cb,

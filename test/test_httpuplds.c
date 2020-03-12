@@ -132,18 +132,6 @@ static void test__httpuplds_free(void) {
   sg__httpuplds_free(NULL, NULL);
 }
 
-static void test__httpuplds_err(void) {
-  char err[256], str[256];
-  struct sg_httpsrv *srv =
-    sg_httpsrv_new2(NULL, dummy_httpreq_cb, dummy_err_cb, err);
-  memset(err, 0, sizeof(err));
-  sg__httpuplds_err(srv, "%s%d", "abc", 123);
-  memset(str, 0, sizeof(str));
-  snprintf(str, sizeof(str), "abc123");
-  ASSERT(strcmp(err, str) == 0);
-  sg_httpsrv_free(srv);
-}
-
 static void test__httpuplds_iter(void) {
   const char *filename = "foo.txt";
   const size_t len = 3;
@@ -693,7 +681,6 @@ int main(void) {
   struct sg_httpupld *upld = sg_alloc(sizeof(struct sg_httpupld));
   test__httpuplds_add();
   test__httpuplds_free();
-  test__httpuplds_err();
   test__httpuplds_iter();
   test__httpuplds_process();
   test__httpuplds_cleanup();
