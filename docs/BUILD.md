@@ -60,7 +60,7 @@ it prints a build summary as following (assuming you are using Sagui 2.4.0):
 -- Looking for inet_ntop
 -- Looking for inet_ntop - found
 
-Sagui library 2.5.3 - building summary:
+Sagui library 2.5.4 - building summary:
 
   Generator: Unix Makefiles
   Install: /usr/local
@@ -246,7 +246,7 @@ cmake ..
 make dist # or make package_source
 ```
 
-it generates the files `libsagui-2.5.3.tar.gz` and `libsagui-2.5.3.zip` containing the library source.
+it generates the files `libsagui-2.5.4.tar.gz` and `libsagui-2.5.4.zip` containing the library source.
 
 To distribute the static library:
 
@@ -258,13 +258,13 @@ make package
 the package content:
 
 ```bash
-tar -ztf libsagui-2.5.3.tar.gz
-libsagui-2.5.3/include/
-libsagui-2.5.3/include/sagui.h
-libsagui-2.5.3/lib64/
-libsagui-2.5.3/lib64/pkgconfig/
-libsagui-2.5.3/lib64/pkgconfig/libsagui.pc
-libsagui-2.5.3/lib64/libsagui.a
+tar -ztf libsagui-2.5.4.tar.gz
+libsagui-2.5.4/include/
+libsagui-2.5.4/include/sagui.h
+libsagui-2.5.4/lib64/
+libsagui-2.5.4/lib64/pkgconfig/
+libsagui-2.5.4/lib64/pkgconfig/libsagui.pc
+libsagui-2.5.4/lib64/libsagui.a
 ```
 
 To distribute the shared library:
@@ -277,15 +277,15 @@ make package
 the package content:
 
 ```bash
-tar -ztf libsagui-2.5.3.tar.gz
-libsagui-2.5.3/include/
-libsagui-2.5.3/include/sagui.h
-libsagui-2.5.3/lib64/
-libsagui-2.5.3/lib64/pkgconfig/
-libsagui-2.5.3/lib64/pkgconfig/libsagui.pc
-libsagui-2.5.3/lib64/libsagui.so <symbolic link>
-libsagui-2.5.3/lib64/libsagui.so.2.5.3
-libsagui-2.5.3/lib64/libsagui.so.2 <symbolic link>
+tar -ztf libsagui-2.5.4.tar.gz
+libsagui-2.5.4/include/
+libsagui-2.5.4/include/sagui.h
+libsagui-2.5.4/lib64/
+libsagui-2.5.4/lib64/pkgconfig/
+libsagui-2.5.4/lib64/pkgconfig/libsagui.pc
+libsagui-2.5.4/lib64/libsagui.so <symbolic link>
+libsagui-2.5.4/lib64/libsagui.so.2.5.4
+libsagui-2.5.4/lib64/libsagui.so.2 <symbolic link>
 ```
 
 # Extra buildings

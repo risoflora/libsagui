@@ -3,10 +3,11 @@
 **Configure the build:**
 
 ```bash
-export SG_OLD_VER="2.3.0" # Change to old release
-export SG_NEW_VER="2.4.0" # Change to new release
+export SG_OLD_VER="2.5.2" # Change to old release
+export SG_NEW_VER="2.5.4" # Change to new release
 
-cmake -DCMAKE_BUILD_TYPE=Debug -DSG_HTTPS_SUPPORT=ON -DSG_ABI_COMPLIANCE_CHECKER=ON -DSG_OLD_LIB_DIR=$HOME/libsagui-${SG_OLD_VER} -DSG_OLD_LIB_VERSION=${SG_OLD_VER} ..
+curl -SL https://github.com/risoflora/libsagui/archive/v${SG_OLD_VER}.tar.gz | tar -zx
+cmake -DCMAKE_BUILD_TYPE=Debug -DSG_HTTPS_SUPPORT=ON -DSG_ABI_COMPLIANCE_CHECKER=ON -DSG_OLD_LIB_DIR=$(pwd)/libsagui-${SG_OLD_VER} -DSG_OLD_LIB_VERSION=${SG_OLD_VER} ..
 make abi_compliance_checker
 ```
 

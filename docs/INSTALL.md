@@ -8,7 +8,7 @@ sudo apt update
 sudo apt install curl clang cmake
 
 # Download latest release
-export SG_VER="2.4.7" # Change to latest version
+export SG_VER="2.5.4" # Change to latest version
 curl -SL https://github.com/risoflora/libsagui/archive/v$SG_VER.tar.gz | tar -zx
 cd libsagui-$SG_VER/ && mkdir build && cd build/
 
@@ -32,7 +32,7 @@ sudo dnf upgrade
 sudo dnf install curl clang cmake
 
 # Download latest release
-export SG_VER="2.4.7" # Change to latest version
+export SG_VER="2.5.4" # Change to latest version
 curl -SL https://github.com/risoflora/libsagui/archive/v$SG_VER.tar.gz | tar -zx
 cd libsagui-$SG_VER/ && mkdir build && cd build/
 
@@ -56,7 +56,7 @@ sudo zypper refresh
 sudo zypper install curl clang cmake
 
 # Download latest release
-export SG_VER="2.4.7" # Change to latest version
+export SG_VER="2.5.4" # Change to latest version
 curl -SL https://github.com/risoflora/libsagui/archive/v$SG_VER.tar.gz | tar -zx
 cd libsagui-$SG_VER/ && mkdir build && cd build/
 
@@ -80,7 +80,7 @@ pacman -Syu
 pacman -S --needed curl base-devel mingw-w64-i686-toolchain mingw-w64-x86_64-toolchain mingw-w64-i686-cmake mingw-w64-x86_64-cmake
 
 # Download latest release
-export SG_VER="2.4.7" # Change to latest version
+export SG_VER="2.5.4" # Change to latest version
 curl -SL https://github.com/risoflora/libsagui/archive/v$SG_VER.tar.gz | tar -zx
 cd libsagui-$SG_VER/ && mkdir build && cd build/
 
