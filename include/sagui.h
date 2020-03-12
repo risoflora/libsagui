@@ -1354,7 +1354,7 @@ SG_EXTERN void sg_httpsrv_free(struct sg_httpsrv *srv);
  * \param[in] dhparams Memory pointer for the Diffie Hellman parameters (dh.pem)
  * to be used by the HTTPS server for key exchange.
  * \param[in] port Port for listening to connections.
- * \param[in] threaded Enables/disables the threaded model. If `true`, the
+ * \param[in] threaded Enables/disables the threaded mode. If `true`, the
  * server creates one thread per connection.
  * \retval true If the server is started, `false` otherwise. If \pr{srv} is
  * null, sets the `errno` to `EINVAL`.
@@ -1374,7 +1374,7 @@ SG_EXTERN bool sg_httpsrv_tls_listen2(struct sg_httpsrv *srv, const char *key,
  * \param[in] cert Memory pointer for the certificate (cert.pem) to be used by
  * the HTTPS server.
  * \param[in] port Port for listening to connections.
- * \param[in] threaded Enables/disables the threaded model. If `true`, the
+ * \param[in] threaded Enables/disables the threaded mode. If `true`, the
  * server creates one thread per connection.
  * \retval true If the server is started, `false` otherwise. If \pr{srv} is
  * null, sets the `errno` to `EINVAL`.
@@ -1391,7 +1391,7 @@ SG_EXTERN bool sg_httpsrv_tls_listen(struct sg_httpsrv *srv, const char *key,
  * Starts the HTTP server.
  * \param[in] srv Server handle.
  * \param[in] port Port for listening to connections.
- * \param[in] threaded Enables/disables the threaded model. If `true`, the
+ * \param[in] threaded Enables/disables the threaded mode. If `true`, the
  * server creates one thread per connection.
  * \retval true If the server is started, `false` otherwise. If \pr{srv} is
  * null, sets the `errno` to `EINVAL`.
@@ -1400,6 +1400,9 @@ SG_EXTERN bool sg_httpsrv_tls_listen(struct sg_httpsrv *srv, const char *key,
  */
 SG_EXTERN bool sg_httpsrv_listen(struct sg_httpsrv *srv, uint16_t port,
                                  bool threaded);
+
+/* experimental feature. */
+SG_EXTERN int sg_httpsrv_process(struct sg_httpsrv *srv);
 
 /**
  * Stops the server not to accept new connections.
@@ -1420,9 +1423,9 @@ SG_EXTERN int sg_httpsrv_shutdown(struct sg_httpsrv *srv);
 SG_EXTERN uint16_t sg_httpsrv_port(struct sg_httpsrv *srv);
 
 /**
- * Checks if the server was started in threaded model.
+ * Checks if the server was started in threaded mode.
  * \param[in] srv Server handle.
- * \retval true If the server is in threaded model, `false` otherwise. If
+ * \retval true If the server is in threaded mode, `false` otherwise. If
  * \pr{srv} is null, sets the `errno` to `EINVAL`.
  */
 SG_EXTERN bool sg_httpsrv_is_threaded(struct sg_httpsrv *srv);
