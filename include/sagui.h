@@ -1401,9 +1401,6 @@ SG_EXTERN bool sg_httpsrv_tls_listen(struct sg_httpsrv *srv, const char *key,
 SG_EXTERN bool sg_httpsrv_listen(struct sg_httpsrv *srv, uint16_t port,
                                  bool threaded);
 
-/* experimental feature. */
-SG_EXTERN int sg_httpsrv_process(struct sg_httpsrv *srv);
-
 /**
  * Stops the server not to accept new connections.
  * \param[in] srv Server handle.

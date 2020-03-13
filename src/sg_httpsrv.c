@@ -263,41 +263,6 @@ bool sg_httpsrv_listen(struct sg_httpsrv *srv, uint16_t port, bool threaded) {
   return sg__httpsrv_listen(srv, NULL, NULL, NULL, NULL, NULL, port, threaded);
 }
 
-int sg_httpsrv_process(struct sg_httpsrv *srv) {
-  char err[SG_ERR_SIZE];
-  struct timeval tv, *tvp;
-  fd_set rs, ws, es;
-  MHD_socket maxsock;
-  MHD_UNSIGNED_LONG_LONG timeout;
-  int errnum;
-  if (!srv)
-    return EINVAL;
-  maxsock = 0;
-  FD_ZERO(&rs);
-  FD_ZERO(&ws);
-  FD_ZERO(&es);
-  if (MHD_get_fdset(srv->handle, &rs, &ws, &es, &maxsock) != MHD_YES) {
-    srv->err_cb(srv->cls, _("Fatal internal error.\n"));
-    return EINVAL;
-  }
-  if (MHD_get_timeout(srv->handle, &timeout) == MHD_YES) {
-    tv.tv_sec = timeout / 1000;
-    tv.tv_usec = (timeout % 1000) * 1000;
-    tvp = &tv;
-  } else
-    tvp = NULL;
-  if (select(maxsock + 1, &rs, &ws, &es, tvp) == -1) {
-    errnum = errno;
-    if (errnum != EINTR)
-      sg__httpsrv_eprintf(srv, _("Error during select: %s.\n"),
-                          sg_strerror(errnum, err, sizeof(err)));
-    return errnum;
-  }
-  if (MHD_run(srv->handle) != MHD_YES)
-    return EINVAL;
-  return 0;
-}
-
 int sg_httpsrv_shutdown(struct sg_httpsrv *srv) {
   if (!srv)
     return EINVAL;
