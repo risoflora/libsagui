@@ -59,7 +59,7 @@ static struct sg_route *sg__route_new(const char *pattern, char *errmsg,
   route->pattern = sg_malloc(off);
   if (!route->pattern) {
     *errnum = ENOMEM;
-    goto fail;
+    goto error;
   }
   snprintf(route->pattern, off, ((*pattern == '(') ? "%s" : "^%s$"), pattern);
   route->re = pcre2_compile((PCRE2_SPTR) route->pattern, PCRE2_ZERO_TERMINATED,
@@ -70,7 +70,7 @@ static struct sg_route *sg__route_new(const char *pattern, char *errmsg,
              _("Pattern compilation failed at offset %d: %s.\n"),
              (unsigned int) off, err);
     *errnum = EINVAL;
-    goto fail;
+    goto error;
   }
 #ifdef PCRE2_JIT_SUPPORT
   *errnum = pcre2_jit_compile(route->re, PCRE2_JIT_COMPLETE);
@@ -78,7 +78,7 @@ static struct sg_route *sg__route_new(const char *pattern, char *errmsg,
     pcre2_get_error_message(*errnum, err, sizeof(err));
     snprintf(errmsg, errlen, _("JIT compilation failed: %s.\n"), err);
     *errnum = EINVAL;
-    goto fail;
+    goto error;
   }
 #endif
   route->match = pcre2_match_data_create_from_pattern(route->re, NULL);
@@ -86,12 +86,12 @@ static struct sg_route *sg__route_new(const char *pattern, char *errmsg,
     strncpy(errmsg, _("Cannot allocate match data from the pattern.\n"),
             errlen);
     *errnum = EINVAL;
-    goto fail;
+    goto error;
   }
   route->cb = cb;
   route->cls = cls;
   return route;
-fail:
+error:
   sg__route_free(route);
   return NULL;
 }

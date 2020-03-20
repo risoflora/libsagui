@@ -36,16 +36,16 @@ struct sg_strmap *sg__strmap_new(const char *name, const char *val) {
     return NULL;
   pair->key = strdup(name);
   if (!pair->key)
-    goto fail;
+    goto error;
   pair->name = strdup(name);
   if (!pair->name)
-    goto fail;
+    goto error;
   pair->val = strdup(val);
   if (!pair->val)
-    goto fail;
+    goto error;
   sg__toasciilower(pair->key);
   return pair;
-fail:
+error:
   sg__strmap_free(pair);
   return NULL;
 }

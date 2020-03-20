@@ -449,11 +449,8 @@ static void test_ip(void) {
   ASSERT(sg_ip(&sa, buf, -1) == EINVAL);
 
   sa.sa_family = AF_INET;
-  ASSERT(sg_ip(&sa, buf, 16) == 0);
+  ASSERT(sg_ip(&sa, buf, sizeof(buf)) == 0);
   ASSERT(strcmp(buf, "0.0.0.0") == 0);
-  sa.sa_family = AF_INET6;
-  ASSERT(sg_ip(&sa, buf, 46) == 0);
-  ASSERT(strlen(buf) > 0);
 
   /* we do not need massive testing for inet_ntop() since it is already tested by the glibc team. */
 }

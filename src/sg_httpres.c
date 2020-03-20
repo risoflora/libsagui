@@ -487,7 +487,11 @@ int sg_httpres_zsendstream2(struct sg_httpres *res, int level, uint64_t size,
     goto error_res;
   }
   res->status = status;
+#ifdef SG_TESTING
+  errnum = 0;
+#else
   return 0;
+#endif
 error_res:
   sg_free(holder->buf_in);
 error_buf_in:
@@ -563,7 +567,11 @@ int sg_httpres_zsendfile2(struct sg_httpres *res, int level, uint64_t size,
     goto error_res;
   }
   res->status = status;
+#ifdef SG_TESTING
+  errnum = 0;
+#else
   return 0;
+#endif
 error_res:
   sg_free(holder->handle);
 error_handle:

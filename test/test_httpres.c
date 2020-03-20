@@ -157,11 +157,6 @@ static void test_httpres_sendbinary(struct sg_httpres *res) {
   MHD_destroy_response(res->handle);
   res->handle = NULL;
   res->status = 0;
-  ASSERT(sg_httpres_sendbinary(res, "", len, "text/plain", 200) == 0);
-  ASSERT(res->status == 200);
-  MHD_destroy_response(res->handle);
-  res->handle = NULL;
-  res->status = 0;
   ASSERT(sg_httpres_sendbinary(res, "foo", 0, "text/plain", 200) == 0);
   ASSERT(res->status == 200);
   MHD_destroy_response(res->handle);

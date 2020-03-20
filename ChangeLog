@@ -1,4 +1,34 @@
-2019-12-05  silvioprog  <silvioprog@gmail.com>
+2020-03-19  silvioprog  <silvioprog@gmail.com>
+
+	Bump v2.5.5
+
+2020-03-12  silvioprog  <silvioprog@gmail.com>
+
+	Removed experimental feature "sg_httpsrv_process()". (issue #9)
+
+	Added experimental feature "sg_httpsrv_process()".
+
+	Moved the error handling logic to the server.
+
+	Bump v2.5.4
+
+2020-03-11  silvioprog  <silvioprog@gmail.com>
+
+	Forced the clients to leave from the server when it is shutting down.
+
+	Removed the PDF generation for the library API reference.
+
+	Upgraded PCRE library.
+
+	Added markdown rules.
+
+	Upgraded MHD and uthash libraries.
+
+2020-03-09  silvioprog  <silvioprog@gmail.com>
+
+	Limited the shutdown time out based on the maximum connection time out of the clients.
+
+2019-12-10  silvioprog  <silvioprog@gmail.com>
 
 	Bump v2.5.2
 
