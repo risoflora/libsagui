@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -48,17 +48,17 @@ static int sg__httpuplds_add(struct sg_httpsrv *srv, struct sg_httpreq *req,
   LL_APPEND(req->uplds, req->curr_upld);
   req->curr_upld->dir = sg__strdup(srv->uplds_dir);
   if (!req->curr_upld->dir)
-    goto fail;
+    goto error;
   req->curr_upld->field = sg__strdup(fieldname);
   req->curr_upld->name = sg__strdup(filename);
   if (!req->curr_upld->name)
-    goto fail;
+    goto error;
   req->curr_upld->mime = sg__strdup(content_type);
   req->curr_upld->encoding = sg__strdup(transfer_encoding);
   req->curr_upld->save_cb = srv->upld_save_cb;
   req->curr_upld->save_as_cb = srv->upld_save_as_cb;
   return 0;
-fail:
+error:
   sg__httpuplds_free(NULL, req);
   return ENOMEM;
 }
@@ -186,22 +186,24 @@ int sg__httpupld_cb(void *cls, void **handle, const char *dir,
   if (stat(dir, &sbuf)) {
     sg__httpsrv_eprintf(cls, _("Cannot find uploads directory \"%s\": %s.\n"),
                         dir, sg_strerror(errno, err, sizeof(err)));
-    return ENOENT;
+    errnum = ENOENT;
+    goto error_dir;
   }
   if (!S_ISDIR(sbuf.st_mode)) {
     sg__httpsrv_eprintf(cls, _("Cannot access uploads directory \"%s\": %s.\n"),
                         dir, sg_strerror(ENOTDIR, err, sizeof(err)));
-    return ENOTDIR;
+    errnum = ENOTDIR;
+    goto error_dir;
   }
   upld->path = sg__strjoin(PATH_SEP, dir, "sg_upld_tmp_XXXXXX");
   if (!upld->path) {
     errnum = ENOMEM;
-    goto fail;
+    goto error_path;
   }
   upld->dest = sg__strjoin(PATH_SEP, dir, name);
   if (!upld->dest) {
     errnum = ENOMEM;
-    goto fail;
+    goto error_path;
   }
   upld->fd = mkstemp(upld->path);
   if (upld->fd == -1) {
@@ -209,13 +211,14 @@ int sg__httpupld_cb(void *cls, void **handle, const char *dir,
     sg__httpsrv_eprintf(
       cls, _("Cannot create temporary upload file in \"%s\": %s.\n"), dir,
       sg_strerror(errnum, err, sizeof(err)));
-    goto fail;
+    goto error_path;
   }
   *handle = upld;
   return 0;
-fail:
+error_path:
   sg_free(upld->path);
   sg_free(upld->dest);
+error_dir:
   sg_free(upld);
   return errnum;
 }
