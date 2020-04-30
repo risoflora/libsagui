@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,15 +25,29 @@
  */
 
 #include <errno.h>
+#include <pthread.h>
 #include "sg_macros.h"
 #include "microhttpd.h"
 #include "sagui.h"
 #include "sg_extra.h"
-#include "sg_httpres.h"
 #include "sg_httpreq.h"
+#include "sg_httpres.h"
 #include "sg_httpauth.h"
+#include "sg_httpsrv.h"
 
-struct sg_httpreq *sg__httpreq_new(struct MHD_Connection *con,
+static void *sg__httpreq_isolate_cb(void *cls) {
+  struct sg__httpreq_isolated *isolated = cls;
+  isolated->cb(isolated->cls, isolated->handle, isolated->handle->res);
+  sg__httpsrv_lock(isolated->handle->srv);
+  LL_DELETE(isolated->handle->srv->isolated_list, isolated);
+  sg__httpsrv_unlock(isolated->handle->srv);
+  MHD_resume_connection(isolated->handle->con);
+  sg_free(isolated);
+  return NULL;
+}
+
+struct sg_httpreq *sg__httpreq_new(struct sg_httpsrv *srv,
+                                   struct MHD_Connection *con,
                                    const char *version, const char *method,
                                    const char *path) {
   struct sg_httpreq *req = sg_alloc(sizeof(struct sg_httpreq));
@@ -48,6 +62,7 @@ struct sg_httpreq *sg__httpreq_new(struct MHD_Connection *con,
   req->payload = sg_str_new();
   if (!req->payload)
     goto error;
+  req->srv = srv;
   req->con = con;
   req->version = version;
   req->method = method;
@@ -73,6 +88,13 @@ void sg__httpreq_free(struct sg_httpreq *req) {
   sg__httpres_free(req->res);
   sg__httpauth_free(req->auth);
   sg_free(req);
+}
+
+struct sg_httpsrv *sg_httpreq_srv(struct sg_httpreq *req) {
+  if (req)
+    return req->srv;
+  errno = EINVAL;
+  return NULL;
 }
 
 struct sg_strmap **sg_httpreq_headers(struct sg_httpreq *req) {
@@ -181,7 +203,40 @@ void *sg_httpreq_tls_session(struct sg_httpreq *req) {
   return NULL;
 }
 
-#endif
+#endif /* SG_HTTPS_SUPPORT */
+
+int sg_httpreq_isolate(struct sg_httpreq *req, sg_httpreq_cb cb, void *cls) {
+  struct sg__httpreq_isolated *isolated;
+  int errnum = 0;
+  if (!req || !cb)
+    return EINVAL;
+  sg__httpsrv_lock(req->srv);
+  if (req->isolated) {
+    errnum = EALREADY;
+    goto error;
+  }
+  isolated = sg_malloc(sizeof(struct sg__httpreq_isolated));
+  if (!isolated) {
+    errnum = ENOMEM;
+    goto error;
+  }
+  isolated->handle = req;
+  isolated->cb = cb;
+  isolated->cls = cls;
+  MHD_suspend_connection(req->con);
+  LL_APPEND(req->srv->isolated_list, isolated);
+  req->isolated = true;
+  errnum =
+    pthread_create(&isolated->thread, NULL, sg__httpreq_isolate_cb, isolated);
+  if (errnum != 0) {
+    LL_DELETE(req->srv->isolated_list, isolated);
+    sg_free(isolated);
+    MHD_resume_connection(req->con);
+  }
+error:
+  sg__httpsrv_unlock(req->srv);
+  return errnum;
+}
 
 int sg_httpreq_set_user_data(struct sg_httpreq *req, void *data) {
   if (!req)

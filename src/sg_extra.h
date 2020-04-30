@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -30,7 +30,7 @@
 #include "sg_macros.h"
 #ifdef SG_HTTP_COMPRESSION
 #include "zlib.h"
-#endif
+#endif /* SG_HTTP_COMPRESSION */
 #include "microhttpd.h"
 #include "sg_strmap.h"
 #include "sagui.h"
@@ -54,6 +54,6 @@ SG__EXTERN int sg__zdeflate(z_stream *stream, Bytef *zbuf, int flush,
                             z_const Bytef *src, uInt src_size, Bytef **dest,
                             z_size_t *dest_size);
 
-#endif
+#endif /* SG_HTTP_COMPRESSION */
 
 #endif /* SG_EXTRA_H */

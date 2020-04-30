@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -30,10 +30,11 @@
 #include <string.h>
 #include "sg_httpreq.h"
 
-static void test__httpreq_new(void) {
+static void test__httpreq_new(struct sg_httpsrv *srv) {
   struct MHD_Connection *con = sg_alloc(64);
-  struct sg_httpreq *req = sg__httpreq_new(con, "abc", "def", "ghi");
+  struct sg_httpreq *req = sg__httpreq_new(srv, con, "abc", "def", "ghi");
   ASSERT(req);
+  ASSERT(req->srv == srv);
   ASSERT(strcmp(req->version, "abc") == 0);
   ASSERT(strcmp(req->method, "def") == 0);
   ASSERT(strcmp(req->path, "ghi") == 0);
@@ -43,6 +44,33 @@ static void test__httpreq_new(void) {
 
 static void test__httpreq_free(void) {
   sg__httpreq_free(NULL);
+}
+
+static void dummy_httpreq_cb(void *cls, struct sg_httpreq *req,
+                             struct sg_httpres *res) {
+  (void) cls;
+  (void) req;
+  (void) res;
+}
+
+static void test_httpreq_srv(struct sg_httpreq *req) {
+  struct sg_httpsrv *srv;
+  errno = 0;
+  ASSERT(!sg_httpreq_srv(NULL));
+  ASSERT(errno == EINVAL);
+
+  ASSERT(sg_httpreq_srv(req));
+
+  errno = 0;
+  req->srv = NULL;
+  ASSERT(!sg_httpreq_srv(req));
+  ASSERT(errno == 0);
+
+  srv = sg_httpsrv_new(dummy_httpreq_cb, NULL);
+  req->srv = srv;
+  ASSERT(sg_httpreq_srv(req) == srv);
+  sg_httpsrv_free(srv);
+  ASSERT(errno == 0);
 }
 
 static void test_httpreq_headers(struct sg_httpreq *req) {
@@ -243,7 +271,13 @@ static void test_httpreq_tls_session(void) {
   /* more tests in `test_httpsrv_tls_curl.c`. */
 }
 
-#endif
+#endif /* SG_HTTPS_SUPPORT */
+
+static void test_httpreq_isolate(struct sg_httpreq *req) {
+  ASSERT(sg_httpreq_isolate(NULL, dummy_httpreq_cb, NULL) == EINVAL);
+  ASSERT(sg_httpreq_isolate(req, NULL, NULL) == EINVAL);
+  /* more tests in `test_httpsrv_curl.c`. */
+}
 
 static void test_httpreq_set_user_data(struct sg_httpreq *req) {
   const char *dummy = "foo";
@@ -272,9 +306,11 @@ static void test_httpreq_user_data(struct sg_httpreq *req) {
 }
 
 int main(void) {
-  struct sg_httpreq *req = sg__httpreq_new(NULL, NULL, NULL, NULL);
-  test__httpreq_new();
+  struct sg_httpsrv *srv = sg_httpsrv_new(dummy_httpreq_cb, NULL);
+  struct sg_httpreq *req = sg__httpreq_new(srv, NULL, NULL, NULL, NULL);
+  test__httpreq_new(srv);
   test__httpreq_free();
+  test_httpreq_srv(req);
   test_httpreq_headers(req);
   test_httpreq_cookies(req);
   test_httpreq_params(req);
@@ -288,9 +324,11 @@ int main(void) {
   test_httpreq_client();
 #ifdef SG_HTTPS_SUPPORT
   test_httpreq_tls_session();
-#endif
+#endif /* SG_HTTPS_SUPPORT */
+  test_httpreq_isolate(req);
   test_httpreq_set_user_data(req);
   test_httpreq_user_data(req);
   sg__httpreq_free(req);
+  sg_httpsrv_free(srv);
   return EXIT_SUCCESS;
 }

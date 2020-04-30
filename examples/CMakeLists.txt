@@ -25,7 +25,7 @@
 #
 # Cross-platform library which helps to develop web servers or frameworks.
 #
-# Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+# Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
 #
 # Sagui library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -55,15 +55,18 @@ if(SG_BUILD_EXAMPLES)
   endif()
   set(SG_EXAMPLES_SOURCE_DIR ${CMAKE_SOURCE_DIR}/examples)
   list(
-    APPEND SG_EXAMPLES
-           str
-           strmap
-           httpauth
-           httpcookie
-           httpsrv
-           httpuplds
-           httpsrv_benchmark
-           httpreq_payload)
+    APPEND
+    SG_EXAMPLES
+    str
+    strmap
+    httpauth
+    httpcookie
+    httpsrv
+    httpuplds
+    httpsrv_benchmark
+    httpsrv_sse
+    httpreq_payload
+    httpreq_isolate)
   if(SG_HTTPS_SUPPORT AND GNUTLS_FOUND)
     set(SG_EXAMPLES_CERTS_DIR "${SG_EXAMPLES_SOURCE_DIR}/certs")
     add_definitions(-DSG_EXAMPLES_CERTS_DIR="${SG_EXAMPLES_CERTS_DIR}")
@@ -74,8 +77,14 @@ if(SG_BUILD_EXAMPLES)
     list(APPEND SG_EXAMPLES httpcomp)
   endif()
   if(SG_PATH_ROUTING)
-    list(APPEND SG_EXAMPLES entrypoint router_simple router_segments
-                router_vars router_srv)
+    list(
+      APPEND
+      SG_EXAMPLES
+      entrypoint
+      router_simple
+      router_segments
+      router_vars
+      router_srv)
   endif()
   set(SG_EXAMPLES
       ${SG_EXAMPLES}
@@ -86,7 +95,7 @@ if(SG_BUILD_EXAMPLES)
     option(SG_BUILD_${_EXAMPLE}_EXAMPLE "Build sg_${_example} example" ON)
     if(SG_BUILD_${_EXAMPLE}_EXAMPLE)
       list(APPEND SG_EXAMPLES_SOURCE
-                  ${SG_EXAMPLES_SOURCE_DIR}/example_${_example}.c)
+           ${SG_EXAMPLES_SOURCE_DIR}/example_${_example}.c)
       add_executable(example_${_example}
                      ${SG_EXAMPLES_SOURCE_DIR}/example_${_example}.c)
       target_link_libraries(example_${_example} ${_libs})

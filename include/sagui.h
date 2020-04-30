@@ -52,29 +52,29 @@ extern "C" {
 #ifdef _WIN32
 #ifdef BUILDING_LIBSAGUI
 #define SG_EXTERN __declspec(dllexport) extern
-#else
+#else /* _WIN32 */
 #define SG_EXTERN __declspec(dllimport) extern
-#endif
-#else
+#endif /* _WIN32 */
+#else /* BUILDING_LIBSAGUI */
 #define SG_EXTERN extern
-#endif
-#endif
+#endif /* BUILDING_LIBSAGUI */
+#endif /* SG_EXTERN */
 
 #ifndef __SG_UNUSED
 #define __SG_UNUSED __attribute__((unused))
-#endif
+#endif /* __SG_UNUSED */
 
 #ifndef __SG_MALLOC
 #define __SG_MALLOC __attribute__((malloc))
-#endif
+#endif /* __SG_MALLOC */
 
 #ifndef __SG_FORMAT
 #define __SG_FORMAT(...) __attribute__((format(printf, __VA_ARGS__)))
-#endif
+#endif /* __SG_FORMAT */
 
-#define SG_VERSION_MAJOR 2
-#define SG_VERSION_MINOR 5
-#define SG_VERSION_PATCH 5
+#define SG_VERSION_MAJOR 3
+#define SG_VERSION_MINOR 0
+#define SG_VERSION_PATCH 0
 #define SG_VERSION_HEX                                                         \
   ((SG_VERSION_MAJOR << 16) | (SG_VERSION_MINOR << 8) | (SG_VERSION_PATCH))
 
@@ -579,7 +579,7 @@ struct sg_httpres;
 struct sg_httpsrv;
 
 /**
- * Callback signature used to handle client events.
+ * Callback signature used to handle client connection events.
  * \param[out] cls User-defined closure.
  * \param[out] client Socket handle of the client.
  * \param[in,out] closed Indicates if the client is connected allowing to
@@ -684,7 +684,8 @@ SG_EXTERN int sg_httpauth_deny(struct sg_httpauth *auth, const char *reason,
                                const char *content_type);
 
 /**
- * Cancels the authentication loop while the user is trying to acess the server.
+ * Cancels the authentication loop while the user is trying to access
+ * the server.
  * \param[in] auth Authentication handle.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
@@ -817,6 +818,14 @@ SG_EXTERN int sg_httpupld_save_as(struct sg_httpupld *upld, const char *path,
                                   bool overwritten);
 
 /**
+ * Returns the server instance.
+ * \param[in] req Request handle.
+ * \return Reference to the server instance.
+ * \retval NULL If \pr{req} is null and sets the `errno` to `EINVAL`
+ */
+SG_EXTERN struct sg_httpsrv *sg_httpreq_srv(struct sg_httpreq *req);
+
+/**
  * Returns the client headers into #sg_strmap map.
  * \param[in] req Request handle.
  * \return Reference to the client headers map.
@@ -920,7 +929,25 @@ SG_EXTERN const void *sg_httpreq_client(struct sg_httpreq *req);
  */
 SG_EXTERN void *sg_httpreq_tls_session(struct sg_httpreq *req);
 
-#endif
+#endif /* SG_HTTPS_SUPPORT */
+
+/**
+ * Isolates a request from the main event loop to an own dedicated thread,
+ * bringing it back when the request finishes.
+ * \param[in] req Request handle.
+ * \param[in] cb Callback to handle requests and responses isolated from the
+ * main event loop.
+ * \param[in] cls User-defined closure.
+ * \retval 0 Success.
+ * \retval EINVAL Invalid argument.
+ * \retval ENOMEM Out of memory.
+ * \retval E<ERROR> Any returned error from the OS threading library.
+ * \note Isolated requestes will not time out.
+ * \note While a request is isolated, the library will not detect disconnects
+ * by the client.
+ */
+SG_EXTERN int sg_httpreq_isolate(struct sg_httpreq *req, sg_httpreq_cb cb,
+                                 void *cls);
 
 /**
  * Sets user data to the request handle.
@@ -1293,7 +1320,7 @@ SG_EXTERN int sg_httpres_zsendfile(struct sg_httpres *res, uint64_t size,
                                    const char *filename, bool downloaded,
                                    unsigned int status);
 
-#endif
+#endif /* SG_HTTP_COMPRESSION */
 
 /**
  * Clears all headers, cookies, statuses and internal buffers of the response
@@ -1315,6 +1342,7 @@ SG_EXTERN int sg_httpres_clear(struct sg_httpres *res);
  * \retval NULL If no memory space is available.
  * \retval NULL If the \pr{req_cb} or \pr{err_cb} is null and sets the `errno`
  * to `EINVAL`.
+ * \retval NULL If a threading operation fails and sets its error to `errno`.
  */
 SG_EXTERN struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb,
                                              sg_httpreq_cb req_cb,
@@ -1327,6 +1355,7 @@ SG_EXTERN struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb,
  * \param[in] cls User-defined closure.
  * \return New HTTP server handle.
  * \retval NULL If the \pr{cb} is null and sets the `errno` to `EINVAL`.
+ * \retval NULL If a threading operation fails and sets its error to `errno`.
  */
 SG_EXTERN struct sg_httpsrv *sg_httpsrv_new(sg_httpreq_cb cb,
                                             void *cls) __SG_MALLOC;
@@ -1385,7 +1414,7 @@ SG_EXTERN bool sg_httpsrv_tls_listen(struct sg_httpsrv *srv, const char *key,
                                      const char *cert, uint16_t port,
                                      bool threaded);
 
-#endif
+#endif /* SG_HTTPS_SUPPORT */
 
 /**
  * Starts the HTTP server.
@@ -1404,10 +1433,9 @@ SG_EXTERN bool sg_httpsrv_listen(struct sg_httpsrv *srv, uint16_t port,
 /**
  * Stops the server not to accept new connections.
  * \param[in] srv Server handle.
- * \retval 0 If the server is stopped. If \pr{srv} is null, sets the `errno` to
- * `EINVAL`.
- * \note When #sg_httpsrv_set_con_timeout() is set, the server waits for the
- * clients to be closed before shutting down.
+ * \retval 0 If the server is stopped.
+ * \retval EINVAL Invalid argument.
+ * \retval EALREADY Already shut down.
  */
 SG_EXTERN int sg_httpsrv_shutdown(struct sg_httpsrv *srv);
 
@@ -1428,7 +1456,7 @@ SG_EXTERN uint16_t sg_httpsrv_port(struct sg_httpsrv *srv);
 SG_EXTERN bool sg_httpsrv_is_threaded(struct sg_httpsrv *srv);
 
 /**
- * Sets the server callback for client events.
+ * Sets the server callback for client connection events.
  * \param[in] srv Server handle.
  * \param[in] cb Callback to handle client events.
  * \param[in] cls User-defined closure.
@@ -1579,6 +1607,15 @@ SG_EXTERN int sg_httpsrv_set_con_limit(struct sg_httpsrv *srv,
  * \retval 0 If the \pr{srv} is null and sets the `errno` to `EINVAL`.
  */
 SG_EXTERN unsigned int sg_httpsrv_con_limit(struct sg_httpsrv *srv);
+
+/**
+ * Returns the MHD instance.
+ * \param[in] srv Server handle.
+ * \return MHD instance.
+ * \return NULL If the server is shut down.
+ * \retval NULL If \pr{srv} is null and sets the `errno` to `EINVAL`.
+ */
+SG_EXTERN void *sg_httpsrv_handle(struct sg_httpsrv *srv);
 
 /** \} */
 
@@ -2019,7 +2056,7 @@ SG_EXTERN int sg_router_dispatch(struct sg_router *router, const char *path,
 
 /** \} */
 
-#endif
+#endif /* SG_PATH_ROUTING */
 
 #ifdef __cplusplus
 }

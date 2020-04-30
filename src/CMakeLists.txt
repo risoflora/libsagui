@@ -22,7 +22,7 @@
 #
 # Cross-platform library which helps to develop web servers or frameworks.
 #
-# Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+# Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
 #
 # Sagui library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -54,30 +54,31 @@ set(SG_SOURCE_DIR
     PARENT_SCOPE)
 
 list(
-  APPEND SG_C_SOURCE
-         ${SG_SOURCE_DIR}/sg_utils.c
-         ${SG_SOURCE_DIR}/sg_extra.c
-         ${SG_SOURCE_DIR}/sg_str.c
-         ${SG_SOURCE_DIR}/sg_strmap.c
-         ${SG_SOURCE_DIR}/sg_httpauth.c
-         ${SG_SOURCE_DIR}/sg_httpuplds.c
-         ${SG_SOURCE_DIR}/sg_httpreq.c
-         ${SG_SOURCE_DIR}/sg_httpres.c
-         ${SG_SOURCE_DIR}/sg_httpsrv.c)
+  APPEND
+  SG_C_SOURCE
+  ${SG_SOURCE_DIR}/sg_utils.c
+  ${SG_SOURCE_DIR}/sg_extra.c
+  ${SG_SOURCE_DIR}/sg_str.c
+  ${SG_SOURCE_DIR}/sg_strmap.c
+  ${SG_SOURCE_DIR}/sg_httpauth.c
+  ${SG_SOURCE_DIR}/sg_httpuplds.c
+  ${SG_SOURCE_DIR}/sg_httpreq.c
+  ${SG_SOURCE_DIR}/sg_httpres.c
+  ${SG_SOURCE_DIR}/sg_httpsrv.c)
 if(NOT HAVE_INET_NTOP)
   list(APPEND SG_C_SOURCE ${SG_SOURCE_DIR}/inet.c)
 endif()
 if(SG_PATH_ROUTING)
   list(APPEND SG_C_SOURCE ${SG_SOURCE_DIR}/sg_entrypoint.c
-              ${SG_SOURCE_DIR}/sg_entrypoints.c ${SG_SOURCE_DIR}/sg_routes.c
-              ${SG_SOURCE_DIR}/sg_router.c)
+       ${SG_SOURCE_DIR}/sg_entrypoints.c ${SG_SOURCE_DIR}/sg_routes.c
+       ${SG_SOURCE_DIR}/sg_router.c)
 endif()
 set(SG_C_SOURCE
     ${SG_C_SOURCE}
     PARENT_SCOPE)
 
 list(APPEND SG_SOURCE ${SG_INCLUDE_DIR}/sagui.h ${SG_SOURCE_DIR}/sg_macros.h
-            ${SG_C_SOURCE})
+     ${SG_C_SOURCE})
 if(WIN32 AND BUILD_SHARED_LIBS)
   list(APPEND SG_SOURCE ${SG_LIBSAGUI_RC})
 endif()

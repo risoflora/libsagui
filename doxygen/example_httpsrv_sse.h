@@ -24,15 +24,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef INET_H
-#define INET_H
+#ifndef EXAMPLE_HTTPSRV_SSE_H
+#define EXAMPLE_HTTPSRV_SSE_H
 
-#ifdef _WIN32
-#include <ws2tcpip.h>
-#else /* _WIN32 */
-#include <unistd.h>
-#endif /* _WIN32 */
+/**
+ * \example example_httpsrv.c
+ * Simple example showing a basic SSE (Server-sent events) server.
+ */
 
-const char *inet_ntop(int af, const void *src, char *dst, socklen_t size);
-
-#endif /* INET_H */
+#endif /* EXAMPLE_HTTPSRV_SSE_H */

@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -36,7 +36,7 @@
 #include "sg_macros.h"
 #ifdef SG_HTTP_COMPRESSION
 #include "zlib.h"
-#endif
+#endif /* SG_HTTP_COMPRESSION */
 #include "microhttpd.h"
 #include "sagui.h"
 #include "sg_utils.h"
@@ -50,8 +50,8 @@ static void sg__httpres_openfile(struct sg_httpres *res, const char *filename,
   const char *fn;
   size_t fn_size;
   char *disp;
-  *fd = open(filename, O_RDONLY);
-  if ((*fd == -1) || fstat(*fd, sbuf)) {
+#ifdef _WIN32
+  if (stat(filename, sbuf)) {
     *errnum = errno;
     return;
   }
@@ -59,6 +59,18 @@ static void sg__httpres_openfile(struct sg_httpres *res, const char *filename,
     *errnum = EISDIR;
     return;
   }
+#endif /* _WIN32 */
+  *fd = open(filename, O_RDONLY);
+  if ((*fd == -1) || fstat(*fd, sbuf)) {
+    *errnum = errno;
+    return;
+  }
+#ifndef _WIN32
+  if (S_ISDIR(sbuf->st_mode)) {
+    *errnum = EISDIR;
+    return;
+  }
+#endif /* _WIN32 */
   if (!S_ISREG(sbuf->st_mode)) {
     *errnum = EBADF;
     return;
@@ -69,7 +81,7 @@ static void sg__httpres_openfile(struct sg_httpres *res, const char *filename,
   }
   if (disposition) {
 #define SG__FNFMT "%s; filename=\"%s\""
-    fn = basename(filename);
+    fn = sg__basename(filename);
     fn_size = (size_t) snprintf(NULL, 0, SG__FNFMT, disposition, fn) + 1;
     disp = sg_malloc(fn_size);
     if (!disp) {
@@ -77,7 +89,7 @@ static void sg__httpres_openfile(struct sg_httpres *res, const char *filename,
       return;
     }
     snprintf(disp, fn_size, SG__FNFMT, disposition, fn);
-#undef SG__FNFMT
+#undef SG__FNFMT /* SG__FNFMT */
     *errnum =
       sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_DISPOSITION, disp);
     sg_free(disp);
@@ -171,9 +183,9 @@ static ssize_t sg__httpres_gzread_cb(void *handle, __SG_UNUSED uint64_t offset,
     mem[8] = (char) 0x00;
 #ifdef _WIN32
     mem[9] = (char) 0x0b;
-#else
+#else /* _WIN32 */
     mem[9] = (char) 0x03;
-#endif
+#endif /* _WIN32 */
     holder->crc = crc32(0L, Z_NULL, 0);
     return 10;
   }
@@ -251,7 +263,7 @@ static void sg__httpres_gzfree_cb(void *handle) {
   sg_free(holder);
 }
 
-#endif
+#endif /* SG_HTTP_COMPRESSION */
 
 struct sg_httpres *sg__httpres_new(struct MHD_Connection *con) {
   struct sg_httpres *res = sg_alloc(sizeof(struct sg_httpres));
@@ -489,9 +501,9 @@ int sg_httpres_zsendstream2(struct sg_httpres *res, int level, uint64_t size,
   res->status = status;
 #ifdef SG_TESTING
   errnum = 0;
-#else
+#else /* SG_TESTING */
   return 0;
-#endif
+#endif /* SG_TESTING */
 error_res:
   sg_free(holder->buf_in);
 error_buf_in:
@@ -569,9 +581,9 @@ int sg_httpres_zsendfile2(struct sg_httpres *res, int level, uint64_t size,
   res->status = status;
 #ifdef SG_TESTING
   errnum = 0;
-#else
+#else /* SG_TESTING */
   return 0;
-#endif
+#endif /* SG_TESTING */
 error_res:
   sg_free(holder->handle);
 error_handle:
@@ -595,7 +607,7 @@ int sg_httpres_zsendfile(struct sg_httpres *res, uint64_t size,
                                status);
 }
 
-#endif
+#endif /* SG_HTTP_COMPRESSION */
 
 int sg_httpres_clear(struct sg_httpres *res) {
   if (!res)

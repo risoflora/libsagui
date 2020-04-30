@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -33,23 +33,39 @@
 #ifndef NDEBUG
 #include <unistd.h>
 #include <errno.h>
-#endif
+#endif /* NDEBUG */
 #include "sagui.h"
 
+/* used by utstring library */
+#ifndef utstring_oom
+#define utstring_oom() (void) 0
+#endif /* utstring_oom */
+
+/* used by uthash library */
+#ifndef HASH_NONFATAL_OOM
+#define HASH_NONFATAL_OOM 1
+#endif /* HASH_NONFATAL_OOM */
+#ifndef uthash_malloc
+#define uthash_malloc sg_malloc
+#endif /* uthash_malloc */
+#ifndef uthash_free
+#define uthash_free(p, sz) sg_free((p))
+#endif /* uthash_free */
+
+/* used bt pcre2 library */
 #ifdef SG_PATH_ROUTING
 #ifndef PCRE2_CODE_UNIT_WIDTH
 #define PCRE2_CODE_UNIT_WIDTH 8
-#endif
-#include "pcre2.h"
-#endif
+#endif /* PCRE2_CODE_UNIT_WIDTH */
+#endif /* SG_PATH_ROUTING */
 
 #ifndef SG__EXTERN
 #if defined(_WIN32) && defined(BUILD_TESTING)
 #define SG__EXTERN __declspec(dllexport) extern
-#else
+#else /* SG__EXTERN */
 #define SG__EXTERN
-#endif
-#endif
+#endif /* _WIN32 && BUILD_TESTING */
+#endif /* SG__EXTERN */
 
 /* macro to make it easy to mark text for translation */
 #define _(String) (String)
@@ -60,56 +76,40 @@
 
 #ifdef _WIN32
 #define PATH_SEP '\\'
-#else
+#else /* _WIN32 */
 #define PATH_SEP '/'
-#endif
+#endif /* _WIN32 */
 
 #ifndef SG__BLOCK_SIZE
 #ifdef _WIN32
 #define SG__BLOCK_SIZE 16384 /* 16k */
-#else
+#else /* _WIN32 */
 #define SG__BLOCK_SIZE 4096 /* 4k */
-#endif
-#endif
+#endif /* _WIN32 */
+#endif /* SG__BLOCK_SIZE */
 
 #ifndef sg__off_t
 #ifdef _WIN64
 #define sg__off_t off64_t
-#else
+#else /* _WIN64 */
 #define sg__off_t off_t
-#endif
-#endif
+#endif /* _WIN64 */
+#endif /* sg__off_t */
 
 #ifndef sg__lseek
 #ifdef _WIN32
 #ifdef _WIN64
 #define sg__lseek _lseeki64
-#else
+#else /* _WIN64 */
 #define sg__lseek _lseek
-#endif
-#else
+#endif /* _WIN64 */
+#else /* _WIN32 */
 #define sg__lseek lseek
-#endif
-#endif
+#endif /* _WIN32 */
+#endif /* sg__lseek */
 
 #ifndef SG__ZLIB_CHUNK
 #define SG__ZLIB_CHUNK 16384 /* 16k */
-#endif
-
-/* used by utstring library */
-#ifndef utstring_oom
-#define utstring_oom() (void) 0
-#endif
-
-/* used by uthash library */
-#ifndef HASH_NONFATAL_OOM
-#define HASH_NONFATAL_OOM 1
-#endif
-#ifndef uthash_malloc
-#define uthash_malloc(sz) sg_malloc(sz)
-#endif
-#ifndef uthash_free
-#define uthash_free(ptr, sz) sg_free(ptr)
-#endif
+#endif /* SG__ZLIB_CHUNK */
 
 #endif /* SG_MACROS_H */

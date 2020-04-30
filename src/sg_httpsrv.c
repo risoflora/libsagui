@@ -29,13 +29,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <pthread.h>
 #include "sg_macros.h"
+#include "utlist.h"
 #include "microhttpd.h"
 #include "sagui.h"
 #include "sg_utils.h"
-#include "sg_httpsrv.h"
 #include "sg_httpauth.h"
 #include "sg_httpreq.h"
+#include "sg_httpreq.h"
+#include "sg_httpsrv.h"
 
 static void sg__httpsrv_oel(void *cls, const char *fmt, va_list ap) {
   struct sg_httpsrv *srv = cls;
@@ -56,16 +59,16 @@ static int sg__httpsrv_ahc(void *cls, struct MHD_Connection *con,
   const union MHD_ConnectionInfo *info;
 #ifdef SG_TESTING
   if (con) {
-#endif
+#endif /* SG_TESTING */
     info =
       MHD_get_connection_info(con, MHD_CONNECTION_INFO_SOCKET_CONTEXT, NULL);
     if (info && info->socket_context)
       return MHD_NO;
 #ifdef SG_TESTING
   }
-#endif
+#endif /* SG_TESTING */
   if (!req) {
-    req = sg__httpreq_new(con, version, method, url);
+    req = sg__httpreq_new(srv, con, version, method, url);
     if (!req)
       return MHD_NO;
     *con_cls = req;
@@ -80,9 +83,19 @@ static int sg__httpsrv_ahc(void *cls, struct MHD_Connection *con,
     if (sg__httpuplds_process(srv, req, con, upld_data, upld_data_size,
                               &req->res->ret))
       return req->res->ret;
-    srv->req_cb(srv->cls, req, req->res);
+    if (!req->isolated)
+      srv->req_cb(srv->cls, req, req->res);
   }
-  return sg__httpres_dispatch(req->res);
+#ifdef SG_TESTING
+  if (con) {
+#endif /* SG_TESTING */
+    info = MHD_get_connection_info(
+      con, MHD_CONNECTION_INFO_CONNECTION_SUSPENDED, NULL);
+#ifdef SG_TESTING
+  } else
+    info = NULL;
+#endif /* SG_TESTING */
+  return info && info->suspended ? MHD_YES : sg__httpres_dispatch(req->res);
 }
 
 static void sg__httpsrv_rcc(void *cls, __SG_UNUSED struct MHD_Connection *con,
@@ -140,6 +153,7 @@ static bool sg__httpsrv_listen(struct sg_httpsrv *srv, const char *key,
     return false;
   }
   flags = MHD_USE_DUAL_STACK | MHD_USE_ITC | MHD_USE_ERROR_LOG |
+          MHD_ALLOW_SUSPEND_RESUME |
           (threaded ?
              MHD_USE_INTERNAL_POLLING_THREAD | MHD_USE_THREAD_PER_CONNECTION :
              MHD_USE_AUTO_INTERNAL_THREAD);
@@ -187,9 +201,26 @@ void sg__httpsrv_eprintf(struct sg_httpsrv *srv, const char *fmt, ...) {
   srv->err_cb(srv->cls, err);
 }
 
+void sg__httpsrv_lock(struct sg_httpsrv *srv) {
+  char err[SG_ERR_SIZE];
+  int errnum = pthread_mutex_lock(&srv->mutex);
+  if (errnum != 0)
+    sg__httpsrv_eprintf(srv, _("Failed to lock mutex: %s.\n"),
+                        sg_strerror(errnum, err, sizeof(err)));
+}
+
+void sg__httpsrv_unlock(struct sg_httpsrv *srv) {
+  char err[SG_ERR_SIZE];
+  int errnum = pthread_mutex_unlock(&srv->mutex);
+  if (errnum != 0)
+    sg__httpsrv_eprintf(srv, _("Failed to unlock mutex: %s.\n"),
+                        sg_strerror(errnum, err, sizeof(err)));
+}
+
 struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb, sg_httpreq_cb req_cb,
                                    sg_err_cb err_cb, void *cls) {
   struct sg_httpsrv *srv;
+  int errnum;
   if (!req_cb || !err_cb) {
     errno = EINVAL;
     return NULL;
@@ -197,6 +228,18 @@ struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb, sg_httpreq_cb req_cb,
   srv = sg_alloc(sizeof(struct sg_httpsrv));
   if (!srv)
     return NULL;
+  srv->uplds_dir = sg_tmpdir();
+  if (!srv->uplds_dir) {
+    sg_free(srv);
+    return NULL;
+  }
+  errnum = pthread_mutex_init(&srv->mutex, NULL);
+  if (errnum != 0) {
+    sg_free(srv->uplds_dir);
+    sg_free(srv);
+    errno = errnum;
+    return NULL;
+  }
   srv->auth_cb = auth_cb;
   srv->req_cb = req_cb;
   srv->err_cb = err_cb;
@@ -207,20 +250,15 @@ struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb, sg_httpreq_cb req_cb,
   srv->upld_free_cb = sg__httpupld_free_cb;
   srv->upld_save_cb = sg__httpupld_save_cb;
   srv->upld_save_as_cb = sg__httpupld_save_as_cb;
-  srv->uplds_dir = sg_tmpdir();
-  if (!srv->uplds_dir) {
-    sg_free(srv);
-    return NULL;
-  }
 #ifdef __arm__
   srv->post_buf_size = 1024; /* ~1 Kb */
   srv->payld_limit = 1048576; /* ~1 MB */
   srv->uplds_limit = 16777216; /* ~16 MB */
-#else
+#else /* __arm__ */
   srv->post_buf_size = 4096; /* ~4 kB */
   srv->payld_limit = 4194304; /* ~4 MB */
   srv->uplds_limit = 67108864; /* ~64 MB */
-#endif
+#endif /* __arm__ */
   return srv;
 }
 
@@ -229,10 +267,36 @@ struct sg_httpsrv *sg_httpsrv_new(sg_httpreq_cb cb, void *cls) {
 }
 
 void sg_httpsrv_free(struct sg_httpsrv *srv) {
+  const union MHD_ConnectionInfo *info;
+  struct sg__httpreq_isolated *isolated, *tmp;
+  char err[SG_ERR_SIZE];
+  int errnum;
   if (!srv)
     return;
-  sg_free(srv->uplds_dir);
+  sg__httpsrv_lock(srv);
+  LL_FOREACH_SAFE(srv->isolated_list, isolated, tmp) {
+    sg__httpsrv_unlock(srv);
+    errnum = pthread_join(isolated->thread, NULL);
+    if (errnum != 0)
+      sg__httpsrv_eprintf(srv, _("Failed to join thread %p: %s.\n"),
+                          (void *) &isolated->thread,
+                          sg_strerror(errnum, err, sizeof(err)));
+    sg__httpsrv_lock(srv);
+  }
+  sg__httpsrv_unlock(srv);
+  sg__httpsrv_lock(srv);
+  LL_FOREACH_SAFE(srv->isolated_list, isolated, tmp) {
+    info = MHD_get_connection_info(
+      isolated->handle->con, MHD_CONNECTION_INFO_CONNECTION_SUSPENDED, NULL);
+    if (info && info->suspended)
+      MHD_resume_connection(isolated->handle->con);
+    LL_DELETE(srv->isolated_list, isolated);
+    sg_free(isolated);
+  }
+  sg__httpsrv_unlock(srv);
   sg_httpsrv_shutdown(srv);
+  sg_free(srv->uplds_dir);
+  pthread_mutex_destroy(&srv->mutex);
   sg_free(srv);
 }
 
@@ -257,7 +321,7 @@ bool sg_httpsrv_tls_listen(struct sg_httpsrv *srv, const char *key,
   return false;
 }
 
-#endif
+#endif /* SG_HTTPS_SUPPORT */
 
 bool sg_httpsrv_listen(struct sg_httpsrv *srv, uint16_t port, bool threaded) {
   return sg__httpsrv_listen(srv, NULL, NULL, NULL, NULL, NULL, port, threaded);
@@ -266,6 +330,8 @@ bool sg_httpsrv_listen(struct sg_httpsrv *srv, uint16_t port, bool threaded) {
 int sg_httpsrv_shutdown(struct sg_httpsrv *srv) {
   if (!srv)
     return EINVAL;
+  if (!srv->handle)
+    return EALREADY;
   if (srv->handle) {
     MHD_stop_daemon(srv->handle);
     srv->handle = NULL;
@@ -409,6 +475,13 @@ int sg_httpsrv_set_con_limit(struct sg_httpsrv *srv, unsigned int limit) {
 unsigned int sg_httpsrv_con_limit(struct sg_httpsrv *srv) {
   if (srv)
     return srv->con_limit;
+  errno = EINVAL;
+  return 0;
+}
+
+void *sg_httpsrv_handle(struct sg_httpsrv *srv) {
+  if (srv)
+    return srv->handle;
   errno = EINVAL;
   return 0;
 }

@@ -19,8 +19,8 @@ Raised error and/or generated log.
 
 OS, compiler and Sagui version to reproduce the problem, e.g.:
 
-- openSUSE Tumbleweed
-- GCC N.N.N
-- Sagui N.N.N x86
+- Fedora32
+- Clang N.N.N
+- Sagui N.N.N
 
 Any other information here. If applicable, a screenshot to help explain the problem.

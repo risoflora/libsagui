@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -31,7 +31,7 @@
 #include "utlist.h"
 #ifdef _WIN32
 #include "sg_utils.h"
-#endif
+#endif /* _WIN32 */
 #include "sg_routes.h"
 #include "sg_utils.h"
 #include "sagui.h"
@@ -80,7 +80,7 @@ static struct sg_route *sg__route_new(const char *pattern, char *errmsg,
     *errnum = EINVAL;
     goto error;
   }
-#endif
+#endif /* PCRE2_JIT_SUPPORT */
   route->match = pcre2_match_data_create_from_pattern(route->re, NULL);
   if (!route->match) {
     strncpy(errmsg, _("Cannot allocate match data from the pattern.\n"),
@@ -242,7 +242,7 @@ bool sg_routes_add(struct sg_route **routes, const char *pattern,
   if (ret == EINVAL || ret == EALREADY)
     sg_strerror(ret, err, sizeof(err));
   sg__err_cb(NULL, err);
-#endif
+#endif /* SG_TESTING */
   errno = ret;
   return false;
 }

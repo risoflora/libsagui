@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <unistd.h>
 #include <sys/stat.h>
 #include <curl/curl.h>
 #include <sagui.h>
@@ -43,7 +44,7 @@
 
 #ifndef TEST_HTTPSRV_CURL_PORT
 #define TEST_HTTPSRV_CURL_PORT 8080
-#endif
+#endif /* TEST_HTTPSRV_CURL_PORT */
 
 #ifndef TEST_HTTPSRV_CURL_BASE_PATH
 #ifdef __ANDROID__
@@ -51,11 +52,11 @@
 #else
 #ifdef _WIN32
 #define TEST_HTTPSRV_CURL_BASE_PATH ""
-#else
+#else /* _WIN32 */
 #define TEST_HTTPSRV_CURL_BASE_PATH "/tmp/"
-#endif
-#endif
-#endif
+#endif /* _WIN32 */
+#endif /* __ANDROID__ */
+#endif /* TEST_HTTPSRV_CURL_BASE_PATH */
 
 #define OK_MSG "libsagui [OK]"
 #define ERROR_MSG "libsagui [ERROR]"
@@ -92,22 +93,28 @@ static char *ftos(const char *filename) {
   return str;
 }
 
-#endif
+#endif /* SG_HTTP_COMPRESSION */
 
-static ssize_t sg_httpres_stream_read_cb(void *handle,
-                                         __SG_UNUSED uint64_t offset, char *buf,
-                                         size_t size) {
+static ssize_t httpres_stream_read_cb(void *handle, __SG_UNUSED uint64_t offset,
+                                      char *buf, size_t size) {
   ssize_t have = fread(buf, 1, size, handle);
   if ((have == 0) || (have < 0))
     return sg_eor(have < 0);
   return have;
 }
 
-static void sg_httpres_stream_free_cb(void *handle) {
+static void httpres_stream_free_cb(void *handle) {
   ASSERT(fclose(handle) == 0);
 }
 
-static bool srv_auth_cb(__SG_UNUSED void *cls, struct sg_httpauth *auth,
+static void httpreq_isolated_cb(__SG_UNUSED void *cls,
+                                __SG_UNUSED struct sg_httpreq *req,
+                                struct sg_httpres *res) {
+  usleep(1000 * 500);
+  sg_httpres_send(res, OK_MSG, "text/plain", 200);
+}
+
+static bool httpauth_cb(__SG_UNUSED void *cls, struct sg_httpauth *auth,
                         struct sg_httpreq *req,
                         __SG_UNUSED struct sg_httpres *res) {
   char *data = strdup("abc123");
@@ -128,13 +135,13 @@ static bool srv_auth_cb(__SG_UNUSED void *cls, struct sg_httpauth *auth,
   return pass;
 }
 
-static void srv_err_cb(__SG_UNUSED void *cls, const char *err) {
+static void httpsrv_err_cb(__SG_UNUSED void *cls, const char *err) {
   fprintf(stderr, "%s", err);
   fflush(stderr);
 }
 
-static void srv_req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req,
-                       struct sg_httpres *res) {
+static void httpsrv_req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req,
+                           struct sg_httpres *res) {
   const char *filename1 = TEST_HTTPSRV_CURL_BASE_PATH "foo_uploaded.txt";
   const char *filename2 = TEST_HTTPSRV_CURL_BASE_PATH "bar_uploaded.txt";
   const size_t len = 3;
@@ -151,7 +158,7 @@ static void srv_req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req,
 #ifdef SG_HTTP_COMPRESSION
   struct stat sbuf;
   const char *header;
-#endif
+#endif /* SG_HTTP_COMPRESSION */
   data = sg_httpreq_user_data(req);
   ASSERT(data);
   ASSERT(strcmp(data, "abc123") == 0);
@@ -182,7 +189,7 @@ static void srv_req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req,
         return;
       }
     }
-#endif
+#endif /* SG_HTTP_COMPRESSION */
     sg_httpres_send(res, OK_MSG, "text/plain", 200);
     return;
   }
@@ -273,7 +280,7 @@ static void srv_req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req,
                                 200) == 0);
     return;
   }
-#endif
+#endif /* SG_HTTP_COMPRESSION */
 
   if (strcmp(sg_httpreq_path(req), "/data") == 0) {
     ASSERT(strcmp(sg_httpreq_method(req), "GET") == 0);
@@ -292,15 +299,15 @@ static void srv_req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req,
            0);
     return;
   }
-#endif
+#endif /* SG_HTTP_COMPRESSION */
 
   if (strcmp(sg_httpreq_path(req), "/stream") == 0) {
     ASSERT(strcmp(sg_httpreq_method(req), "GET") == 0);
     ASSERT(access(filename1, F_OK) == 0);
     tmp_file = fopen(filename1, "r");
     ASSERT(tmp_file);
-    sg_httpres_sendstream(res, len, sg_httpres_stream_read_cb, tmp_file,
-                          sg_httpres_stream_free_cb, 200);
+    sg_httpres_sendstream(res, len, httpres_stream_read_cb, tmp_file,
+                          httpres_stream_free_cb, 200);
     return;
   }
 
@@ -309,11 +316,17 @@ static void srv_req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req,
     ASSERT(strcmp(sg_httpreq_method(req), "GET") == 0);
     tmp_file = fopen(__FILE__, "rb");
     ASSERT(tmp_file);
-    sg_httpres_zsendstream(res, sg_httpres_stream_read_cb, tmp_file,
-                           sg_httpres_stream_free_cb, 200);
+    sg_httpres_zsendstream(res, httpres_stream_read_cb, tmp_file,
+                           httpres_stream_free_cb, 200);
     return;
   }
-#endif
+#endif /* SG_HTTP_COMPRESSION */
+
+  if (strcmp(sg_httpreq_path(req), "/sleep") == 0) {
+    ASSERT(sg_httpreq_isolate(req, httpreq_isolated_cb, NULL) == 0);
+    ASSERT(sg_httpreq_isolate(req, httpreq_isolated_cb, NULL) == EALREADY);
+    return;
+  }
 
   sg_httpres_send(res, ERROR_MSG, "text/plain", 500);
 }
@@ -343,13 +356,13 @@ int main(void) {
   char *str;
   char *tmp;
   size_t size;
-#endif
+#endif /* SG_HTTP_COMPRESSION */
   long status;
   bool auth_403;
 
   curl_global_init(CURL_GLOBAL_ALL);
 
-  srv = sg_httpsrv_new2(srv_auth_cb, srv_req_cb, srv_err_cb, &auth_403);
+  srv = sg_httpsrv_new2(httpauth_cb, httpsrv_req_cb, httpsrv_err_cb, &auth_403);
   ASSERT(srv);
   curl = curl_easy_init();
   ASSERT(curl);
@@ -427,7 +440,7 @@ int main(void) {
   ASSERT(curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &cl) ==
          CURLE_OK);
   ASSERT((curl_off_t) strlen(PAGE) > cl);
-#endif
+#endif /* SG_HTTP_COMPRESSION */
 
   snprintf(url, sizeof(url), "http://localhost:%d/cancel-auth",
            TEST_HTTPSRV_CURL_PORT);
@@ -592,7 +605,7 @@ int main(void) {
   str[size] = '\0';
   ASSERT(strcmp(sg_str_content(res), str) == 0);
   free(tmp);
-#endif
+#endif /* SG_HTTP_COMPRESSION */
 
   snprintf(url, sizeof(url), "http://localhost:%d/download?filename=%s",
            TEST_HTTPSRV_CURL_PORT, filename2);
@@ -633,7 +646,7 @@ int main(void) {
   ASSERT(status == 200);
   ASSERT(strcmp(sg_str_content(res), "fooooooooooobaaaaaaaaaarrrrrrrrrrr") ==
          0);
-#endif
+#endif /* SG_HTTP_COMPRESSION */
 
   snprintf(url, sizeof(url), "http://localhost:%d/stream",
            TEST_HTTPSRV_CURL_PORT);
@@ -664,7 +677,19 @@ int main(void) {
   ASSERT(str);
   ASSERT(strcmp(sg_str_content(res), str) == 0);
   free(str);
-#endif
+#endif /* SG_HTTP_COMPRESSION */
+
+  snprintf(url, sizeof(url), "http://localhost:%d/sleep",
+           TEST_HTTPSRV_CURL_PORT);
+  ASSERT(curl_easy_setopt(curl, CURLOPT_URL, url) == CURLE_OK);
+
+  ASSERT(sg_str_clear(res) == 0);
+  ret = curl_easy_perform(curl);
+  CURL_LOG(ret);
+  ASSERT(ret == CURLE_OK);
+  ASSERT(curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &status) == CURLE_OK);
+  ASSERT(status == 200);
+  ASSERT(strcmp(sg_str_content(res), OK_MSG) == 0);
 
   ASSERT(sg_httpsrv_shutdown(srv) == 0);
 

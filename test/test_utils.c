@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -33,9 +33,9 @@
 #include <ws2tcpip.h>
 #include <winsock2.h>
 #include <windows.h>
-#else
+#else /* _WIN32 */
 #include <sys/socket.h>
-#endif
+#endif /* _WIN32 */
 #include "sg_macros.h"
 #include "sg_utils.h"
 #include <sagui.h>
@@ -422,7 +422,7 @@ static void test_tmpdir(void) {
 #ifdef _WIN32
   char path[MAX_PATH + 1];
   size_t len;
-#endif
+#endif /* _WIN32 */
   char *tmp = sg_tmpdir();
   ASSERT(tmp != NULL);
 #if defined(_WIN32)
@@ -432,11 +432,11 @@ static void test_tmpdir(void) {
     path[len] = '\0';
   }
   ASSERT(strcmp(tmp, path) == 0);
-#elif defined(__ANDROID__)
+#elif defined(__ANDROID__) /* _WIN32 */
   ASSERT(strcmp(tmp, "/data/local/tmp") == 0);
-#else
+#else /* __ANDROID__ */
   ASSERT(strcmp(tmp, "/tmp") == 0);
-#endif
+#endif /* _WIN32 */
   sg_free(tmp);
 }
 

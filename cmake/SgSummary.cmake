@@ -148,15 +148,16 @@ Sagui library ${VERSION} - building summary:
   Generator: ${CMAKE_GENERATOR}
   Install: ${CMAKE_INSTALL_PREFIX}
   System: ${_system_name}
-  Compiler:
+  Compiler details:
     Executable: ${CMAKE_C_COMPILER}
     Version: ${CMAKE_C_COMPILER_VERSION}
     Machine: ${CMAKE_C_MACHINE}
     CFLAGS: ${_cflags}
   Build: ${_build_type}-${_build_arch} (${_lib_type})
-  HTTPS: ${_https_support}
-  Compression: ${_http_compression}
-  Routing: ${_routing}
+  Additional features:
+    HTTPS support: ${_https_support}
+    HTTP compression: ${_http_compression}
+    Path routing: ${_routing}
   Examples: ${_build_examples}
   Docs: ${_build_html}
   Run tests: ${_build_testing}

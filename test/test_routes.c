@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -31,7 +31,7 @@
 #include <stdlib.h>
 #ifdef PCRE2_JIT_SUPPORT
 #include <stdint.h>
-#endif
+#endif /* PCRE2_JIT_SUPPORT */
 #include <errno.h>
 #include "sg_macros.h"
 #include "pcre2.h"
@@ -101,7 +101,7 @@ static void test__route_new(void) {
   char err[SG_ERR_SIZE], errmsg[SG_ERR_SIZE];
 #ifdef PCRE2_JIT_SUPPORT
   uint32_t opt;
-#endif
+#endif /* PCRE2_JIT_SUPPORT */
   int errnum;
   ASSERT(!sg__route_new("some\\Kpattern", err, sizeof(err), &errnum, route_cb,
                         "foo"));
@@ -128,7 +128,7 @@ static void test__route_new(void) {
 #ifdef PCRE2_JIT_SUPPORT
   ASSERT(pcre2_config(PCRE2_CONFIG_JIT, &opt) == 0);
   ASSERT(opt == 1);
-#endif
+#endif /* PCRE2_JIT_SUPPORT */
 
   ASSERT((route = sg__route_new("pattern", err, sizeof(err), &errnum, route_cb,
                                 "foo")));

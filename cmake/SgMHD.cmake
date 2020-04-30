@@ -95,7 +95,7 @@ ExternalProject_Add(
   PREFIX ${CMAKE_BINARY_DIR}/${MHD_FULL_NAME}
   SOURCE_DIR ${CMAKE_SOURCE_DIR}/lib/${MHD_FULL_NAME}
   CONFIGURE_COMMAND
-    <SOURCE_DIR>/configure ${_manifest_tool} --host=${CMAKE_C_MACHINE}
+    <SOURCE_DIR>/configure ${CC} ${_manifest_tool} --host=${CMAKE_C_MACHINE}
     --prefix=<INSTALL_DIR> ${MHD_OPTIONS}
   BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install

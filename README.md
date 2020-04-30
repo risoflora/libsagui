@@ -1,6 +1,8 @@
+[![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-lemmon.svg)](https://github.com/risoflora/libsagui/blob/master/LICENSE)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/2140/badge)](https://bestpractices.coreinfrastructure.org/projects/2140)
 [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/risoflora/libsagui.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/risoflora/libsagui/context:cpp)
-[![Build Status](https://travis-ci.org/risoflora/libsagui.svg?branch=master)](https://travis-ci.org/risoflora/libsagui)
+[![GitHub releases](https://img.shields.io/github/v/release/risoflora/libsagui?color=lemmon)](https://github.com/risoflora/libsagui/releases)
+[![Build status](https://travis-ci.org/risoflora/libsagui.svg?branch=master)](https://travis-ci.org/risoflora/libsagui)
 
 # Overview
 
@@ -9,9 +11,10 @@ Sagui is a cross-platform C library which helps to develop web servers or framew
 # Features
 
 - **Requests processing through:**
-  - Event-driven - _single-thread + main loop + select/epoll_.
-  - Threaded - _one thread per request_.
-  - Thread pool - _thread pool + select/epoll_.
+  - Event-driven - single-thread + polling.
+  - Threaded - one thread per request.
+  - Polling - pre-allocated threads.
+  - Isolated request - request processed outside main thread.
 - **High-performance path routing that supports:**
   - Regular expressions using [PCRE2](https://www.pcre.org/current/doc/html/pcre2pattern.html) [syntax](https://www.pcre.org/current/doc/html/pcre2syntax.html).
   - Just-in-time optimization ([JIT](https://www.pcre.org/current/doc/html/pcre2jit.html)).
@@ -38,7 +41,7 @@ Sagui is a cross-platform C library which helps to develop web servers or framew
 
 # Examples
 
-A minimal HTTP server example:
+A minimal `hello worl` HTTP server:
 
 ```c
 void req_cb(void *cls, struct sg_httpreq *req, struct sg_httpres *res) {
@@ -55,7 +58,7 @@ int main() {
 }
 ```
 
-The router support is isolated from the HTTP, so it can be used to route any path structure, for example:
+The router support is isolated from the HTTP feature, so it can be used to route any path structure, for example:
 
 ```c
 void home_cb(void *cls, struct sg_route *route) {
@@ -138,7 +141,7 @@ The documentation has been written in [Doxygen](https://www.stack.nl/~dimitri/do
 
 # Downloading
 
-All stable releases are available for download at the [releases page](https://github.com/risoflora/libsagui/releases). For Windows, the packages `libsagui-N.N.N-dll.zip` (and their respective GPG signature) contains the compiled DLLs for 32 and 64 bits. For other systems, the packages `Source code (tar.gz|zip)` contains the library source.
+All stable binaries are available for download at the [releases page](https://github.com/risoflora/libsagui/releases) with their respective checksums. For other systems, the packages `Source code (tar.gz|zip)` contains the library source.
 
 # Building/installing
 
@@ -154,11 +157,13 @@ See also [Checking backward API/ABI compatibility of Sagui library versions](htt
 
 # Projects using Sagui
 
-- [Brook framework](https://github.com/risoflora/brookframework) - Pascal framework which helps to develop web applications.
+- [Brook framework](https://github.com/risoflora/brookframework) - Pascal framework which helps to develop web applications. [[LGPL v2.1](https://github.com/risoflora/brookframework/blob/master/LICENSE)]
+
+Would you like to add your project to that list above? Feel free to open a [new issue](https://github.com/risoflora/libsagui/issues/new?labels=documentation&template=project_using_sagui.md) requesting it! :-)
 
 # Contributing
 
-Sagui is totally open source and would not be possible without our [contributors](https://github.com/risoflora/libsagui/blob/master/THANKS). If you want to submit contributions, please fork the project on GitHub and send a pull request. You retain the copyright on your contributions. If you have questions, open a new issue at the [issues page](https://github.com/risoflora/libsagui/issues). For donations to support this project, please click the botton below.
+Sagui is totally open source and would not be possible without our [contributors](https://github.com/risoflora/libsagui/blob/master/THANKS). If you want to submit contributions, please fork the project on GitHub and send a pull request. You retain the copyright on your contributions. If you have questions, open a new issue at the [issues page](https://github.com/risoflora/libsagui/issues). For donations to support this project, please click the button below.
 
 [![Support this project](https://www.paypalobjects.com/en_US/GB/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=silvioprog%40gmail%2ecom&lc=US&item_name=libsagui&item_number=libsagui&currency_code=USD&bn=PP%2dDonationsBF%3aproject%2dsupport%2ejpg%3aNonHosted)
 

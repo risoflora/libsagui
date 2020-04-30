@@ -28,12 +28,16 @@
 #define SG_HTTPSRV_H
 
 #include <stdint.h>
+#include <pthread.h>
 #include "sg_macros.h"
 #include "microhttpd.h"
 #include "sagui.h"
+#include "sg_httpreq.h"
 
 struct sg_httpsrv {
   struct MHD_Daemon *handle;
+  struct sg__httpreq_isolated *isolated_list;
+  pthread_mutex_t mutex;
   sg_httpsrv_cli_cb cli_cb;
   sg_httpauth_cb auth_cb;
   sg_httpupld_cb upld_cb;
@@ -57,5 +61,9 @@ struct sg_httpsrv {
 
 SG__EXTERN void sg__httpsrv_eprintf(struct sg_httpsrv *srv, const char *fmt,
                                     ...);
+
+SG__EXTERN void sg__httpsrv_lock(struct sg_httpsrv *srv);
+
+SG__EXTERN void sg__httpsrv_unlock(struct sg_httpsrv *srv);
 
 #endif /* SG_HTTPSRV_H */

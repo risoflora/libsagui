@@ -4,7 +4,7 @@
 #
 # Main library building.
 #
-# The main building of the Sagui library. It includes all necessary sub-bulding
+# The main building of the Sagui library. It includes all necessary sub-building
 # scripts to manage the library building.
 #
 # ::
@@ -21,7 +21,7 @@
 #
 # Cross-platform library which helps to develop web servers or frameworks.
 #
-# Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+# Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
 #
 # Sagui library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -62,6 +62,13 @@ if((SG_USE_OUTPUT_PREFIX OR MINGW)
   set(CMAKE_INSTALL_PREFIX
       "${CMAKE_BINARY_DIR}/Output"
       CACHE PATH "..." FORCE)
+endif()
+
+# Based on: https://gitlab.kitware.com/cmake/cmake/issues/19460
+if(DEFINED CMAKE_OSX_SYSROOT)
+  set(CC "CC=${CMAKE_C_COMPILER} ${CMAKE_C_SYSROOT_FLAG} ${CMAKE_OSX_SYSROOT}")
+else()
+  set(CC "CC=${CMAKE_C_COMPILER}")
 endif()
 
 if("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")

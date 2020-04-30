@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -37,23 +37,23 @@
 #ifndef TEST_HTTPUPLDS_BASE_PATH
 #ifdef __ANDROID__
 #define TEST_HTTPUPLDS_BASE_PATH SG_ANDROID_TESTS_DEST_DIR "/"
-#else
+#else /* __ANDROID__ */
 #ifdef _WIN32
-#define TEST_HTTPUPLDS_BASE_PATH ""
-#else
+#define TEST_HTTPUPLDS_BASE_PATH BINARY_DIR "/"
+#else /* _WIN32 */
 #define TEST_HTTPUPLDS_BASE_PATH "/tmp/"
-#endif
-#endif
-#endif
+#endif /* _WIN32 */
+#endif /* __ANDROID__ */
+#endif /* TEST_HTTPUPLDS_BASE_PATH */
 
 #ifndef TEST_HTTPUPLDS_OPEN_MODE
 #define TEST_HTTPUPLDS_OPEN_MODE                                               \
   S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH
-#endif
+#endif /* TEST_HTTPUPLDS_OPEN_MODE */
 
 #ifndef TEST_HTTPUPLDS_OPEN_WFLAGS
 #define TEST_HTTPUPLDS_OPEN_WFLAGS O_RDWR | O_CREAT | O_TRUNC
-#endif
+#endif /* TEST_HTTPUPLDS_OPEN_WFLAGS */
 
 static int dummy_httpuplds_save_cb(void *handle, bool overwritten) {
   (void) handle;
@@ -115,7 +115,7 @@ static void test__httpuplds_add(void) {
   char err[256];
   struct sg_httpsrv *srv =
     sg_httpsrv_new2(NULL, dummy_httpreq_cb, dummy_err_cb, err);
-  struct sg_httpreq *req = sg__httpreq_new(NULL, "", "", "");
+  struct sg_httpreq *req = sg__httpreq_new(srv, NULL, "", "", "");
   ASSERT(sg_httpuplds_count(sg_httpreq_uploads(req)) == 0);
   sg__httpuplds_add(srv, req, "abc", "def", "ghi", "jkl");
   ASSERT(strcmp(sg_httpupld_field(req->curr_upld), "abc") == 0);
@@ -138,7 +138,7 @@ static void test__httpuplds_iter(void) {
   char err[256], str[256];
   struct sg_httpsrv *srv =
     sg_httpsrv_new2(NULL, dummy_httpreq_cb, dummy_err_cb, err);
-  struct sg_httpreq *req = sg__httpreq_new(NULL, "", "", "");
+  struct sg_httpreq *req = sg__httpreq_new(srv, NULL, "", "", "");
   struct sg__httpupld_holder holder = {srv, req};
   struct sg_strmap **fields;
   sg_httpupld_cb saved_upld_cb;
@@ -206,7 +206,7 @@ static void test__httpuplds_process(void) {
   struct MHD_Connection *con = sg_alloc(64);
   struct sg_httpsrv *srv =
     sg_httpsrv_new2(NULL, dummy_httpreq_cb, dummy_err_cb, err);
-  struct sg_httpreq *req = sg__httpreq_new(NULL, "", "", "");
+  struct sg_httpreq *req = sg__httpreq_new(srv, NULL, "", "", "");
   int ret = 0;
   size_t size = 0;
 
@@ -235,7 +235,7 @@ static void test__httpuplds_process(void) {
 
 static void test__httpuplds_cleanup(void) {
   struct sg_httpsrv *srv = sg_httpsrv_new(dummy_httpreq_cb, NULL);
-  struct sg_httpreq *req = sg__httpreq_new(NULL, "", "", "");
+  struct sg_httpreq *req = sg__httpreq_new(srv, NULL, "", "", "");
   struct sg_httpupld *tmp;
   size_t count = 0;
   ASSERT(srv);
@@ -303,7 +303,7 @@ static void test__httpupld_cb(void) {
            _("Cannot create temporary upload file in \"%s\": %s.\n"), "/",
            strerror(EACCES));
   ASSERT(strcmp(err, str) == 0);
-#endif
+#endif /* __linux__ && !__ANDROID__ */
 
   dir = sg_tmpdir();
   dest_path = sg__strjoin(PATH_SEP, dir, filename);
@@ -372,7 +372,7 @@ static void test__httpupld_free_cb(void) {
   ASSERT(handle->fd > -1);
 #ifdef _WIN32
   ASSERT(close(handle->fd) == 0);
-#endif
+#endif /* _WIN32 */
   ASSERT(unlink(handle->path) == 0);
   ASSERT(strcmp(err, "") == 0);
   saved_srv = handle->srv;
@@ -426,8 +426,8 @@ static void test__httpupld_save_as_cb(void) {
   handle->fd =
     open(handle->path, TEST_HTTPUPLDS_OPEN_WFLAGS, TEST_HTTPUPLDS_OPEN_MODE);
   ASSERT(handle->fd > -1);
-  ASSERT(write(handle->fd, "foo", len) == len);
   ASSERT(sg__httpupld_save_as_cb(handle, NULL, false) == EINVAL);
+  close(handle->fd);
 
   handle->fd =
     open(bar_path, TEST_HTTPUPLDS_OPEN_WFLAGS, TEST_HTTPUPLDS_OPEN_MODE);

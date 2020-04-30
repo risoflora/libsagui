@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -31,7 +31,7 @@
 #ifdef SG_HTTP_COMPRESSION
 #include <stdint.h>
 #include "zlib.h"
-#endif
+#endif /* SG_HTTP_COMPRESSION */
 #include "microhttpd.h"
 #include "sagui.h"
 
@@ -86,7 +86,7 @@ struct sg__httpres_gzholder {
   enum sg__httpres_gzstatus status;
 };
 
-#endif
+#endif /* SG_HTTP_COMPRESSION */
 
 SG__EXTERN struct sg_httpres *sg__httpres_new(struct MHD_Connection *con);
 

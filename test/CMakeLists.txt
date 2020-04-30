@@ -26,7 +26,7 @@
 #
 # Cross-platform library which helps to develop web servers or frameworks.
 #
-# Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+# Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
 #
 # Sagui library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -52,6 +52,7 @@ if(BUILD_TESTING)
   add_definitions(-DSG_TESTING=1)
   if(WIN32)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+    add_definitions(-DBINARY_DIR="${CMAKE_BINARY_DIR}")
   endif()
   if(CURL_VERSION_STRING AND CURL_LIBRARY)
     string(COMPARE GREATER_EQUAL ${CURL_VERSION_STRING} "7.56" _curl_found)
@@ -68,21 +69,26 @@ if(BUILD_TESTING)
     add_definitions(-DSG_ANDROID_TESTS_DEST_DIR="${SG_ANDROID_TESTS_DEST_DIR}")
   endif()
   list(
-    APPEND SG_TESTS
-           utils
-           extra
-           str
-           strmap
-           httpauth
-           httpuplds
-           httpreq
-           httpres
-           httpsrv)
+    APPEND
+    SG_TESTS
+    utils
+    extra
+    str
+    strmap
+    httpauth
+    httpuplds
+    httpreq
+    httpres
+    httpsrv)
   if(SG_PATH_ROUTING)
     list(APPEND SG_TESTS entrypoint entrypoints routes router)
   endif()
   if(_curl_found)
-    add_definitions(-DCURL_STATICLIB=1)
+    if(MINGW)
+      list(APPEND _libs libcurl.a)
+    else()
+      add_definitions(-DCURL_STATICLIB=1)
+    endif()
     list(APPEND SG_TESTS httpsrv_curl)
     if(SG_HTTPS_SUPPORT AND GNUTLS_FOUND)
       list(APPEND SG_TESTS httpsrv_tls_curl)
@@ -106,7 +112,8 @@ if(BUILD_TESTING)
       target_include_directories(test_${_test} PUBLIC ${SG_SOURCE_DIR})
       if(ANDROID)
         add_custom_command(
-          TARGET test_${_test} POST_BUILD
+          TARGET test_${_test}
+          POST_BUILD
           COMMAND ${SG_ANDROID_ADB_COMMAND} shell mkdir -p
                   ${SG_ANDROID_TESTS_DEST_DIR}
           COMMAND ${SG_ANDROID_ADB_COMMAND} push test_${_test}

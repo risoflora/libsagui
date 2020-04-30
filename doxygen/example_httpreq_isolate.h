@@ -24,15 +24,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef INET_H
-#define INET_H
+#ifndef EXAMPLE_HTTPREQ_ISOLATE_H
+#define EXAMPLE_HTTPREQ_ISOLATE_H
 
-#ifdef _WIN32
-#include <ws2tcpip.h>
-#else /* _WIN32 */
-#include <unistd.h>
-#endif /* _WIN32 */
+/**
+ * \example example_httpreq_isolate.c
+ * Simple example showing how to isolate requests on their own threads.
+ */
 
-const char *inet_ntop(int af, const void *src, char *dst, socklen_t size);
-
-#endif /* INET_H */
+#endif /* EXAMPLE_HTTPREQ_ISOLATE_H */

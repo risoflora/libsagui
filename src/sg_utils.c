@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -37,16 +37,16 @@
 #include <winsock2.h>
 #include <windows.h>
 #include <wchar.h>
-#else
+#else /* _WIN32 */
 #include <sys/socket.h>
 #include <netinet/in.h>
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
-#endif
-#endif
+#endif /* HAVE_ARPA_INET_H */
+#endif /* _WIN32 */
 #ifndef HAVE_INET_NTOP
 #include "inet.h"
-#endif
+#endif /* HAVE_INET_NTOP */
 #include "sagui.h"
 #include "sg_utils.h"
 
@@ -111,26 +111,33 @@ static char *wtos(const wchar_t *str) {
 int sg__rename(const char *old, const char *new) {
   int ret = 0;
   wchar_t *o, *n;
+  if (*old == '\0' || *new == '\0') {
+    errno = ENOENT;
+    return -1;
+  }
   o = stow(old);
-  if (!o)
-    return ENOMEM;
+  if (!o) {
+    errno = ENOMEM;
+    return -1;
+  }
   n = stow(new);
   if (!n) {
-    ret = ENOMEM;
-    goto done;
+    sg_free(o);
+    errno = ENOMEM;
+    return -1;
   }
   ret = _wrename(o, n);
   sg_free(n);
-done:
   sg_free(o);
   return ret;
 }
 
-#endif
+#endif /* _WIN32 */
 
-#if defined(_WIN32) || defined(__ANDROID__)
+#if defined(_WIN32) || defined(__ANDROID__) ||                                 \
+  (defined(__linux__) && !defined(__gnu_linux__))
 
-char *basename(const char *path) {
+char *sg__basename(const char *path) {
   char *s1 = strrchr(path, '/');
   char *s2 = strrchr(path, '\\');
   if (s1 && s2)
@@ -142,7 +149,7 @@ char *basename(const char *path) {
   return (char *) path;
 }
 
-#endif
+#endif /* _WIN32 || __ANDROID__ || (__linux__ && !__gnu_linux__) */
 
 char *sg__strdup(const char *str) {
   return str ? strdup(str) : NULL;
@@ -258,34 +265,34 @@ char *sg_strerror(int errnum, char *errmsg, size_t errlen) {
 #if defined(_WIN32) || defined(__ANDROID__) ||                                 \
   (defined(__linux__) && !defined(__gnu_linux__))
   int saved_errno;
-#else
+#else /* _WIN32 || __ANDROID__ || (__linux__ && !__gnu_linux__) */
   char *res;
-#endif
+#endif /* _WIN32 || __ANDROID__ || (__linux__ && !__gnu_linux__) */
   if (!errmsg || errlen < 1)
     return NULL;
 #if defined(_WIN32) || defined(__ANDROID__) ||                                 \
   (defined(__linux__) && !defined(__gnu_linux__))
   saved_errno = errno;
-#else
+#else /* _WIN32 || __ANDROID__ || (__linux__ && !__gnu_linux__) */
   res = strerror_r(errnum, errmsg, errlen - 1);
   memcpy(errmsg, res, errlen - 1);
   errmsg[errlen - 1] = '\0';
   return errmsg;
-#endif
+#endif /* _WIN32 || __ANDROID__ || (__linux__ && !__gnu_linux__) */
 #ifdef _WIN32
   errnum = strerror_s(errmsg, errlen, errnum);
   errno = saved_errno;
   if ((errnum != 0) && (errnum != EINVAL))
     return "?";
   return errmsg;
-#endif
+#endif /* _WIN32 */
 #if defined(__ANDROID__) || (defined(__linux__) && !defined(__gnu_linux__))
   errnum = strerror_r(errnum, errmsg, errlen);
   errno = saved_errno;
   if ((errnum != 0) && (errnum != EINVAL) && (errnum != ERANGE))
     return "?";
   return errmsg;
-#endif
+#endif /* __ANDROID__ || (__linux__ && !__gnu_linux__) */
 }
 
 bool sg_is_post(const char *method) {
@@ -339,7 +346,7 @@ char *sg_tmpdir() {
     path[len] = L'\0';
   }
   return wtos(path);
-#else
+#else /* _WIN32 */
   char *buf;
   size_t len;
 #define SG__TMPDIR_TRY_ENV(name)                                               \
@@ -355,9 +362,9 @@ char *sg_tmpdir() {
 #undef SG__TMPDIR_TRY_ENV
 #ifdef __ANDROID__
   buf = "/data/local/tmp";
-#else
+#else /* __ANDROID__ */
   buf = "/tmp";
-#endif
+#endif /* __ANDROID__ */
 done:
   buf = strdup(buf);
   if (!buf)
@@ -367,7 +374,7 @@ done:
     len--;
   buf[len] = '\0';
   return buf;
-#endif
+#endif /* _WIN32 */
 }
 
 /* Sockets */

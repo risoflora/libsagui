@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -63,9 +63,9 @@ int sg_router_dispatch2(struct sg_router *router, const char *path,
     }
 #ifdef PCRE2_JIT_SUPPORT
 #define SG__PCRE2_MATCH pcre2_jit_match
-#else
+#else /* PCRE2_JIT_SUPPORT */
 #define SG__PCRE2_MATCH pcre2_match
-#endif
+#endif /* PCRE2_JIT_SUPPORT */
     route->rc = SG__PCRE2_MATCH(route->re, (PCRE2_SPTR) path, strlen(path), 0,
                                 0, route->match, NULL);
 #undef SG__PCRE2_MATCH

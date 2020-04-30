@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -29,7 +29,7 @@
 
 #ifndef _WIN32
 #include <stdlib.h>
-#endif
+#endif /* _WIN32 */
 #include <stddef.h>
 #include <stdbool.h>
 #include "sg_macros.h"
@@ -44,7 +44,7 @@ struct sg__memory_manager {
 #ifdef _WIN32
 #ifndef PATH_MAX
 #define PATH_MAX _MAX_PATH
-#endif
+#endif /* PATH_MAX */
 
 #define realpath(n, r) _fullpath((r), (n), PATH_MAX)
 
@@ -52,14 +52,20 @@ SG__EXTERN char *strndup(const char *s, size_t n);
 
 SG__EXTERN int sg__rename(const char *old, const char *new);
 
-#else
+#else /* _WIN32 */
 #define sg__rename rename
-#endif
+#endif /* _WIN32 */
 
 #if defined(_WIN32) || defined(__ANDROID__) ||                                 \
   (defined(__linux__) && !defined(__gnu_linux__))
-char *basename(const char *path);
-#endif
+
+SG__EXTERN char *sg__basename(const char *path);
+
+#else /* _WIN32 || __ANDROID__ || (__linux__ && !__gnu_linux__) */
+
+#define sg__basename basename
+
+#endif /* _WIN32 || __ANDROID__ || (__linux__ && !__gnu_linux__) */
 
 SG__EXTERN char *sg__strdup(const char *str);
 

@@ -28,7 +28,7 @@
 
 #ifndef TEST_HTTPSRV_PORT
 #define TEST_HTTPSRV_PORT 8080
-#endif
+#endif /* TEST_HTTPSRV_PORT */
 
 #include "sg_assert.h"
 
@@ -224,7 +224,9 @@ static void test__httpsrv_ahc(struct sg_httpsrv *srv) {
 }
 
 static void test__httpsrv_rcc(void) {
-  struct sg_httpreq *req = sg__httpreq_new(NULL, NULL, NULL, NULL);
+  struct sg_httpsrv *srv = sg_httpsrv_new(dummy_httpreq_cb, NULL);
+  struct sg_httpreq *req = sg__httpreq_new(srv, NULL, NULL, NULL, NULL);
+  sg_httpsrv_free(srv);
   sg__httpsrv_rcc(NULL, NULL, (void **) &req,
                   MHD_REQUEST_TERMINATED_COMPLETED_OK);
   ASSERT(!req);
@@ -298,11 +300,11 @@ static void test_httpsrv_new2(void) {
   ASSERT(srv->post_buf_size == 1024);
   ASSERT(srv->payld_limit == 1048576);
   ASSERT(srv->uplds_limit == 16777216);
-#else
+#else /* __arm__ */
   ASSERT(srv->post_buf_size == 4096);
   ASSERT(srv->payld_limit == 4194304);
   ASSERT(srv->uplds_limit == 67108864);
-#endif
+#endif /* __arm__ */
   sg_httpsrv_free(srv);
 }
 
@@ -403,7 +405,7 @@ static void test_httpsrv_listen(struct sg_httpsrv *srv) {
   ASSERT(!sg_httpsrv_listen(dummy_srv, TEST_HTTPSRV_PORT, true));
   ASSERT(errno == EADDRINUSE);
   sg_httpsrv_free(dummy_srv);
-#endif
+#endif /* __linux__ */
 }
 
 #ifdef SG_HTTPS_SUPPORT
@@ -504,7 +506,7 @@ static void test_httpsrv_tls_listen(struct sg_httpsrv *srv) {
                                 TEST_HTTPSRV_PORT, true));
   ASSERT(errno == EADDRINUSE);
   sg_httpsrv_free(dummy_srv);
-#endif
+#endif /* __linux__ */
   ASSERT(sg_httpsrv_shutdown(srv) == 0);
   ASSERT(sg_httpsrv_listen(srv, 0, false));
   ASSERT(sg_httpsrv_shutdown(srv) == 0);
@@ -521,14 +523,15 @@ static void test_httpsrv_tls_listen2(struct sg_httpsrv *srv) {
   ASSERT(errno == EINVAL);
 }
 
-#endif
+#endif /* SG_HTTPS_SUPPORT */
 
 static void test_httpsrv_shutdown(struct sg_httpsrv *srv) {
   ASSERT(sg_httpsrv_shutdown(NULL) == EINVAL);
 
+  ASSERT(sg_httpsrv_listen(srv, 0, false));
   ASSERT(sg_httpsrv_shutdown(srv) == 0);
   ASSERT(!srv->handle);
-  ASSERT(sg_httpsrv_shutdown(srv) == 0);
+  ASSERT(sg_httpsrv_shutdown(srv) == EALREADY);
   ASSERT(sg_httpsrv_listen(srv, TEST_HTTPSRV_PORT, true));
 }
 
@@ -748,6 +751,22 @@ static void test_httpsrv_con_limit(struct sg_httpsrv *srv) {
   ASSERT(errno == 0);
 }
 
+static void test_httpsrv_handle(struct sg_httpsrv *srv) {
+  void *fake_handle = (void *) 123;
+  void *old_handle;
+
+  errno = 0;
+  ASSERT(sg_httpsrv_handle(NULL) == 0);
+  ASSERT(errno == EINVAL);
+
+  errno = 0;
+  old_handle = srv->handle;
+  srv->handle = fake_handle;
+  ASSERT(sg_httpsrv_handle(srv) == fake_handle);
+  ASSERT(errno == 0);
+  srv->handle = old_handle;
+}
+
 int main(void) {
   struct sg_httpsrv *srv = sg_httpsrv_new(dummy_httpreq_cb, NULL);
   /* test__httperr_cb() */
@@ -763,7 +782,7 @@ int main(void) {
 #ifdef SG_HTTPS_SUPPORT
   test_httpsrv_tls_listen(srv);
   test_httpsrv_tls_listen2(srv);
-#endif
+#endif /* SG_HTTPS_SUPPORT */
   test_httpsrv_shutdown(srv);
   test_httpsrv_port(srv);
   test_httpsrv_is_threaded(srv);
@@ -783,6 +802,7 @@ int main(void) {
   test_httpsrv_con_timeout(srv);
   test_httpsrv_set_con_limit(srv);
   test_httpsrv_con_limit(srv);
+  test_httpsrv_handle(srv);
   sg_httpsrv_free(srv);
   return EXIT_SUCCESS;
 }

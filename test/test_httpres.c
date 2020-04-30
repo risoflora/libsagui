@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -35,14 +35,14 @@
 #ifndef TEST_HTTPRES_BASE_PATH
 #ifdef __ANDROID__
 #define TEST_HTTPRES_BASE_PATH SG_ANDROID_TESTS_DEST_DIR "/"
-#else
+#else /* __ANDROID__ */
 #ifdef _WIN32
-#define TEST_HTTPRES_BASE_PATH ""
-#else
+#define TEST_HTTPRES_BASE_PATH BINARY_DIR "/"
+#else /* _WIN32 */
 #define TEST_HTTPRES_BASE_PATH "/tmp/"
-#endif
-#endif
-#endif
+#endif /* _WIN32 */
+#endif /* __ANDROID__ */
+#endif /* TEST_HTTPRES_BASE_PATH */
 
 static ssize_t dummy_read_cb(void *handle, uint64_t offset, char *buf,
                              size_t size) {
@@ -195,17 +195,9 @@ static void test_httpres_download(struct sg_httpres *res) {
   ASSERT(sg_httpres_download(NULL, PATH) == EINVAL);
   ASSERT(sg_httpres_download(res, NULL) == EINVAL);
 
-#ifdef _WIN32
-  ASSERT(sg_httpres_download(res, "") == EACCES);
-#else
   ASSERT(sg_httpres_download(res, "") == ENOENT);
-#endif
   dir = sg_tmpdir();
-#ifdef _WIN32
-  ASSERT(sg_httpres_download(res, dir) == EACCES);
-#else
   ASSERT(sg_httpres_download(res, dir) == EISDIR);
-#endif
   sg_free(dir);
 
   strcpy(str, "foo");
@@ -238,17 +230,9 @@ static void test_httpres_render(struct sg_httpres *res) {
   ASSERT(sg_httpres_render(NULL, PATH) == EINVAL);
   ASSERT(sg_httpres_render(res, NULL) == EINVAL);
 
-#ifdef _WIN32
-  ASSERT(sg_httpres_render(res, "") == EACCES);
-#else
   ASSERT(sg_httpres_render(res, "") == ENOENT);
-#endif
   dir = sg_tmpdir();
-#ifdef _WIN32
-  ASSERT(sg_httpres_render(res, dir) == EACCES);
-#else
   ASSERT(sg_httpres_render(res, dir) == EISDIR);
-#endif
   sg_free(dir);
 
   strcpy(str, "foo");
@@ -295,21 +279,11 @@ static void test_httpres_sendfile2(struct sg_httpres *res) {
   ASSERT(sg_httpres_sendfile2(res, size, max_size, offset, PATH, NULL, 600) ==
          EINVAL);
 
-#ifdef _WIN32
-  ASSERT(sg_httpres_sendfile2(res, size, max_size, offset, "", NULL, 200) ==
-         EACCES);
-#else
   ASSERT(sg_httpres_sendfile2(res, size, max_size, offset, "", NULL, 200) ==
          ENOENT);
-#endif
   dir = sg_tmpdir();
-#ifdef _WIN32
-  ASSERT(sg_httpres_sendfile2(res, size, max_size, offset, dir, NULL, 200) ==
-         EACCES);
-#else
   ASSERT(sg_httpres_sendfile2(res, size, max_size, offset, dir, NULL, 200) ==
          EISDIR);
-#endif
   sg_free(dir);
 
   strcpy(str, "foo");
@@ -385,21 +359,11 @@ static void test_httpres_sendfile(struct sg_httpres *res) {
   ASSERT(sg_httpres_sendfile(res, size, max_size, offset, PATH, false, 600) ==
          EINVAL);
 
-#ifdef _WIN32
-  ASSERT(sg_httpres_sendfile(res, size, max_size, offset, "", false, 200) ==
-         EACCES);
-#else
   ASSERT(sg_httpres_sendfile(res, size, max_size, offset, "", false, 200) ==
          ENOENT);
-#endif
   dir = sg_tmpdir();
-#ifdef _WIN32
-  ASSERT(sg_httpres_sendfile(res, size, max_size, offset, dir, false, 200) ==
-         EACCES);
-#else
   ASSERT(sg_httpres_sendfile(res, size, max_size, offset, dir, false, 200) ==
          EISDIR);
-#endif
   sg_free(dir);
 
   strcpy(str, "foo");
@@ -765,17 +729,9 @@ static void test_httpres_zdownload(struct sg_httpres *res) {
   ASSERT(sg_httpres_zdownload(NULL, PATH) == EINVAL);
   ASSERT(sg_httpres_zdownload(res, NULL) == EINVAL);
 
-#ifdef _WIN32
-  ASSERT(sg_httpres_zdownload(res, "") == EACCES);
-#else
   ASSERT(sg_httpres_zdownload(res, "") == ENOENT);
-#endif
   dir = sg_tmpdir();
-#ifdef _WIN32
-  ASSERT(sg_httpres_zdownload(res, dir) == EACCES);
-#else
   ASSERT(sg_httpres_zdownload(res, dir) == EISDIR);
-#endif
   sg_free(dir);
 
   strcpy(str, "foo");
@@ -808,17 +764,9 @@ static void test_httpres_zrender(struct sg_httpres *res) {
   ASSERT(sg_httpres_zrender(NULL, PATH) == EINVAL);
   ASSERT(sg_httpres_zrender(res, NULL) == EINVAL);
 
-#ifdef _WIN32
-  ASSERT(sg_httpres_zrender(res, "") == EACCES);
-#else
   ASSERT(sg_httpres_zrender(res, "") == ENOENT);
-#endif
   dir = sg_tmpdir();
-#ifdef _WIN32
-  ASSERT(sg_httpres_zrender(res, dir) == EACCES);
-#else
   ASSERT(sg_httpres_zrender(res, dir) == EISDIR);
-#endif
   sg_free(dir);
 
   strcpy(str, "foo");
@@ -869,21 +817,11 @@ static void test_httpres_zsendfile2(struct sg_httpres *res) {
   ASSERT(sg_httpres_zsendfile2(res, -1, size, max_size, offset, PATH, NULL,
                                600) == EINVAL);
 
-#ifdef _WIN32
-  ASSERT(sg_httpres_zsendfile2(res, -1, size, max_size, offset, "", NULL,
-                               200) == EACCES);
-#else
   ASSERT(sg_httpres_zsendfile2(res, -1, size, max_size, offset, "", NULL,
                                200) == ENOENT);
-#endif
   dir = sg_tmpdir();
-#ifdef _WIN32
-  ASSERT(sg_httpres_zsendfile2(res, -1, size, max_size, offset, dir, NULL,
-                               200) == EACCES);
-#else
   ASSERT(sg_httpres_zsendfile2(res, -1, size, max_size, offset, dir, NULL,
                                200) == EISDIR);
-#endif
   sg_free(dir);
 
   strcpy(str, "foo");
@@ -961,21 +899,11 @@ static void test_httpres_zsendfile(struct sg_httpres *res) {
   ASSERT(sg_httpres_zsendfile(res, size, max_size, offset, PATH, false, 600) ==
          EINVAL);
 
-#ifdef _WIN32
-  ASSERT(sg_httpres_zsendfile(res, size, max_size, offset, "", false, 200) ==
-         EACCES);
-#else
   ASSERT(sg_httpres_zsendfile(res, size, max_size, offset, "", false, 200) ==
          ENOENT);
-#endif
   dir = sg_tmpdir();
-#ifdef _WIN32
-  ASSERT(sg_httpres_zsendfile(res, size, max_size, offset, dir, false, 200) ==
-         EACCES);
-#else
   ASSERT(sg_httpres_zsendfile(res, size, max_size, offset, dir, false, 200) ==
          EISDIR);
-#endif
   sg_free(dir);
 
   strcpy(str, "foo");
@@ -1059,7 +987,7 @@ int main(void) {
   test_httpres_zrender(res);
   test_httpres_zsendfile2(res);
   test_httpres_zsendfile(res);
-#endif
+#endif /* SG_HTTP_COMPRESSION */
   test_httpres_clear(res);
   sg__httpres_free(res);
   return EXIT_SUCCESS;

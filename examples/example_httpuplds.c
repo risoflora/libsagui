@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -34,9 +34,9 @@
 
 #ifdef _WIN32
 #define PATH_SEP '\\'
-#else
+#else /* _WIN32 */
 #define PATH_SEP '/'
-#endif
+#endif /* _WIN32 */
 
 #define PAGE_FORM                                                              \
   "<html>"                                                                     \
@@ -105,10 +105,11 @@ static void req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req,
     process_uploads(req, res);
   else {
     qs = sg_httpreq_params(req);
-    if (qs) {
+    if (qs && sg_strmap_count(*qs) > 0) {
       file = sg_strmap_get(*qs, "file");
       if (file) {
-        sprintf(path, "%s%c%s", sg_tmpdir(), PATH_SEP, file);
+        sprintf(path, "%s%c%s", sg_httpsrv_upld_dir(sg_httpreq_srv(req)),
+                PATH_SEP, file);
         sg_httpres_download(res, path);
       }
     } else
