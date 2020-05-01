@@ -28,7 +28,7 @@
 #define EXAMPLE_HTTPSRV_SSE_H
 
 /**
- * \example example_httpsrv.c
+ * \example example_httpsrv_sse.c
  * Simple example showing a basic SSE (Server-sent events) server.
  */
 
