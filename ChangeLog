@@ -1,6 +1,18 @@
+2020-05-01  silvioprog  <silvioprog@gmail.com>
+
+	Fixed broken example in documentation.
+
+	Fixed tests on Android and Raspbian.
+
+2020-04-30  silvioprog  <silvioprog@gmail.com>
+
+	Merged version v3.0.0.
+
 2020-03-19  silvioprog  <silvioprog@gmail.com>
 
 	Bump v2.5.5
+
+	Fixed possible memory leak in the upload module.
 
 2020-03-12  silvioprog  <silvioprog@gmail.com>
 
