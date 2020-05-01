@@ -406,6 +406,7 @@ static void test_httpsrv_listen(struct sg_httpsrv *srv) {
   ASSERT(errno == EADDRINUSE);
   sg_httpsrv_free(dummy_srv);
 #endif /* __linux__ */
+  ASSERT(sg_httpsrv_shutdown(srv) == 0);
 }
 
 #ifdef SG_HTTPS_SUPPORT
@@ -469,7 +470,6 @@ static void test_httpsrv_tls_listen(struct sg_httpsrv *srv) {
   ASSERT(errno == EINVAL);
   sg_httpsrv_free(dummy_srv);
 
-  ASSERT(sg_httpsrv_shutdown(srv) == 0);
   ASSERT(sg_httpsrv_tls_listen(srv, private_key, certificate, 0, true));
   ASSERT(sg_httpsrv_shutdown(srv) == 0);
 

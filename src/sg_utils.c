@@ -381,7 +381,7 @@ done:
 
 int sg_ip(const void *socket, char *buf, size_t size) {
   const struct sockaddr *sa;
-  const void *addr6;
+  const struct in6_addr *addr6;
   size_t len;
   if (!socket || !buf || (ssize_t) size < 0)
     return EINVAL;

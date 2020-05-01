@@ -1,6 +1,6 @@
 # Installation
 
-### [Debian](https://www.debian.org) and [Ubuntu](https://www.ubuntu.com)-based distributions:
+## Debian and Ubuntu-based distributions
 
 ```bash
 # Install required tools
@@ -8,7 +8,7 @@ sudo apt update
 sudo apt install curl clang cmake
 
 # Download latest release
-export SG_VER="2.5.4" # Change to latest version
+export SG_VER="3.0.0" # Change to latest version
 curl -SL https://github.com/risoflora/libsagui/archive/v$SG_VER.tar.gz | tar -zx
 cd libsagui-$SG_VER/ && mkdir build && cd build/
 
@@ -24,7 +24,7 @@ to uninstall:
 sudo make uninstall
 ```
 
-### [RHEL](https://redhat.com/en/technologies/linux-platforms/enterprise-linux), [Fedora](https://getfedora.org) and [CentOS](https://www.centos.org/)-based distributions:
+## RHEL, Fedora and CentOS-based distributions
 
 ```bash
 # Install required tools
@@ -32,7 +32,7 @@ sudo dnf upgrade
 sudo dnf install curl clang cmake
 
 # Download latest release
-export SG_VER="2.5.4" # Change to latest version
+export SG_VER="3.0.0" # Change to latest version
 curl -SL https://github.com/risoflora/libsagui/archive/v$SG_VER.tar.gz | tar -zx
 cd libsagui-$SG_VER/ && mkdir build && cd build/
 
@@ -48,7 +48,7 @@ to uninstall:
 sudo make uninstall
 ```
 
-### [openSUSE](https://opensuse.org/) and [SLE](https://www.suse.com/products/server)-based distributions:
+## openSUSE and SLE-based distributions
 
 ```bash
 # Install required tools
@@ -56,7 +56,7 @@ sudo zypper refresh
 sudo zypper install curl clang cmake
 
 # Download latest release
-export SG_VER="2.5.4" # Change to latest version
+export SG_VER="3.0.0" # Change to latest version
 curl -SL https://github.com/risoflora/libsagui/archive/v$SG_VER.tar.gz | tar -zx
 cd libsagui-$SG_VER/ && mkdir build && cd build/
 
@@ -72,15 +72,17 @@ to uninstall:
 sudo make uninstall
 ```
 
-### [MinGW-w64](http://www.msys2.org) `i686` and `x86_64` on [Windows](http://microsoft.com/windows) or any supported OS:
+## MinGW-w64 `i686` and `x86_64` on Windows or any supported OS
 
 ```bash
 # Install required tools
 pacman -Syu
-pacman -S --needed curl base-devel mingw-w64-i686-toolchain mingw-w64-x86_64-toolchain mingw-w64-i686-cmake mingw-w64-x86_64-cmake
+pacman -S --needed curl base-devel \
+  mingw-w64-i686-toolchain mingw-w64-x86_64-toolchain \
+  mingw-w64-i686-cmake mingw-w64-x86_64-cmake
 
 # Download latest release
-export SG_VER="2.5.4" # Change to latest version
+export SG_VER="3.0.0" # Change to latest version
 curl -SL https://github.com/risoflora/libsagui/archive/v$SG_VER.tar.gz | tar -zx
 cd libsagui-$SG_VER/ && mkdir build && cd build/
 
@@ -97,6 +99,8 @@ to uninstall:
 make uninstall
 ```
 
-# Missing steps for your system?
+## Request steps for your system
 
-If you want the steps to install Sagui on your system and they are not available yet, feel free to contribute to this project by adding and publishing them on this page.
+If you want the steps to install Sagui on your system and they are not available
+yet, feel free to contribute to this project by adding and publishing them on
+this page.

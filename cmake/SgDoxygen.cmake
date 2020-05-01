@@ -9,14 +9,14 @@
 #
 # ::
 #
-# SG_BUILD_HTML - Enable/disable the API reference generation as HTML.
-# SG_GENERATE_HTML - True when enabled the API reference generation as HTML.
+# SG_BUILD_HTML - Enable/disable the API reference generation.
+# SG_GENERATE_HTML - True when enabled the API reference generation.
 #
 # DOXYGEN_FOUND - True when Doxygen executable is found.
 # DOXYGEN_INPUT_FILE - Template file used to generate the DOXYGEN_OUTPUT_FILE.
 # DOXYGEN_OUTPUT_FILE - Production file to be used as Doxygen input file. It is
 # generated from the template DOXYGEN_INPUT_FILE.
-# DOXYGEN_DOCS_DIR - Directory containing the documentation in HTML and PDF.
+# DOXYGEN_DOCS_DIR - Directory containing the documentation.
 
 #                         _
 #   ___  __ _  __ _ _   _(_)

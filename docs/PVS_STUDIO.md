@@ -1,6 +1,9 @@
 # Running PVS Studio analysis
 
-Download and install the PVS's command line tool [`how-to-use-pvs-studio-free`](https://github.com/viva64/how-to-use-pvs-studio-free) according its site instructions. After that, in the library root directory, perform the following commands:
+Download and install the PVS's command line tool
+[`how-to-use-pvs-studio-free`](https://github.com/viva64/how-to-use-pvs-studio-free)
+according its site instructions. After that, in the library root directory,
+perform the following commands:
 
 ```bash
 how-to-use-pvs-studio-free -c 2 -m examples src test
