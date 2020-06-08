@@ -259,6 +259,38 @@ void sg_free(void *ptr) {
   sg__mm.free(ptr);
 }
 
+/* Math. */
+
+static double sg__expr_pow(double x, double y) {
+  (void) x;
+  (void) y;
+  return 0;
+}
+
+static double sg__expr_fmod(double x, double y) {
+  (void) x;
+  (void) y;
+  return 0;
+}
+
+static struct sg__math_manager sg__math = {sg__expr_pow, sg__expr_fmod};
+
+int sg_math_set(sg_pow_func pow_func, sg_fmod_func fmod_func) {
+  if (!pow_func || !fmod_func)
+    return EINVAL;
+  sg__math.pow = pow_func;
+  sg__math.fmod = fmod_func;
+  return 0;
+}
+
+double sg__pow(double x, double y) {
+  return sg__math.pow(x, y);
+}
+
+double sg__fmod(double x, double y) {
+  return sg__math.fmod(x, y);
+}
+
 /* String. */
 
 char *sg_strerror(int errnum, char *errmsg, size_t errlen) {

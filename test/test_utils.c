@@ -55,6 +55,14 @@ static void test__strdup(void) {
   sg_free(str2);
 }
 
+static void test__pow(void) {
+  ASSERT(sg__pow(1, 2) == 0);
+}
+
+static void test__fmod(void) {
+  ASSERT(sg__fmod(1, 2) == 0);
+}
+
 static void test__toasciilower(void) {
   char str[100];
   memset(str, 0, sizeof(str));
@@ -328,6 +336,41 @@ static void test_free(void) {
   sg_free(NULL);
 }
 
+static double math_tester_x = 0;
+static double math_tester_y = 0;
+
+static double math_pow(double x, double y) {
+  math_tester_x = x;
+  math_tester_y = y;
+  return 789;
+}
+
+static double math_fmod(double x, double y) {
+  math_tester_x = x;
+  math_tester_y = y;
+  return 789;
+}
+
+static void test_math_set(void) {
+  ASSERT(sg_math_set(NULL, math_fmod) == EINVAL);
+  ASSERT(sg_math_set(math_pow, NULL) == EINVAL);
+
+  ASSERT(sg_math_set(math_pow, math_fmod) == 0);
+
+  math_tester_x = 0;
+  math_tester_y = 0;
+  ASSERT(sg__pow(123, 456) == 789);
+  ASSERT(math_tester_x == 123);
+  ASSERT(math_tester_y == 456);
+  math_tester_x = 0;
+  math_tester_y = 0;
+  ASSERT(sg__fmod(123, 456) == 789);
+  ASSERT(math_tester_x == 123);
+  ASSERT(math_tester_y == 456);
+
+  sg_math_set(sg__pow, sg__fmod);
+}
+
 static void test_strerror(void) {
   char err[256];
   ASSERT(!sg_strerror(0, NULL, sizeof(err)));
@@ -457,6 +500,8 @@ static void test_ip(void) {
 
 int main(void) {
   test__strdup();
+  test__pow();
+  test__fmod();
   test__toasciilower();
   test__strjoin();
   test__is_cookie_name();
@@ -467,6 +512,7 @@ int main(void) {
   test_alloc();
   test_realloc();
   test_free();
+  test_math_set();
   test_strerror();
   test_is_post();
   test_extract_entrypoint();

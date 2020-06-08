@@ -39,6 +39,12 @@ is so fast, compact and useful to run on embedded systems.
 - **Upload/download streaming by:**
   - Payload - for raw data transferring as JSON, XML and other.
   - File - for large data transferring as videos, images, binaries and so on.
+- **Mathematical expression evaluator:**
+  - Arithmetic, bitwise and logical operators.
+  - Variables allocation at build and/or run time.
+  - Macro support to define functions at run time.
+  - Extendable with custom functions.
+  - Error handling with error kind and position.
 - **Dynamic strings:**
   - Makes it easy strings operations in C.
 - **String map:**

@@ -73,7 +73,7 @@ extern "C" {
 #endif /* __SG_FORMAT */
 
 #define SG_VERSION_MAJOR 3
-#define SG_VERSION_MINOR 0
+#define SG_VERSION_MINOR 1
 #define SG_VERSION_PATCH 0
 #define SG_VERSION_HEX                                                         \
   ((SG_VERSION_MAJOR << 16) | (SG_VERSION_MINOR << 8) | (SG_VERSION_PATCH))
@@ -111,6 +111,24 @@ typedef void *(*sg_realloc_func)(void *ptr, size_t size);
  * \param[in] ptr Pointer of the memory to be freed.
  */
 typedef void (*sg_free_func)(void *ptr);
+
+/**
+ * Callback signature used to override the function which returns the value of
+ * `x` raised to the power of `y`.
+ * \param[in] x Floating point base value.
+ * \param[in] y Floating point power value.
+ * \return Value of `x` raised to the power of `y`.
+ */
+typedef double (*sg_pow_func)(double x, double y);
+
+/**
+ * Callback signature used to override the function which returns the remainder
+ * of `x` divided by `y`.
+ * \param[in] x Floating point value with the division numerator.
+ * \param[in] y Floating point value with the division denominator.
+ * \return Remainder of `x` divided by `y`.
+ */
+typedef double (*sg_fmod_func)(double x, double y);
 
 /**
  * Callback signature used by functions that handle errors.
@@ -232,11 +250,24 @@ SG_EXTERN void *sg_realloc(void *ptr, size_t size) __SG_MALLOC;
 SG_EXTERN void sg_free(void *ptr);
 
 /**
+ * Overrides the standard functions [pow(3)](https://linux.die.net/man/3/pow)
+ * and [fmod(3)](https://linux.die.net/man/3/fmod) set by default in the math
+ * manager.
+ * \param[in] pow_func Reference to override the function `pow()`.
+ * \param[in] fmod_func Reference to override the function `fmod()`.
+ * \retval 0 Success.
+ * \retval EINVAL Invalid argument.
+ * \note It must be called before any other Sagui function or after all
+ * resources have been freed.
+ */
+SG_EXTERN int sg_math_set(sg_pow_func pow_func, sg_fmod_func fmod_func);
+
+/**
  * Returns string describing an error number.
  * \param[in] errnum Error number.
  * \param[in,out] errmsg Pointer of a string to store the error message.
  * \param[in] errlen Length of the error message.
- * \return Pointer to \pr{str}.
+ * \return Pointer to \pr{errmsg}.
  */
 SG_EXTERN char *sg_strerror(int errnum, char *errmsg, size_t errlen);
 
@@ -255,7 +286,7 @@ SG_EXTERN bool sg_is_post(const char *method);
  * \retval NULL If no memory space is available.
  * \warning The caller must free the returned value.
  */
-SG_EXTERN char *sg_extract_entrypoint(const char *path);
+SG_EXTERN char *sg_extract_entrypoint(const char *path) __SG_MALLOC;
 
 /**
  * Returns the system temporary directory.
@@ -263,7 +294,7 @@ SG_EXTERN char *sg_extract_entrypoint(const char *path);
  * \retval NULL If no memory space is available.
  * \warning The caller must free the returned value.
  */
-SG_EXTERN char *sg_tmpdir(void);
+SG_EXTERN char *sg_tmpdir(void) __SG_MALLOC;
 
 /**
  * Indicates the end-of-read processed in #sg_httpres_sendstream().
@@ -922,7 +953,7 @@ SG_EXTERN const void *sg_httpreq_client(struct sg_httpreq *req);
 #ifdef SG_HTTPS_SUPPORT
 
 /**
- * Returns the GnuTLS session handle.
+ * Returns the [GnuTLS](https://gnutls.org) session handle.
  * \param[in] req Request handle.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
@@ -942,7 +973,7 @@ SG_EXTERN void *sg_httpreq_tls_session(struct sg_httpreq *req);
  * \retval EINVAL Invalid argument.
  * \retval ENOMEM Out of memory.
  * \retval E<ERROR> Any returned error from the OS threading library.
- * \note Isolated requestes will not time out.
+ * \note Isolated requests will not time out.
  * \note While a request is isolated, the library will not detect disconnects
  * by the client.
  */
@@ -1339,10 +1370,11 @@ SG_EXTERN int sg_httpres_clear(struct sg_httpres *res);
  * \param[in] err_cb Callback to handle server errors.
  * \param[in] cls User-defined closure.
  * \return New HTTP server handle.
- * \retval NULL If no memory space is available.
- * \retval NULL If the \pr{req_cb} or \pr{err_cb} is null and sets the `errno`
- * to `EINVAL`.
- * \retval NULL If a threading operation fails and sets its error to `errno`.
+ * \retval NULL
+ *  - If no memory space is available.
+ *  - If the \pr{req_cb} or \pr{err_cb} is null and sets the `errno` to
+ *    `EINVAL`.
+ *  - If a threading operation fails and sets its error to `errno`.
  */
 SG_EXTERN struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb,
                                              sg_httpreq_cb req_cb,
@@ -1354,8 +1386,9 @@ SG_EXTERN struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb,
  * \param[in] cb Callback to handle requests and responses.
  * \param[in] cls User-defined closure.
  * \return New HTTP server handle.
- * \retval NULL If the \pr{cb} is null and sets the `errno` to `EINVAL`.
- * \retval NULL If a threading operation fails and sets its error to `errno`.
+ * \retval NULL
+ *  - If the \pr{cb} is null and sets the `errno` to `EINVAL`.
+ *  - If a threading operation fails and sets its error to `errno`.
  */
 SG_EXTERN struct sg_httpsrv *sg_httpsrv_new(sg_httpreq_cb cb,
                                             void *cls) __SG_MALLOC;
@@ -1828,9 +1861,9 @@ SG_EXTERN const char *sg_route_rawpattern(struct sg_route *route);
  * Returns the route pattern.
  * \param[in] route Route handle.
  * \return Pattern as null-terminated string.
- * \retval NULL If \pr{route} is null and sets the `errno` to `EINVAL`.
- * \retval NULL If no memory space is available and sets the `errno` to
- * `ENOMEM`.
+ * \retval NULL
+ *  - If \pr{route} is null and sets the `errno` to `EINVAL`.
+ *  - If no memory space is available and sets the `errno` to `ENOMEM`.
  * \warning The caller must free the returned value.
  */
 SG_EXTERN char *sg_route_pattern(struct sg_route *route) __SG_MALLOC;
@@ -2057,6 +2090,208 @@ SG_EXTERN int sg_router_dispatch(struct sg_router *router, const char *path,
 /** \} */
 
 #endif /* SG_PATH_ROUTING */
+
+#ifdef SG_MATH_EXPR_EVAL
+
+/**
+ * \ingroup sg_api
+ * \defgroup sg_expr Math expression evaluator
+ * Mathematical expression evaluator.
+ * \{
+ */
+
+/**
+ * Handle for the mathematical expression evaluator.
+ * \struct sg_expr
+ */
+struct sg_expr;
+
+/**
+ * Possible error types returned by the mathematical expression evaluator.
+ * \enum sg_expr_err_type
+ */
+enum sg_expr_err_type {
+  /** Error not related to evaluation, e.g. `EINVAL`. */
+  SG_EXPR_ERR_UNKNOWN,
+  /** Unexpected number, e.g. `"(1+2)3"`. */
+  SG_EXPR_ERR_UNEXPECTED_NUMBER,
+  /** Unexpected word, e.g. `"(1+2)x"`. */
+  SG_EXPR_ERR_UNEXPECTED_WORD,
+  /** Unexpected parenthesis, e.g. `"1(2+3)"`. */
+  SG_EXPR_ERR_UNEXPECTED_PARENS,
+  /** Missing expected operand, e.g. `"0^+1"`. */
+  SG_EXPR_ERR_MISSING_OPERAND,
+  /** Unknown operator, e.g. `"(1+2)."`. */
+  SG_EXPR_ERR_UNKNOWN_OPERATOR,
+  /** Invalid function name, e.g. `"unknownfunc()"`. */
+  SG_EXPR_ERR_INVALID_FUNC_NAME,
+  /** Bad parenthesis, e.g. `"(1+2"`. */
+  SG_EXPR_ERR_BAD_PARENS,
+  /** Too few arguments passed to a macro, e.g. `"$()"`. */
+  SG_EXPR_ERR_TOO_FEW_FUNC_ARGS,
+  /** First macro argument is not variable, e.g. `"$(1)"`. */
+  SG_EXPR_ERR_FIRST_ARG_IS_NOT_VAR,
+  /** Bad variable name, e.g. `"2.3.4"`. */
+  SG_EXPR_ERR_BAD_VARIABLE_NAME,
+  /** Bad assignment, e.g. `"2=3"`. */
+  SG_EXPR_ERR_BAD_ASSIGNMENT
+};
+
+/**
+ * Handle to access a user-defined function registered in the mathematical
+ * expression extension.
+ * \struct sg_expr_argument
+ */
+struct sg_expr_argument;
+
+/**
+ * Callback signature to specify a function at build time to be executed at
+ * run time in a mathematical expression.
+ * \param[out] cls User-defined closure.
+ * \param[out] args Floating-point arguments passed to the function.
+ * \param[out] identifier Null-terminated string to identify the function.
+ * \return Floating-point value calculated at build time to be used at run time
+ * in a mathematical expression.
+ */
+typedef double (*sg_expr_func)(void *cls, struct sg_expr_argument *args,
+                               const char *identifier);
+
+/**
+ * Handle for the mathematical expression evaluator extension.
+ * \struct sg_expr_extension
+ */
+struct sg_expr_extension {
+  /** User-defined function to be executed at run time in a mathematical
+   * expression. */
+  sg_expr_func func;
+  /** Null-terminated to identify the function. */
+  const char *identifier;
+  /** User-defined closure. */
+  void *cls;
+};
+
+/**
+ * Creates a new mathematical expression evaluator handle.
+ * \return New mathematical expression evaluator handle.
+ * \retval NULL If no memory space is available and sets the `errno` to
+ * `ENOMEM`.
+ */
+SG_EXTERN struct sg_expr *sg_expr_new(void) __SG_MALLOC;
+
+/**
+ * Frees the mathematical expression evaluator handle previously allocated by
+ * #sg_expr_new().
+ * \param[in] expr Expression evaluator handle.
+ */
+SG_EXTERN void sg_expr_free(struct sg_expr *expr);
+
+/**
+ * Compiles a mathematical expression allowing to declare variables, macros and
+ * extensions.
+ * \param[in] expr Mathematical expression instance.
+ * \param[in] str Null-terminated string with the mathematical expresion to be
+ * compiled.
+ * \param[in] len Length of the mathematical expresion to be compiled.
+ * \param[in] extensions Array of extensions to extend the evaluator.
+ * \note The extension array must be terminated by a zeroed item.
+ * \retval 0 Success.
+ * \retval EINVAL Invalid argument.
+ * \retval ENOENT Missing a needed extenssion.
+ * \retval EALREADY Mathematical expression already compiled.
+ * \retval ENOMEM Out of memory.
+ */
+SG_EXTERN int sg_expr_compile(struct sg_expr *expr, const char *str, size_t len,
+                              struct sg_expr_extension *extensions);
+
+/**
+ * Clears a mathematical expresion instance.
+ * \param[in] expr Mathematical expression instance.
+ * \retval 0 Success.
+ * \retval EINVAL Invalid argument.
+ */
+SG_EXTERN int sg_expr_clear(struct sg_expr *expr);
+
+/**
+ * Evaluates a compiled mathematical expression.
+ * \param[in] expr Compiled mathematical expresion.
+ * \return Floating-point value of the evaluated mathematical expresion.
+ * \retval NAN If the \pr{expr} is null and sets the `errno` to `EINVAL`.
+ */
+SG_EXTERN double sg_expr_eval(struct sg_expr *expr);
+
+/**
+ * Gets the value of a declared variable.
+ * \param[in] expr Mathematical expression instance.
+ * \param[in] name Name of the declared variable.
+ * \param[in] len Length of the variable name.
+ * \retval NAN
+ *  - If \pr{expr} or \pr{name} is null, or \pr{len} is less than one, and sets
+ *  the `errno` to `EINVAL`.
+ *  - If no memory space is available and sets the `errno` to `ENOMEM`.
+ */
+SG_EXTERN double sg_expr_var(struct sg_expr *expr, const char *name,
+                             size_t len);
+
+/**
+ * Sets a variable to the mathematical expression.
+ * \param[in] expr Mathematical expression instance.
+ * \param[in] name Name for the variable.
+ * \param[in] len Length of the variable name.
+ * \param[in] val Value for the variable.
+ * \retval 0 Success.
+ * \retval EINVAL Invalid argument.
+ * \retval ENOMEM Out of memory.
+ */
+SG_EXTERN int sg_expr_set_var(struct sg_expr *expr, const char *name,
+                              size_t len, double val);
+
+/**
+ * Gets function argument by its index.
+ * \param[in] args Arguments list.
+ * \param[in] index Argument index.
+ * \retval NAN If the \pr{args} is null or \pr{index} is less than zero and
+ * sets the `errno` to `EINVAL`.
+ */
+SG_EXTERN double sg_expr_arg(struct sg_expr_argument *args, int index);
+
+/**
+ * Returns the nearby position of an error in the mathematical expression.
+ * \param[in] expr Compiled mathematical expresion.
+ * \retval 0 Success.
+ * \retval EINVAL Invalid argument.
+ */
+SG_EXTERN int sg_expr_near(struct sg_expr *expr);
+
+/**
+ * Returns the type of an error in the mathematical expression.
+ * \param[in] expr Compiled mathematical expresion.
+ * \return Enumerator representing the error type.
+ * \retval SG_EXPR_ERR_UNKNOWN If the \pr{expr} is null or an unknown error
+ * occurred and sets the `errno` to `EINVAL`.
+ */
+SG_EXTERN enum sg_expr_err_type sg_expr_err(struct sg_expr *expr);
+
+/**
+ * Returns the description of an error in the mathematical expression.
+ * \param[in] expr Compiled mathematical expresion.
+ * \return Description of the error as null-terminated string.
+ * \retval NULL If the \pr{expr} is null and sets the `errno` to `EINVAL`.
+ */
+SG_EXTERN const char *sg_expr_strerror(struct sg_expr *expr);
+
+/**
+ * Returns the evaluated value of a mathematical expresion.
+ * \param[in] str Null-terminated string with the mathematical expresion to be
+ * evaluated.
+ * \param[in] len Length of the mathematical expresion to be evaluated.
+ * \retval NAN If \pr{str} is null, or \pr{len} is less than one, and sets the
+ * `errno` to `EINVAL`.
+ */
+SG_EXTERN double sg_expr_calc(const char *str, size_t len);
+
+/** \} */
+
+#endif /* SG_MATH_EXPR_EVAL */
 
 #ifdef __cplusplus
 }

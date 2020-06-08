@@ -73,6 +73,9 @@ if(SG_PATH_ROUTING)
        ${SG_SOURCE_DIR}/sg_entrypoints.c ${SG_SOURCE_DIR}/sg_routes.c
        ${SG_SOURCE_DIR}/sg_router.c)
 endif()
+if(SG_MATH_EXPR_EVAL)
+  list(APPEND SG_C_SOURCE ${SG_SOURCE_DIR}/sg_expr.c)
+endif()
 set(SG_C_SOURCE
     ${SG_C_SOURCE}
     PARENT_SCOPE)

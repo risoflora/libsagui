@@ -41,6 +41,11 @@ struct sg__memory_manager {
   sg_free_func free;
 };
 
+struct sg__math_manager {
+  sg_pow_func pow;
+  sg_fmod_func fmod;
+};
+
 #ifdef _WIN32
 #ifndef PATH_MAX
 #define PATH_MAX _MAX_PATH
@@ -68,6 +73,10 @@ SG__EXTERN char *sg__basename(const char *path);
 #endif /* _WIN32 || __ANDROID__ || (__linux__ && !__gnu_linux__) */
 
 SG__EXTERN char *sg__strdup(const char *str);
+
+SG__EXTERN double sg__pow(double x, double y);
+
+SG__EXTERN double sg__fmod(double x, double y);
 
 /* Converts US-ASCII string to lower case. */
 SG__EXTERN void sg__toasciilower(char *str);

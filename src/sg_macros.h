@@ -38,7 +38,7 @@
 
 /* used by utstring library */
 #ifndef utstring_oom
-#define utstring_oom() (void) 0
+#define utstring_oom() ((void) 0)
 #endif /* utstring_oom */
 
 /* used by uthash library */
@@ -58,6 +58,15 @@
 #define PCRE2_CODE_UNIT_WIDTH 8
 #endif /* PCRE2_CODE_UNIT_WIDTH */
 #endif /* SG_PATH_ROUTING */
+
+/* used by expr library */
+#ifdef SG_MATH_EXPR_EVAL
+#define expr_alloc sg_alloc
+#define expr_realloc sg_realloc
+#define expr_free sg_free
+#define expr_pow sg__pow
+#define expr_fmod sg__fmod
+#endif /* SG_MATH_EXPR_EVAL */
 
 #ifndef SG__EXTERN
 #if defined(_WIN32) && defined(BUILD_TESTING)

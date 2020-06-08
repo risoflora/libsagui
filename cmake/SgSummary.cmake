@@ -95,6 +95,12 @@ else()
   set(_routing "No")
 endif()
 
+if(SG_MATH_EXPR_EVAL)
+  set(_expr "Yes")
+else()
+  set(_expr "No")
+endif()
+
 if(SG_BUILD_EXAMPLES)
   set(_build_examples "Yes")
   if(SG_EXAMPLES)
@@ -158,6 +164,7 @@ Sagui library ${VERSION} - building summary:
     HTTPS support: ${_https_support}
     HTTP compression: ${_http_compression}
     Path routing: ${_routing}
+    Math expression evaluator: ${_expr}
   Examples: ${_build_examples}
   Docs: ${_build_html}
   Run tests: ${_build_testing}
@@ -172,6 +179,7 @@ unset(_lib_type)
 unset(_https_support)
 unset(_http_compression)
 unset(_routing)
+unset(_expr)
 unset(_build_examples)
 unset(_build_html)
 unset(_build_testing)

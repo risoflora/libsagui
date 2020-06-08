@@ -19,7 +19,7 @@
 #
 # Cross-platform library which helps to develop web servers or frameworks.
 #
-# Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+# Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
 #
 # Sagui library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -65,6 +65,9 @@ if(SG_HTTP_COMPRESSION)
 endif()
 if(SG_PATH_ROUTING)
   list(APPEND RC_FILE_DESC_MODS "PCRE2")
+endif()
+if(SG_MATH_EXPR_EVAL)
+  list(APPEND RC_FILE_DESC_MODS "EXPR")
 endif()
 if(RC_FILE_DESC_MODS)
   string(REPLACE ";" "," RC_FILE_DESC_MODS "${RC_FILE_DESC_MODS}")
