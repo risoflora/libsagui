@@ -74,7 +74,7 @@ extern "C" {
 
 #define SG_VERSION_MAJOR 3
 #define SG_VERSION_MINOR 1
-#define SG_VERSION_PATCH 1
+#define SG_VERSION_PATCH 2
 #define SG_VERSION_HEX                                                         \
   ((SG_VERSION_MAJOR << 16) | (SG_VERSION_MINOR << 8) | (SG_VERSION_PATCH))
 
@@ -1273,8 +1273,8 @@ SG_EXTERN int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb,
  * \note When compression succeeds, the header `Content-Encoding: gzip` is
  * automatically added to the response.
  */
-#define sg_httpres_zdownload(res, filename)                                    \
-  sg_httpres_zsendfile2((res), 1, 0, 0, 0, (filename), "attachment", 200)
+#define sg_httpres_zdownload(res, filename, status)                            \
+  sg_httpres_zsendfile2((res), 1, 0, 0, 0, (filename), "attachment", (status))
 
 /**
  * Compresses a file in Gzip formant and sends it to be rendered. The
@@ -1291,8 +1291,8 @@ SG_EXTERN int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb,
  * \note When compression succeeds, the header `Content-Encoding: gzip` is
  * automatically added to the response.
  */
-#define sg_httpres_zrender(res, filename)                                      \
-  sg_httpres_zsendfile2((res), 1, 0, 0, 0, (filename), "inline", 200)
+#define sg_httpres_zrender(res, filename, status)                              \
+  sg_httpres_zsendfile2((res), 1, 0, 0, 0, (filename), "inline", (status))
 
 /**
  * Compresses a file in Gzip format and sends it to the client. The compression

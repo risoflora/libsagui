@@ -726,12 +726,12 @@ static void test_httpres_zdownload(struct sg_httpres *res) {
   FILE *file;
   char *dir;
 
-  ASSERT(sg_httpres_zdownload(NULL, PATH) == EINVAL);
-  ASSERT(sg_httpres_zdownload(res, NULL) == EINVAL);
+  ASSERT(sg_httpres_zdownload(NULL, PATH, 200) == EINVAL);
+  ASSERT(sg_httpres_zdownload(res, NULL, 200) == EINVAL);
 
-  ASSERT(sg_httpres_zdownload(res, "") == ENOENT);
+  ASSERT(sg_httpres_zdownload(res, "", 200) == ENOENT);
   dir = sg_tmpdir();
-  ASSERT(sg_httpres_zdownload(res, dir) == EISDIR);
+  ASSERT(sg_httpres_zdownload(res, dir, 200) == EISDIR);
   sg_free(dir);
 
   strcpy(str, "foo");
@@ -740,11 +740,11 @@ static void test_httpres_zdownload(struct sg_httpres *res) {
   ASSERT(file);
   ASSERT(fwrite(str, 1, len, file) == len);
   ASSERT(fclose(file) == 0);
-  ASSERT(sg_httpres_zdownload(res, PATH) == 0);
+  ASSERT(sg_httpres_zdownload(res, PATH, 200) == 0);
   ASSERT(strcmp(sg_strmap_get(*sg_httpres_headers(res),
                               MHD_HTTP_HEADER_CONTENT_DISPOSITION),
                 "attachment; filename=\"" FILENAME "\"") == 0);
-  ASSERT(sg_httpres_zdownload(res, PATH) == EALREADY);
+  ASSERT(sg_httpres_zdownload(res, PATH, 200) == EALREADY);
   sg_free(res->handle);
   res->handle = NULL;
 #undef PATH
@@ -761,12 +761,12 @@ static void test_httpres_zrender(struct sg_httpres *res) {
   FILE *file;
   char *dir;
 
-  ASSERT(sg_httpres_zrender(NULL, PATH) == EINVAL);
-  ASSERT(sg_httpres_zrender(res, NULL) == EINVAL);
+  ASSERT(sg_httpres_zrender(NULL, PATH, 200) == EINVAL);
+  ASSERT(sg_httpres_zrender(res, NULL, 200) == EINVAL);
 
-  ASSERT(sg_httpres_zrender(res, "") == ENOENT);
+  ASSERT(sg_httpres_zrender(res, "", 200) == ENOENT);
   dir = sg_tmpdir();
-  ASSERT(sg_httpres_zrender(res, dir) == EISDIR);
+  ASSERT(sg_httpres_zrender(res, dir, 200) == EISDIR);
   sg_free(dir);
 
   strcpy(str, "foo");
@@ -775,11 +775,11 @@ static void test_httpres_zrender(struct sg_httpres *res) {
   ASSERT(file);
   ASSERT(fwrite(str, 1, len, file) == len);
   ASSERT(fclose(file) == 0);
-  ASSERT(sg_httpres_zrender(res, PATH) == 0);
+  ASSERT(sg_httpres_zrender(res, PATH, 200) == 0);
   ASSERT(strcmp(sg_strmap_get(*sg_httpres_headers(res),
                               MHD_HTTP_HEADER_CONTENT_DISPOSITION),
                 "inline; filename=\"" FILENAME "\"") == 0);
-  ASSERT(sg_httpres_zrender(res, PATH) == EALREADY);
+  ASSERT(sg_httpres_zrender(res, PATH, 200) == EALREADY);
   sg_free(res->handle);
   res->handle = NULL;
 #undef PATH
