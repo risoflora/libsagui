@@ -110,7 +110,7 @@ static void req_cb(__SG_UNUSED void *cls, struct sg_httpreq *req,
       if (file) {
         sprintf(path, "%s%c%s", sg_httpsrv_upld_dir(sg_httpreq_srv(req)),
                 PATH_SEP, file);
-        sg_httpres_download(res, path);
+        sg_httpres_download(res, path, 200);
       }
     } else
       sg_httpres_send(res, PAGE_FORM, CONTENT_TYPE, 200);

@@ -74,7 +74,7 @@ extern "C" {
 
 #define SG_VERSION_MAJOR 3
 #define SG_VERSION_MINOR 1
-#define SG_VERSION_PATCH 0
+#define SG_VERSION_PATCH 1
 #define SG_VERSION_HEX                                                         \
   ((SG_VERSION_MAJOR << 16) | (SG_VERSION_MINOR << 8) | (SG_VERSION_PATCH))
 
@@ -1054,6 +1054,7 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf,
  * Offer a file as download.
  * \param[in] res Response handle.
  * \param[in] filename Path of the file to be sent.
+ * \param[in] status HTTP status code.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  * \retval EALREADY Operation already in progress.
@@ -1061,13 +1062,14 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf,
  * \retval EBADF Bad file number.
  * \retval ENOMEM Out of memory.
  */
-#define sg_httpres_download(res, filename)                                     \
-  sg_httpres_sendfile2((res), 0, 0, 0, (filename), "attachment", 200)
+#define sg_httpres_download(res, filename, status)                             \
+  sg_httpres_sendfile2((res), 0, 0, 0, (filename), "attachment", (status))
 
 /**
  * Sends a file to be rendered.
  * \param[in] res Response handle.
  * \param[in] filename Path of the file to be sent.
+ * \param[in] status HTTP status code.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  * \retval EALREADY Operation already in progress.
@@ -1075,8 +1077,8 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf,
  * \retval EBADF Bad file number.
  * \retval ENOMEM Out of memory.
  */
-#define sg_httpres_render(res, filename)                                       \
-  sg_httpres_sendfile2((res), 0, 0, 0, (filename), "inline", 200)
+#define sg_httpres_render(res, filename, status)                               \
+  sg_httpres_sendfile2((res), 0, 0, 0, (filename), "inline", (status))
 
 /**
  * Sends a file to the client.
