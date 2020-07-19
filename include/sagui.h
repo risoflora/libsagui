@@ -281,8 +281,8 @@ SG_EXTERN bool sg_is_post(const char *method);
 /**
  * Extracts the entry-point of a path or resource. For example, given a path
  * `/api1/customer`, the part considered as entry-point is `/api1`.
- * \param path Path as null-terminated string.
- * \return Entry-point as null-terminated string.
+ * \param path Path as a null-terminated string.
+ * \return Entry-point as a null-terminated string.
  * \retval NULL If no memory space is available.
  * \warning The caller must free the returned value.
  */
@@ -290,7 +290,7 @@ SG_EXTERN char *sg_extract_entrypoint(const char *path) __SG_MALLOC;
 
 /**
  * Returns the system temporary directory.
- * \return Temporary directory as null-terminated string.
+ * \return Temporary directory as a null-terminated string.
  * \retval NULL If no memory space is available.
  * \warning The caller must free the returned value.
  */
@@ -387,8 +387,8 @@ SG_EXTERN int sg_str_printf(struct sg_str *str, const char *fmt, ...)
 /**
  * Returns the null-terminated string content from the string handle \pr{str}.
  * \param[in] str String handle.
- * \return Content as null-terminated string.
- * \retval NULL If the \pr{str} is null and sets the `errno` to `EINVAL`.
+ * \return Content as a null-terminated string.
+ * \retval NULL If the \pr{str} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN const char *sg_str_content(struct sg_str *str);
 
@@ -448,16 +448,16 @@ typedef int (*sg_strmap_sort_cb)(void *cls, struct sg_strmap *pair_a,
 /**
  * Returns a name from the \pr{pair}.
  * \param[in] pair Pair of name-value.
- * \return Name as null-terminated string.
- * \retval NULL If the \pr{pair} is null and sets the `errno` to `EINVAL`.
+ * \return Name as a null-terminated string.
+ * \retval NULL If the \pr{pair} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN const char *sg_strmap_name(struct sg_strmap *pair);
 
 /**
  * Returns a value from the \pr{pair}.
  * \param[in] pair Pair of name-value.
- * \return Value as null-terminated string.
- * \retval NULL If the \pr{pair} is null and sets the `errno` to `EINVAL`.
+ * \return Value as a null-terminated string.
+ * \retval NULL If the \pr{pair} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN const char *sg_strmap_val(struct sg_strmap *pair);
 
@@ -506,7 +506,7 @@ SG_EXTERN int sg_strmap_find(struct sg_strmap *map, const char *name,
  * Gets a pair by name and returns the value.
  * \param[in] map Pairs map.
  * \param[in] name Name to get the pair.
- * \return Pair value as null-terminated string.
+ * \return Pair value as a null-terminated string.
  * \retval NULL If \pr{map} or \pr{name} is null or pair is not found.
  */
 SG_EXTERN const char *sg_strmap_get(struct sg_strmap *map, const char *name);
@@ -682,8 +682,8 @@ SG_EXTERN int sg_httpauth_set_realm(struct sg_httpauth *auth,
 /**
  * Gets the authentication protection space (realm).
  * \param[in] auth Authentication handle.
- * \return Realm as null-terminated string.
- * \retval NULL If \pr{auth} is null and sets the `errno` to `EINVAL`.
+ * \return Realm as a null-terminated string.
+ * \retval NULL If \pr{auth} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN const char *sg_httpauth_realm(struct sg_httpauth *auth);
 
@@ -726,16 +726,16 @@ SG_EXTERN int sg_httpauth_cancel(struct sg_httpauth *auth);
 /**
  * Returns the authentication user.
  * \param[in] auth Authentication handle.
- * \return User as null-terminated string.
- * \retval NULL If \pr{auth} is null and sets the `errno` to `EINVAL`.
+ * \return User as a null-terminated string.
+ * \retval NULL If \pr{auth} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN const char *sg_httpauth_usr(struct sg_httpauth *auth);
 
 /**
  * Returns the authentication password.
  * \param[in] auth Authentication handle.
- * \return Password as null-terminated string.
- * \retval NULL If \pr{auth} is null and sets the `errno` to `EINVAL`.
+ * \return Password as a null-terminated string.
+ * \retval NULL If \pr{auth} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN const char *sg_httpauth_pwd(struct sg_httpauth *auth);
 
@@ -771,54 +771,54 @@ SG_EXTERN unsigned int sg_httpuplds_count(struct sg_httpupld *uplds);
  * Returns the stream handle of the upload handle \pr{upld}.
  * \param[in] upld Upload handle.
  * \return Stream handle.
- * \retval NULL If \pr{upld} is null and sets the `errno` to `EINVAL`.
+ * \retval NULL If \pr{upld} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN void *sg_httpupld_handle(struct sg_httpupld *upld);
 
 /**
  * Returns the directory of the upload handle \pr{upld}.
  * \param[in] upld Upload handle.
- * \return Upload directory as null-terminated string.
- * \retval NULL If \pr{upld} is null and sets the `errno` to `EINVAL`.
+ * \return Upload directory as a null-terminated string.
+ * \retval NULL If \pr{upld} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN const char *sg_httpupld_dir(struct sg_httpupld *upld);
 
 /**
  * Returns the field of the upload handle \pr{upld}.
  * \param[in] upld Upload handle.
- * \return Upload field as null-terminated string.
- * \retval NULL If \pr{upld} is null and sets the `errno` to `EINVAL`.
+ * \return Upload field as a null-terminated string.
+ * \retval NULL If \pr{upld} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN const char *sg_httpupld_field(struct sg_httpupld *upld);
 
 /**
  * Returns the name of the upload handle \pr{upld}.
  * \param[in] upld Upload handle.
- * \return Upload name as null-terminated string.
- * \retval NULL If \pr{upld} is null and sets the `errno` to `EINVAL`.
+ * \return Upload name as a null-terminated string.
+ * \retval NULL If \pr{upld} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN const char *sg_httpupld_name(struct sg_httpupld *upld);
 
 /**
  * Returns the MIME (content-type) of the upload.
  * \param[in] upld Upload handle.
- * \return Upload MIME as null-terminated string.
- * \retval NULL If \pr{upld} is null and sets the `errno` to `EINVAL`.
+ * \return Upload MIME as a null-terminated string.
+ * \retval NULL If \pr{upld} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN const char *sg_httpupld_mime(struct sg_httpupld *upld);
 
 /**
  * Returns the encoding (transfer-encoding) of the upload.
  * \param[in] upld Upload handle.
- * \return Upload encoding as null-terminated string.
- * \retval NULL If \pr{upld} is null and sets the `errno` to `EINVAL`.
+ * \return Upload encoding as a null-terminated string.
+ * \retval NULL If \pr{upld} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN const char *sg_httpupld_encoding(struct sg_httpupld *upld);
 
 /**
  * Returns the size of the upload.
  * \param[in] upld Upload handle.
- * \return Upload size into `uint64`. If \pr{upld} is null, sets the `errno` to
+ * \return Upload size into `uint64`. If \pr{upld} is null, set the `errno` to
  * `EINVAL`.
  */
 SG_EXTERN uint64_t sg_httpupld_size(struct sg_httpupld *upld);
@@ -852,7 +852,7 @@ SG_EXTERN int sg_httpupld_save_as(struct sg_httpupld *upld, const char *path,
  * Returns the server instance.
  * \param[in] req Request handle.
  * \return Reference to the server instance.
- * \retval NULL If \pr{req} is null and sets the `errno` to `EINVAL`
+ * \retval NULL If \pr{req} is null and set the `errno` to `EINVAL`
  */
 SG_EXTERN struct sg_httpsrv *sg_httpreq_srv(struct sg_httpreq *req);
 
@@ -860,7 +860,7 @@ SG_EXTERN struct sg_httpsrv *sg_httpreq_srv(struct sg_httpreq *req);
  * Returns the client headers into #sg_strmap map.
  * \param[in] req Request handle.
  * \return Reference to the client headers map.
- * \retval NULL If \pr{req} is null and sets the `errno` to `EINVAL`
+ * \retval NULL If \pr{req} is null and set the `errno` to `EINVAL`
  * \note The headers map is automatically freed by the library.
  */
 SG_EXTERN struct sg_strmap **sg_httpreq_headers(struct sg_httpreq *req);
@@ -869,7 +869,7 @@ SG_EXTERN struct sg_strmap **sg_httpreq_headers(struct sg_httpreq *req);
  * Returns the client cookies into #sg_strmap map.
  * \param[in] req Request handle.
  * \return Reference to the client cookies map.
- * \retval NULL If \pr{req} is null and sets the `errno` to `EINVAL`
+ * \retval NULL If \pr{req} is null and set the `errno` to `EINVAL`
  * \note The cookies map is automatically freed by the library.
  */
 SG_EXTERN struct sg_strmap **sg_httpreq_cookies(struct sg_httpreq *req);
@@ -878,7 +878,7 @@ SG_EXTERN struct sg_strmap **sg_httpreq_cookies(struct sg_httpreq *req);
  * Returns the query-string into #sg_strmap map.
  * \param[in] req Request handle.
  * \return Reference to the query-string map.
- * \retval NULL If \pr{req} is null and sets the `errno` to `EINVAL`
+ * \retval NULL If \pr{req} is null and set the `errno` to `EINVAL`
  * \note The query-string map is automatically freed by the library.
  */
 SG_EXTERN struct sg_strmap **sg_httpreq_params(struct sg_httpreq *req);
@@ -887,7 +887,7 @@ SG_EXTERN struct sg_strmap **sg_httpreq_params(struct sg_httpreq *req);
  * Returns the fields of a HTML form into #sg_strmap map.
  * \param[in] req Request handle.
  * \return Reference to the form fields map.
- * \retval NULL If \pr{req} is null and sets the `errno` to `EINVAL`
+ * \retval NULL If \pr{req} is null and set the `errno` to `EINVAL`
  * \note The form fields map is automatically freed by the library.
  */
 SG_EXTERN struct sg_strmap **sg_httpreq_fields(struct sg_httpreq *req);
@@ -895,24 +895,24 @@ SG_EXTERN struct sg_strmap **sg_httpreq_fields(struct sg_httpreq *req);
 /**
  * Returns the HTTP version.
  * \param[in] req Request handle.
- * \return HTTP version as null-terminated string.
- * \retval NULL If \pr{req} is null and sets the `errno` to `EINVAL`.
+ * \return HTTP version as a null-terminated string.
+ * \retval NULL If \pr{req} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN const char *sg_httpreq_version(struct sg_httpreq *req);
 
 /**
  * Returns the HTTP method.
  * \param[in] req Request handle.
- * \return HTTP method as null-terminated string.
- * \retval NULL If \pr{req} is null and sets the `errno` to `EINVAL`.
+ * \return HTTP method as a null-terminated string.
+ * \retval NULL If \pr{req} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN const char *sg_httpreq_method(struct sg_httpreq *req);
 
 /**
  * Returns the path component.
  * \param[in] req Request handle.
- * \return Path component as null-terminated string.
- * \retval NULL If \pr{req} is null and sets the `errno` to `EINVAL`.
+ * \return Path component as a null-terminated string.
+ * \retval NULL If \pr{req} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN const char *sg_httpreq_path(struct sg_httpreq *req);
 
@@ -920,7 +920,7 @@ SG_EXTERN const char *sg_httpreq_path(struct sg_httpreq *req);
  * Returns the posting payload into a #sg_str instance.
  * \param[in] req Request handle.
  * \return Instance of the payload.
- * \retval NULL If \pr{req} is null and sets the `errno` to `EINVAL`.
+ * \retval NULL If \pr{req} is null and set the `errno` to `EINVAL`.
  * \note The form payload instance is automatically freed by the library.
  */
 SG_EXTERN struct sg_str *sg_httpreq_payload(struct sg_httpreq *req);
@@ -929,7 +929,7 @@ SG_EXTERN struct sg_str *sg_httpreq_payload(struct sg_httpreq *req);
  * Checks if the client is uploading data.
  * \param[in] req Request handle.
  * \retval true If the client is uploading data, `false` otherwise. If \pr{req}
- * is null, sets the `errno` to `EINVAL`.
+ * is null, set the `errno` to `EINVAL`.
  */
 SG_EXTERN bool sg_httpreq_is_uploading(struct sg_httpreq *req);
 
@@ -937,7 +937,7 @@ SG_EXTERN bool sg_httpreq_is_uploading(struct sg_httpreq *req);
  * Returns the list of the uploaded files.
  * \param[in] req Request handle.
  * \return List of the uploaded files.
- * \retval NULL If \pr{req} is null and sets the `errno` to `EINVAL`.
+ * \retval NULL If \pr{req} is null and set the `errno` to `EINVAL`.
  * \note The uploads list is automatically freed by the library.
  */
 SG_EXTERN struct sg_httpupld *sg_httpreq_uploads(struct sg_httpreq *req);
@@ -946,7 +946,7 @@ SG_EXTERN struct sg_httpupld *sg_httpreq_uploads(struct sg_httpreq *req);
  * Gets the socket handle of the client.
  * \param[in] req Request handle.
  * \return Socket address of the client.
- * \retval NULL If \pr{req} is null and sets the `errno` to `EINVAL`.
+ * \retval NULL If \pr{req} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN const void *sg_httpreq_client(struct sg_httpreq *req);
 
@@ -993,7 +993,7 @@ SG_EXTERN int sg_httpreq_set_user_data(struct sg_httpreq *req, void *data);
  * Gets user data from the request handle.
  * \param[in] req Request handle.
  * \return User data pointer.
- * \retval NULL If \pr{req} is null and sets the `errno` to `EINVAL`.
+ * \retval NULL If \pr{req} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN void *sg_httpreq_user_data(struct sg_httpreq *req);
 
@@ -1001,7 +1001,7 @@ SG_EXTERN void *sg_httpreq_user_data(struct sg_httpreq *req);
  * Returns the server headers into #sg_strmap map.
  * \param[in] res Response handle.
  * \return Reference to the server headers map.
- * \retval NULL If \pr{res} is null and sets the `errno` to `EINVAL`
+ * \retval NULL If \pr{res} is null and set the `errno` to `EINVAL`
  * \note The headers map is automatically freed by the library.
  */
 SG_EXTERN struct sg_strmap **sg_httpres_headers(struct sg_httpres *res);
@@ -1051,7 +1051,7 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf,
                                     unsigned int status);
 
 /**
- * Offer a file as download.
+ * Offers a file as download.
  * \param[in] res Response handle.
  * \param[in] filename Path of the file to be sent.
  * \param[in] status HTTP status code.
@@ -1088,7 +1088,7 @@ SG_EXTERN int sg_httpres_sendbinary(struct sg_httpres *res, void *buf,
  * \param[in] max_size Maximum allowed file size. Use zero for no limit.
  * \param[in] offset Offset to start reading from in the file to be sent.
  * \param[in] filename Path of the file to be sent.
- * \param[in] disposition Content disposition as null-terminated string
+ * \param[in] disposition Content disposition as a null-terminated string
  * (attachment or inline).
  * \param[in] status HTTP status code.
  * \retval 0 Success.
@@ -1115,7 +1115,7 @@ SG_EXTERN int sg_httpres_sendfile2(struct sg_httpres *res, uint64_t size,
  * \param[in] max_size Maximum allowed file size. Use zero for no limit.
  * \param[in] offset Offset to start reading from in the file to be sent.
  * \param[in] filename Path of the file to be sent.
- * \param[in] downloaded If `true` it offer the file as download.
+ * \param[in] downloaded If `true` it offers the file as download.
  * \param[in] status HTTP status code.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
@@ -1259,7 +1259,7 @@ SG_EXTERN int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb,
                                      unsigned int status);
 
 /**
- * Compresses a file in Gzip format and offer it as download. The compression
+ * Compresses a file in Gzip format and offers it as download. The compression
  * is done by zlib library using the DEFLATE compression algorithm.
  * \param[in] res Response handle.
  * \param[in] filename Path of the file to be compressed and sent.
@@ -1277,7 +1277,7 @@ SG_EXTERN int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb,
   sg_httpres_zsendfile2((res), 1, 0, 0, 0, (filename), "attachment", (status))
 
 /**
- * Compresses a file in Gzip formant and sends it to be rendered. The
+ * Compresses a file in Gzip format and sends it to be rendered. The
  * compression is done by zlib library using the DEFLATE compression algorithm.
  * \param[in] res Response handle.
  * \param[in] filename Path of the file to be sent.
@@ -1304,7 +1304,7 @@ SG_EXTERN int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb,
  * \param[in] max_size Maximum allowed file size. Use zero for no limit.
  * \param[in] offset Offset to start reading from in the file to be sent.
  * \param[in] filename Path of the file to be sent.
- * \param[in] disposition Content disposition as null-terminated string
+ * \param[in] disposition Content disposition as a null-terminated string
  * (attachment or inline).
  * \param[in] status HTTP status code.
  * \retval 0 Success.
@@ -1335,7 +1335,7 @@ SG_EXTERN int sg_httpres_zsendfile2(struct sg_httpres *res, int level,
  * \param[in] max_size Maximum allowed file size. Use zero for no limit.
  * \param[in] offset Offset to start reading from in the file to be sent.
  * \param[in] filename Path of the file to be sent.
- * \param[in] downloaded If `true` it offer the file as download.
+ * \param[in] downloaded If `true` it offers the file as download.
  * \param[in] status HTTP status code.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
@@ -1374,9 +1374,9 @@ SG_EXTERN int sg_httpres_clear(struct sg_httpres *res);
  * \return New HTTP server handle.
  * \retval NULL
  *  - If no memory space is available.
- *  - If the \pr{req_cb} or \pr{err_cb} is null and sets the `errno` to
+ *  - If the \pr{req_cb} or \pr{err_cb} is null and set the `errno` to
  *    `EINVAL`.
- *  - If a threading operation fails and sets its error to `errno`.
+ *  - If a threading operation fails and set its error to `errno`.
  */
 SG_EXTERN struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb,
                                              sg_httpreq_cb req_cb,
@@ -1389,8 +1389,8 @@ SG_EXTERN struct sg_httpsrv *sg_httpsrv_new2(sg_httpauth_cb auth_cb,
  * \param[in] cls User-defined closure.
  * \return New HTTP server handle.
  * \retval NULL
- *  - If the \pr{cb} is null and sets the `errno` to `EINVAL`.
- *  - If a threading operation fails and sets its error to `errno`.
+ *  - If the \pr{cb} is null and set the `errno` to `EINVAL`.
+ *  - If a threading operation fails and set its error to `errno`.
  */
 SG_EXTERN struct sg_httpsrv *sg_httpsrv_new(sg_httpreq_cb cb,
                                             void *cls) __SG_MALLOC;
@@ -1421,7 +1421,7 @@ SG_EXTERN void sg_httpsrv_free(struct sg_httpsrv *srv);
  * \param[in] threaded Enables/disables the threaded mode. If `true`, the
  * server creates one thread per connection.
  * \retval true If the server is started, `false` otherwise. If \pr{srv} is
- * null, sets the `errno` to `EINVAL`.
+ * null, set the `errno` to `EINVAL`.
  * \note If port is `0`, the operating system will assign an unused port
  * randomly.
  */
@@ -1441,7 +1441,7 @@ SG_EXTERN bool sg_httpsrv_tls_listen2(struct sg_httpsrv *srv, const char *key,
  * \param[in] threaded Enables/disables the threaded mode. If `true`, the
  * server creates one thread per connection.
  * \retval true If the server is started, `false` otherwise. If \pr{srv} is
- * null, sets the `errno` to `EINVAL`.
+ * null, set the `errno` to `EINVAL`.
  * \note If port is `0`, the operating system will assign an unused port
  * randomly.
  */
@@ -1458,8 +1458,8 @@ SG_EXTERN bool sg_httpsrv_tls_listen(struct sg_httpsrv *srv, const char *key,
  * \param[in] threaded Enables/disables the threaded mode. If `true`, the
  * server creates one thread per connection.
  * \retval true If the server is started, `false` otherwise. If \pr{srv} is
- * null, sets the `errno` to `EINVAL`.
- * \note If port is `0`, the operating system will assign randomly an unused
+ * null, set the `errno` to `EINVAL`.
+ * \note If port is `0`, the operating system will randomly assign an unused
  * port.
  */
 SG_EXTERN bool sg_httpsrv_listen(struct sg_httpsrv *srv, uint16_t port,
@@ -1477,7 +1477,7 @@ SG_EXTERN int sg_httpsrv_shutdown(struct sg_httpsrv *srv);
 /**
  * Returns the server listening port.
  * \param[in] srv Server handle.
- * \return Server listening port, `0` otherwise. If \pr{srv} is null, sets the
+ * \return Server listening port, `0` otherwise. If \pr{srv} is null, set the
  * `errno` to `EINVAL`.
  */
 SG_EXTERN uint16_t sg_httpsrv_port(struct sg_httpsrv *srv);
@@ -1486,7 +1486,7 @@ SG_EXTERN uint16_t sg_httpsrv_port(struct sg_httpsrv *srv);
  * Checks if the server was started in threaded mode.
  * \param[in] srv Server handle.
  * \retval true If the server is in threaded mode, `false` otherwise. If
- * \pr{srv} is null, sets the `errno` to `EINVAL`.
+ * \pr{srv} is null, set the `errno` to `EINVAL`.
  */
 SG_EXTERN bool sg_httpsrv_is_threaded(struct sg_httpsrv *srv);
 
@@ -1522,7 +1522,7 @@ SG_EXTERN int sg_httpsrv_set_upld_cbs(struct sg_httpsrv *srv, sg_httpupld_cb cb,
 /**
  * Sets the directory to save the uploaded files.
  * \param[in] srv Server handle.
- * \param[in] dir Directory as null-terminated string.
+ * \param[in] dir Directory as a null-terminated string.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  */
@@ -1531,8 +1531,8 @@ SG_EXTERN int sg_httpsrv_set_upld_dir(struct sg_httpsrv *srv, const char *dir);
 /**
  * Gets the directory of the uploaded files.
  * \param[in] srv Server handle.
- * \return Directory as null-terminated string.
- * \retval NULL If the \pr{srv} is null and sets the `errno` to `EINVAL`.
+ * \return Directory as a null-terminated string.
+ * \retval NULL If the \pr{srv} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN const char *sg_httpsrv_upld_dir(struct sg_httpsrv *srv);
 
@@ -1549,7 +1549,7 @@ SG_EXTERN int sg_httpsrv_set_post_buf_size(struct sg_httpsrv *srv, size_t size);
  * Gets the size of the post buffering.
  * \param[in] srv Server handle.
  * \return Post buffering size.
- * \retval 0 If the \pr{srv} is null and sets the `errno` to `EINVAL`.
+ * \retval 0 If the \pr{srv} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN size_t sg_httpsrv_post_buf_size(struct sg_httpsrv *srv);
 
@@ -1566,7 +1566,7 @@ SG_EXTERN int sg_httpsrv_set_payld_limit(struct sg_httpsrv *srv, size_t limit);
  * Gets the limit of the total payload.
  * \param[in] srv Server handle.
  * \return Payload total limit.
- * \retval 0 If the \pr{srv} is null and sets the `errno` to `EINVAL`.
+ * \retval 0 If the \pr{srv} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN size_t sg_httpsrv_payld_limit(struct sg_httpsrv *srv);
 
@@ -1584,7 +1584,7 @@ SG_EXTERN int sg_httpsrv_set_uplds_limit(struct sg_httpsrv *srv,
  * Gets the limit of the total uploads.
  * \param[in] srv Server handle.
  * \return Uploads total limit.
- * \retval 0 If the \pr{srv} is null and sets the `errno` to `EINVAL`.
+ * \retval 0 If the \pr{srv} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN uint64_t sg_httpsrv_uplds_limit(struct sg_httpsrv *srv);
 
@@ -1603,12 +1603,12 @@ SG_EXTERN int sg_httpsrv_set_thr_pool_size(struct sg_httpsrv *srv,
  * Gets the size of the thread pool.
  * \param[in] srv Server handle.
  * \return Thread pool size.
- * \retval 0 If the \pr{srv} is null and sets the `errno` to `EINVAL`.
+ * \retval 0 If the \pr{srv} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN unsigned int sg_httpsrv_thr_pool_size(struct sg_httpsrv *srv);
 
 /**
- * Sets the inactivity time to a client get time out.
+ * Sets the inactivity time to a client to get time out.
  * \param[in] srv Server handle.
  * \param[in] timeout Timeout (in seconds). Use zero for infinity timeout. Default: 15 seconds.
  * \retval 0 Success.
@@ -1618,10 +1618,10 @@ SG_EXTERN int sg_httpsrv_set_con_timeout(struct sg_httpsrv *srv,
                                          unsigned int timeout);
 
 /**
- * Gets the inactivity time to a client get time out.
+ * Gets the inactivity time to a client to get time out.
  * \param[in] srv Server handle.
  * \return Timeout (in seconds).
- * \retval 0 If the \pr{srv} is null and sets the `errno` to `EINVAL`.
+ * \retval 0 If the \pr{srv} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN unsigned int sg_httpsrv_con_timeout(struct sg_httpsrv *srv);
 
@@ -1639,7 +1639,7 @@ SG_EXTERN int sg_httpsrv_set_con_limit(struct sg_httpsrv *srv,
  * Gets the limit of concurrent connections.
  * \param[in] srv Server handle.
  * \return Concurrent connections limit.
- * \retval 0 If the \pr{srv} is null and sets the `errno` to `EINVAL`.
+ * \retval 0 If the \pr{srv} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN unsigned int sg_httpsrv_con_limit(struct sg_httpsrv *srv);
 
@@ -1648,7 +1648,7 @@ SG_EXTERN unsigned int sg_httpsrv_con_limit(struct sg_httpsrv *srv);
  * \param[in] srv Server handle.
  * \return MHD instance.
  * \return NULL If the server is shut down.
- * \retval NULL If \pr{srv} is null and sets the `errno` to `EINVAL`.
+ * \retval NULL If \pr{srv} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN void *sg_httpsrv_handle(struct sg_httpsrv *srv);
 
@@ -1674,8 +1674,8 @@ struct sg_entrypoint;
 /**
  * Returns the name of the entry-point handle \pr{entrypoint}.
  * \param[in] entrypoint Entry-point handle.
- * \return Entry-point name as null-terminated string.
- * \retval NULL If the \pr{entrypoint} is null and sets the `errno` to `EINVAL`.
+ * \return Entry-point name as a null-terminated string.
+ * \retval NULL If the \pr{entrypoint} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN const char *sg_entrypoint_name(struct sg_entrypoint *entrypoint);
 
@@ -1693,7 +1693,7 @@ SG_EXTERN int sg_entrypoint_set_user_data(struct sg_entrypoint *entrypoint,
  * Gets user data from the entry-point handle.
  * \param[in] entrypoint Entry-point handle.
  * \return User data pointer.
- * \retval NULL If \pr{entrypoint} is null and sets the `errno` to `EINVAL`.
+ * \retval NULL If \pr{entrypoint} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN void *sg_entrypoint_user_data(struct sg_entrypoint *entrypoint);
 
@@ -1838,7 +1838,7 @@ typedef int (*sg_routes_iter_cb)(void *cls, struct sg_route *route);
  * Returns the PCRE2 handle containing the compiled regex code.
  * \param[in] route Route handle.
  * \return PCRE2 handle containing the compiled regex code.
- * \retval NULL If \pr{route} is null and sets the `errno` to `EINVAL`.
+ * \retval NULL If \pr{route} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN void *sg_route_handle(struct sg_route *route);
 
@@ -1846,7 +1846,7 @@ SG_EXTERN void *sg_route_handle(struct sg_route *route);
  * Returns the PCRE2 match data created from the route pattern.
  * \param[in] route Route handle.
  * \return PCRE2 match data.
- * \retval NULL If \pr{route} is null and sets the `errno` to `EINVAL`.
+ * \retval NULL If \pr{route} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN void *sg_route_match(struct sg_route *route);
 
@@ -1854,18 +1854,18 @@ SG_EXTERN void *sg_route_match(struct sg_route *route);
  * Returns the raw route pattern. For example, given a pattern `/foo`, the raw
  * pattern is `^/foo$`.
  * \param[in] route Route handle.
- * \return Raw pattern as null-terminated string.
- * \retval NULL If \pr{route} is null and sets the `errno` to `EINVAL`.
+ * \return Raw pattern as a null-terminated string.
+ * \retval NULL If \pr{route} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN const char *sg_route_rawpattern(struct sg_route *route);
 
 /**
  * Returns the route pattern.
  * \param[in] route Route handle.
- * \return Pattern as null-terminated string.
+ * \return Pattern as a null-terminated string.
  * \retval NULL
- *  - If \pr{route} is null and sets the `errno` to `EINVAL`.
- *  - If no memory space is available and sets the `errno` to `ENOMEM`.
+ *  - If \pr{route} is null and set the `errno` to `EINVAL`.
+ *  - If no memory space is available and set the `errno` to `ENOMEM`.
  * \warning The caller must free the returned value.
  */
 SG_EXTERN char *sg_route_pattern(struct sg_route *route) __SG_MALLOC;
@@ -1873,8 +1873,8 @@ SG_EXTERN char *sg_route_pattern(struct sg_route *route) __SG_MALLOC;
 /**
  * Returns the route path.
  * \param[in] route Route handle.
- * \return Path component as null-terminated string.
- * \retval NULL If \pr{route} is null and sets the `errno` to `EINVAL`.
+ * \return Path component as a null-terminated string.
+ * \retval NULL If \pr{route} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN const char *sg_route_path(struct sg_route *route);
 
@@ -1907,7 +1907,7 @@ SG_EXTERN int sg_route_vars_iter(struct sg_route *route, sg_vars_iter_cb cb,
  * Gets user data from the route handle.
  * \param[in] route Route handle.
  * \return User data pointer.
- * \retval NULL If \pr{route} is null and sets the `errno` to `EINVAL`.
+ * \retval NULL If \pr{route} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN void *sg_route_user_data(struct sg_route *route);
 
@@ -1916,7 +1916,7 @@ SG_EXTERN void *sg_route_user_data(struct sg_route *route);
  * \param[in,out] routes Route list pointer to add a new route item.
  * \param[in,out] route Pointer of the variable to store the added route
  * reference.
- * \param[in] pattern Pattern as null-terminated string. It must be a valid
+ * \param[in] pattern Pattern as a null-terminated string. It must be a valid
  * regular expression in PCRE2 syntax.
  * \param[in,out] errmsg Pointer of a string to store the error message.
  * \param[in] errlen Length of the error message.
@@ -1940,7 +1940,7 @@ SG_EXTERN int sg_routes_add2(struct sg_route **routes, struct sg_route **route,
  * Adds a route item to the route list \pr{routes}. It uses the `stderr` to
  * print the validation errors.
  * \param[in,out] routes Route list pointer to add a new route item.
- * \param[in] pattern Pattern as null-terminated string. It must be a valid
+ * \param[in] pattern Pattern as a null-terminated string. It must be a valid
  * regular expression in PCRE2 syntax.
  * \param[in] cb Callback to handle the path routing.
  * \param[in] cls User-defined closure.
@@ -1960,7 +1960,7 @@ SG_EXTERN bool sg_routes_add(struct sg_route **routes, const char *pattern,
 /**
  * Removes a route item from the route list \pr{routes}.
  * \param[in,out] routes Route list pointer to add a new route item.
- * \param[in] pattern Pattern as null-terminated string of the route to be
+ * \param[in] pattern Pattern as a null-terminated string of the route to be
  * removed.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
@@ -1981,7 +1981,7 @@ SG_EXTERN int sg_routes_iter(struct sg_route *routes, sg_routes_iter_cb cb,
                              void *cls);
 
 /**
- * Returns the next route int the route list.
+ * Returns the next route into the route list.
  * \param[in,out] route Pointer to the next route item.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
@@ -2013,7 +2013,7 @@ struct sg_router;
  * Callback signature used by #sg_router_dispatch2 in the route dispatching
  * loop.
  * \param[out] cls User-defined closure.
- * \param[out] path Route path as null-terminated string.
+ * \param[out] path Route path as a null-terminated string.
  * \param[out] route Route handle.
  * \retval 0 Success.
  * \retval E<ERROR> User-defined error to stop the route dispatching loop.
@@ -2036,7 +2036,7 @@ typedef int (*sg_router_match_cb)(void *cls, struct sg_route *route);
  * \pr{routes}.
  * \param[in] routes Route list handle.
  * \return New router handle.
- * \retval NULL If the \pr{routes} is null and sets the `errno` to `EINVAL` or
+ * \retval NULL If the \pr{routes} is null and set the `errno` to `EINVAL` or
  * no memory space.
  */
 SG_EXTERN struct sg_router *sg_router_new(struct sg_route *routes) __SG_MALLOC;
@@ -2051,7 +2051,7 @@ SG_EXTERN void sg_router_free(struct sg_router *router);
  * Dispatches a route that its pattern matches the path passed in \pr{path}.
  * \param[in] router Router handle.
  * \param[in] path Path to dispatch a route.
- * \param[in] user_data User data pointer to be hold by the route.
+ * \param[in] user_data User data pointer to be held by the route.
  * \param[in] dispatch_cb Callback triggered for each route item in the route
  * dispatching loop.
  * \param[in] cls User-defined closure passed to the \pr{dispatch_cb} and
@@ -2076,7 +2076,7 @@ SG_EXTERN int sg_router_dispatch2(struct sg_router *router, const char *path,
  * Dispatches a route that its pattern matches the path passed in \pr{path}.
  * \param[in] router Router handle.
  * \param[in] path Path to dispatch a route.
- * \param[in] user_data User data pointer to be hold by the route.
+ * \param[in] user_data User data pointer to be held by the route.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  * \retval ENOENT Route not found or path not matched.
@@ -2175,7 +2175,7 @@ struct sg_expr_extension {
 /**
  * Creates a new mathematical expression evaluator handle.
  * \return New mathematical expression evaluator handle.
- * \retval NULL If no memory space is available and sets the `errno` to
+ * \retval NULL If no memory space is available and set the `errno` to
  * `ENOMEM`.
  */
 SG_EXTERN struct sg_expr *sg_expr_new(void) __SG_MALLOC;
@@ -2191,9 +2191,9 @@ SG_EXTERN void sg_expr_free(struct sg_expr *expr);
  * Compiles a mathematical expression allowing to declare variables, macros and
  * extensions.
  * \param[in] expr Mathematical expression instance.
- * \param[in] str Null-terminated string with the mathematical expresion to be
+ * \param[in] str Null-terminated string with the mathematical expression to be
  * compiled.
- * \param[in] len Length of the mathematical expresion to be compiled.
+ * \param[in] len Length of the mathematical expression to be compiled.
  * \param[in] extensions Array of extensions to extend the evaluator.
  * \note The extension array must be terminated by a zeroed item.
  * \retval 0 Success.
@@ -2206,7 +2206,7 @@ SG_EXTERN int sg_expr_compile(struct sg_expr *expr, const char *str, size_t len,
                               struct sg_expr_extension *extensions);
 
 /**
- * Clears a mathematical expresion instance.
+ * Clears a mathematical expression instance.
  * \param[in] expr Mathematical expression instance.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
@@ -2215,9 +2215,9 @@ SG_EXTERN int sg_expr_clear(struct sg_expr *expr);
 
 /**
  * Evaluates a compiled mathematical expression.
- * \param[in] expr Compiled mathematical expresion.
- * \return Floating-point value of the evaluated mathematical expresion.
- * \retval NAN If the \pr{expr} is null and sets the `errno` to `EINVAL`.
+ * \param[in] expr Compiled mathematical expression.
+ * \return Floating-point value of the evaluated mathematical expression.
+ * \retval NAN If the \pr{expr} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN double sg_expr_eval(struct sg_expr *expr);
 
@@ -2227,9 +2227,9 @@ SG_EXTERN double sg_expr_eval(struct sg_expr *expr);
  * \param[in] name Name of the declared variable.
  * \param[in] len Length of the variable name.
  * \retval NAN
- *  - If \pr{expr} or \pr{name} is null, or \pr{len} is less than one, and sets
+ *  - If \pr{expr} or \pr{name} is null, or \pr{len} is less than one, and set
  *  the `errno` to `EINVAL`.
- *  - If no memory space is available and sets the `errno` to `ENOMEM`.
+ *  - If no memory space is available and set the `errno` to `ENOMEM`.
  */
 SG_EXTERN double sg_expr_var(struct sg_expr *expr, const char *name,
                              size_t len);
@@ -2248,17 +2248,17 @@ SG_EXTERN int sg_expr_set_var(struct sg_expr *expr, const char *name,
                               size_t len, double val);
 
 /**
- * Gets function argument by its index.
+ * Gets a function argument by its index.
  * \param[in] args Arguments list.
  * \param[in] index Argument index.
  * \retval NAN If the \pr{args} is null or \pr{index} is less than zero and
- * sets the `errno` to `EINVAL`.
+ * set the `errno` to `EINVAL`.
  */
 SG_EXTERN double sg_expr_arg(struct sg_expr_argument *args, int index);
 
 /**
  * Returns the nearby position of an error in the mathematical expression.
- * \param[in] expr Compiled mathematical expresion.
+ * \param[in] expr Compiled mathematical expression.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  */
@@ -2266,27 +2266,27 @@ SG_EXTERN int sg_expr_near(struct sg_expr *expr);
 
 /**
  * Returns the type of an error in the mathematical expression.
- * \param[in] expr Compiled mathematical expresion.
+ * \param[in] expr Compiled mathematical expression.
  * \return Enumerator representing the error type.
  * \retval SG_EXPR_ERR_UNKNOWN If the \pr{expr} is null or an unknown error
- * occurred and sets the `errno` to `EINVAL`.
+ * occurred and set the `errno` to `EINVAL`.
  */
 SG_EXTERN enum sg_expr_err_type sg_expr_err(struct sg_expr *expr);
 
 /**
  * Returns the description of an error in the mathematical expression.
- * \param[in] expr Compiled mathematical expresion.
- * \return Description of the error as null-terminated string.
- * \retval NULL If the \pr{expr} is null and sets the `errno` to `EINVAL`.
+ * \param[in] expr Compiled mathematical expression.
+ * \return Description of the error as a null-terminated string.
+ * \retval NULL If the \pr{expr} is null and set the `errno` to `EINVAL`.
  */
 SG_EXTERN const char *sg_expr_strerror(struct sg_expr *expr);
 
 /**
- * Returns the evaluated value of a mathematical expresion.
- * \param[in] str Null-terminated string with the mathematical expresion to be
+ * Returns the evaluated value of a mathematical expression.
+ * \param[in] str Null-terminated string with the mathematical expression to be
  * evaluated.
- * \param[in] len Length of the mathematical expresion to be evaluated.
- * \retval NAN If \pr{str} is null, or \pr{len} is less than one, and sets the
+ * \param[in] len Length of the mathematical expression to be evaluated.
+ * \retval NAN If \pr{str} is null, or \pr{len} is less than one, and set the
  * `errno` to `EINVAL`.
  */
 SG_EXTERN double sg_expr_calc(const char *str, size_t len);
