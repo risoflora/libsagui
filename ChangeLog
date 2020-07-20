@@ -1,3 +1,21 @@
+2020-07-20  silvioprog  <silvioprog@gmail.com>
+
+	Bump v3.1.3
+
+	Added missing documentation.
+
+	Upgraded MHD and PCRE2 libraries.
+
+2020-07-19  silvioprog  <silvioprog@gmail.com>
+
+	Fixed spelling mistakes.
+
+2020-07-14  silvioprog  <silvioprog@gmail.com>
+
+	Allowed to specify the HTTP status code in functions "sg_httpres_zdownload()" and "sg_httpres_zrender()".
+
+	Allowed to specify the HTTP status code in functions "sg_httpres_download()" and "sg_httpres_render()".
+
 2020-06-10  silvioprog  <silvioprog@gmail.com>
 
 	Bump v3.1.0
