@@ -1263,6 +1263,7 @@ SG_EXTERN int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb,
  * is done by zlib library using the DEFLATE compression algorithm.
  * \param[in] res Response handle.
  * \param[in] filename Path of the file to be compressed and sent.
+ * \param[in] status HTTP status code.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  * \retval EALREADY Operation already in progress.
@@ -1281,6 +1282,7 @@ SG_EXTERN int sg_httpres_zsendstream(struct sg_httpres *res, sg_read_cb read_cb,
  * compression is done by zlib library using the DEFLATE compression algorithm.
  * \param[in] res Response handle.
  * \param[in] filename Path of the file to be sent.
+ * \param[in] status HTTP status code.
  * \retval 0 Success.
  * \retval EINVAL Invalid argument.
  * \retval EALREADY Operation already in progress.
