@@ -35,8 +35,9 @@
 #include "sg_strmap.h"
 #include "sagui.h"
 
-SG__EXTERN int sg__convals_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind,
-                                const char *key, const char *val);
+SG__EXTERN enum MHD_Result sg__convals_iter(void *cls,
+                                            __SG_UNUSED enum MHD_ValueKind kind,
+                                            const char *key, const char *val);
 
 SG__EXTERN int sg__strmap_iter(void *cls, struct sg_strmap *map);
 

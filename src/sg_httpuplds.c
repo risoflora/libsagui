@@ -76,11 +76,11 @@ static void sg__httpuplds_free(struct sg_httpsrv *srv, struct sg_httpreq *req) {
   sg_free(req->curr_upld);
 }
 
-static int sg__httpuplds_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind,
-                              const char *key, const char *filename,
-                              const char *content_type,
-                              const char *transfer_encoding, const char *data,
-                              uint64_t off, size_t size) {
+static enum MHD_Result
+  sg__httpuplds_iter(void *cls, __SG_UNUSED enum MHD_ValueKind kind,
+                     const char *key, const char *filename,
+                     const char *content_type, const char *transfer_encoding,
+                     const char *data, uint64_t off, size_t size) {
   struct sg__httpupld_holder *holder;
   char *val;
   if (/*kind == MHD_POSTDATA_KIND && */ size > 0) {

@@ -50,10 +50,11 @@ static void sg__httpsrv_oel(void *cls, const char *fmt, va_list ap) {
     srv->err_cb(srv->cls, err);
 }
 
-static int sg__httpsrv_ahc(void *cls, struct MHD_Connection *con,
-                           const char *url, const char *method,
-                           const char *version, const char *upld_data,
-                           size_t *upld_data_size, void **con_cls) {
+static enum MHD_Result sg__httpsrv_ahc(void *cls, struct MHD_Connection *con,
+                                       const char *url, const char *method,
+                                       const char *version,
+                                       const char *upld_data,
+                                       size_t *upld_data_size, void **con_cls) {
   struct sg_httpsrv *srv = cls;
   struct sg_httpreq *req = *con_cls;
   const union MHD_ConnectionInfo *info;
