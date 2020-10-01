@@ -962,6 +962,21 @@ static void test_httpres_clear(struct sg_httpres *res) {
   ASSERT(res->status == 500);
 }
 
+static void test_httpres_is_empty(struct sg_httpres *res) {
+  errno = 0;
+  ASSERT(!sg_httpres_is_empty(NULL));
+  ASSERT(errno == EINVAL);
+
+  errno = 0;
+  ASSERT(sg_httpres_send(res, "", "text/plain", 200) == 0);
+  ASSERT(!sg_httpres_is_empty(res));
+  ASSERT(errno == 0);
+  MHD_destroy_response(res->handle);
+  res->handle = NULL;
+  ASSERT(sg_httpres_is_empty(res));
+  ASSERT(errno == 0);
+}
+
 int main(void) {
   struct sg_httpres *res = sg__httpres_new(NULL);
   ASSERT(res);
@@ -989,6 +1004,7 @@ int main(void) {
   test_httpres_zsendfile(res);
 #endif /* SG_HTTP_COMPRESSION */
   test_httpres_clear(res);
+  test_httpres_is_empty(res);
   sg__httpres_free(res);
   return EXIT_SUCCESS;
 }

@@ -1367,6 +1367,14 @@ SG_EXTERN int sg_httpres_zsendfile(struct sg_httpres *res, uint64_t size,
 SG_EXTERN int sg_httpres_clear(struct sg_httpres *res);
 
 /**
+ * Checks if the response is empty.
+ * \param[in] res Response handle.
+ * \retval true If the response is empty, `false` otherwise. If \pr{res}
+ * is null, set the `errno` to `EINVAL`.
+ */
+bool sg_httpres_is_empty(struct sg_httpres *res);
+
+/**
  * Creates a new HTTP server handle.
  * \param[in] auth_cb Callback to grant/deny user access to the server
  * resources.

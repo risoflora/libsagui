@@ -618,3 +618,10 @@ int sg_httpres_clear(struct sg_httpres *res) {
   res->status = MHD_HTTP_INTERNAL_SERVER_ERROR;
   return 0;
 }
+
+bool sg_httpres_is_empty(struct sg_httpres *res) {
+  if (res)
+    return !res->handle;
+  errno = EINVAL;
+  return false;
+}
