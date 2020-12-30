@@ -170,7 +170,7 @@ contains the library source.
 
 ## Building/installing
 
-The easiest way to build the library is using a Docker container as builder.
+The easiest way to build the library is using a Docker container as a builder.
 Follow the instructions at [libsagui-docker/README.md](https://github.com/risoflora/libsagui-docker/blob/master/README.md)
 for more details.
 
