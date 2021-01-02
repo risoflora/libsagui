@@ -1,3 +1,23 @@
+2021-01-02  silvioprog  <silvioprog@gmail.com>
+
+	Bump v3.2.0
+
+	Fixed PVS-Studio warnings.
+
+2020-12-30  silvioprog  <silvioprog@gmail.com>
+
+	Upgraded the third party libraries.
+
+2020-10-01  silvioprog  <silvioprog@gmail.com>
+
+	Upgraded the travis-ci file.
+
+	Added function new function "sg_httpres_is_empty()".
+
+2020-07-21  silvioprog  <silvioprog@gmail.com>
+
+	Fixed warnings in PCRE2 build.
+
 2020-07-20  silvioprog  <silvioprog@gmail.com>
 
 	Bump v3.1.3
