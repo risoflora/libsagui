@@ -333,10 +333,8 @@ int sg_httpsrv_shutdown(struct sg_httpsrv *srv) {
     return EINVAL;
   if (!srv->handle)
     return EALREADY;
-  if (srv->handle) {
-    MHD_stop_daemon(srv->handle);
-    srv->handle = NULL;
-  }
+  MHD_stop_daemon(srv->handle);
+  srv->handle = NULL;
   return 0;
 }
 

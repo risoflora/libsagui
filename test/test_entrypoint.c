@@ -30,6 +30,7 @@
 #include <string.h>
 #include <errno.h>
 #include "sg_entrypoint.h"
+#include <sagui.h>
 
 static void test__entrypoint_prepare(struct sg_entrypoint *entrypoint) {
   sg__entrypoint_prepare(entrypoint, NULL, NULL);

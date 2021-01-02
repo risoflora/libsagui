@@ -1,14 +1,11 @@
 # Running PVS Studio analysis
 
-Download and install the PVS's command line tool
-[`how-to-use-pvs-studio-free`](https://github.com/viva64/how-to-use-pvs-studio-free)
+Download and install the [PVS-Studio Analyzer](https://www.viva64.com/en/pvs-studio/)
 according its site instructions. After that, in the library root directory,
 perform the following commands:
 
 ```bash
-how-to-use-pvs-studio-free -c 2 -m examples src test
-mkdir build
-cd build/
+mkdir build && cd build/
 cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DSG_PVS_STUDIO=ON ..
 make pvs_studio_analysis
 ```

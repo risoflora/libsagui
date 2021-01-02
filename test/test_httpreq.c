@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "sg_httpreq.h"
+#include <sagui.h>
 
 static void test__httpreq_new(struct sg_httpsrv *srv) {
   struct MHD_Connection *con = sg_alloc(64);
