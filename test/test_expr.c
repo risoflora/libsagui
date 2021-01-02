@@ -101,9 +101,7 @@ static void test_expr_compile(struct sg_expr *expr) {
 }
 
 static void test_expr_clear(struct sg_expr *expr) {
-  errno = 0;
-  sg_expr_clear(NULL);
-  ASSERT(errno == EINVAL);
+  ASSERT(sg_expr_clear(NULL) == EINVAL);
   sg_expr_clear(expr);
   ASSERT(sg_expr_compile(expr, EXPR_1, strlen(EXPR_1), extensions) == 0);
   ASSERT(sg_expr_compile(expr, EXPR_1, strlen(EXPR_1), extensions) == EALREADY);
