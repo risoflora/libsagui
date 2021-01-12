@@ -79,7 +79,7 @@ static int vec_expand(char **buf, int *length, int *cap, int memsz) {
   if (*length + 1 > *cap) {
     void *ptr;
     int n = (*cap == 0) ? 1 : *cap << 1;
-    ptr = expr_realloc(*buf, n * memsz);
+    ptr = expr_realloc(*buf, (size_t) n * memsz);
     if (ptr == NULL) {
       return -1; /* allocation failed */
     }
