@@ -74,7 +74,7 @@ extern "C" {
 
 #define SG_VERSION_MAJOR 3
 #define SG_VERSION_MINOR 2
-#define SG_VERSION_PATCH 1
+#define SG_VERSION_PATCH 2
 #define SG_VERSION_HEX                                                         \
   ((SG_VERSION_MAJOR << 16) | (SG_VERSION_MINOR << 8) | (SG_VERSION_PATCH))
 
@@ -1372,7 +1372,7 @@ SG_EXTERN int sg_httpres_clear(struct sg_httpres *res);
  * \retval true If the response is empty, `false` otherwise. If \pr{res}
  * is null, set the `errno` to `EINVAL`.
  */
-bool sg_httpres_is_empty(struct sg_httpres *res);
+SG_EXTERN bool sg_httpres_is_empty(struct sg_httpres *res);
 
 /**
  * Creates a new HTTP server handle.
