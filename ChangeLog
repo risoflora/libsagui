@@ -1,6 +1,20 @@
+2021-01-17  silvioprog  <silvioprog@gmail.com>
+
+	Bump v3.2.2
+
+	Declared macro "SG_EXTERN" accidentally missing in function "sg_httpres_is_empty()".
+
+2021-01-12  silvioprog  <silvioprog@gmail.com>
+
+	Upgraded the library version.
+
+	Fixed LGTM alerts.
+
 2021-01-02  silvioprog  <silvioprog@gmail.com>
 
 	Bump v3.2.0
+
+	Fixed broken test for expr feature.
 
 	Fixed PVS-Studio warnings.
 
