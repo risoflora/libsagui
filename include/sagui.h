@@ -73,8 +73,8 @@ extern "C" {
 #endif /* __SG_FORMAT */
 
 #define SG_VERSION_MAJOR 3
-#define SG_VERSION_MINOR 2
-#define SG_VERSION_PATCH 3
+#define SG_VERSION_MINOR 3
+#define SG_VERSION_PATCH 0
 #define SG_VERSION_HEX                                                         \
   ((SG_VERSION_MAJOR << 16) | (SG_VERSION_MINOR << 8) | (SG_VERSION_PATCH))
 
@@ -1358,7 +1358,16 @@ SG_EXTERN int sg_httpres_zsendfile(struct sg_httpres *res, uint64_t size,
 #endif /* SG_HTTP_COMPRESSION */
 
 /**
- * Clears all headers, cookies, statuses and internal buffers of the response
+ * Resets status and internal buffers of the response handle preserving all
+ * headers and cookies.
+ * \param[in] res Response handle.
+ * \retval 0 Success.
+ * \retval EINVAL Invalid argument.
+ */
+SG_EXTERN int sg_httpres_reset(struct sg_httpres *res);
+
+/**
+ * Clears all headers, cookies, status and internal buffers of the response
  * handle.
  * \param[in] res Response handle.
  * \retval 0 Success.

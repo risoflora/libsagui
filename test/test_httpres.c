@@ -937,6 +937,32 @@ static void test_httpres_zsendfile(struct sg_httpres *res) {
 
 #endif /* SG_HTTP_COMPRESSION */
 
+static void test_httpres_reset(struct sg_httpres *res) {
+  struct sg_strmap **headers;
+  ASSERT(sg_httpres_reset(NULL) == EINVAL);
+
+  headers = sg_httpres_headers(res);
+  ASSERT(sg_strmap_add(headers, "foo", "bar") == 0);
+  ASSERT(sg_strmap_add(headers, "lorem", "ipsum") == 0);
+  ASSERT(sg_httpres_set_cookie(res, "my", "cookie") == 0);
+  ASSERT(sg_httpres_send(res, "", "", 200) == 0);
+
+  ASSERT(res->handle);
+  ASSERT(strcmp(sg_strmap_get(*headers, "foo"), "bar") == 0);
+  ASSERT(strcmp(sg_strmap_get(*headers, "lorem"), "ipsum") == 0);
+  ASSERT(strcmp(sg_strmap_get(*headers, "Set-Cookie"), "my=cookie") == 0);
+  ASSERT(res->status == 200);
+
+  ASSERT(sg_httpres_reset(res) == 0);
+  ASSERT(sg_httpres_reset(res) == 0);
+
+  ASSERT(!res->handle);
+  ASSERT(sg_strmap_get(*headers, "foo"));
+  ASSERT(sg_strmap_get(*headers, "lorem"));
+  ASSERT(sg_strmap_get(*headers, "Set-Cookie"));
+  ASSERT(res->status == 500);
+}
+
 static void test_httpres_clear(struct sg_httpres *res) {
   struct sg_strmap **headers;
   ASSERT(sg_httpres_clear(NULL) == EINVAL);
@@ -1004,6 +1030,7 @@ int main(void) {
   test_httpres_zsendfile2(res);
   test_httpres_zsendfile(res);
 #endif /* SG_HTTP_COMPRESSION */
+  test_httpres_reset(res);
   test_httpres_clear(res);
   test_httpres_is_empty(res);
   sg__httpres_free(res);

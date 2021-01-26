@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2021 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -609,14 +609,20 @@ int sg_httpres_zsendfile(struct sg_httpres *res, uint64_t size,
 
 #endif /* SG_HTTP_COMPRESSION */
 
-int sg_httpres_clear(struct sg_httpres *res) {
+int sg_httpres_reset(struct sg_httpres *res) {
   if (!res)
     return EINVAL;
-  sg_strmap_cleanup(&res->headers);
   MHD_destroy_response(res->handle);
   res->handle = NULL;
   res->status = MHD_HTTP_INTERNAL_SERVER_ERROR;
   return 0;
+}
+
+int sg_httpres_clear(struct sg_httpres *res) {
+  int ret = sg_httpres_reset(res);
+  if (ret == 0)
+    sg_strmap_cleanup(&res->headers);
+  return ret;
 }
 
 bool sg_httpres_is_empty(struct sg_httpres *res) {
