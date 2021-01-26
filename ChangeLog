@@ -1,3 +1,13 @@
+2021-01-26  silvioprog  <silvioprog@gmail.com>
+
+	Bump v3.3.0
+
+	Added function new function "sg_httpres_reset()".
+
+2021-01-25  silvioprog  <silvioprog@gmail.com>
+
+	Fixed routing if JIT is disabled.
+
 2021-01-17  silvioprog  <silvioprog@gmail.com>
 
 	Bump v3.2.2
