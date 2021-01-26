@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2021 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -64,6 +64,8 @@ static struct sg_route *sg__route_new(const char *pattern, char *errmsg,
   snprintf(route->pattern, off, ((*pattern == '(') ? "%s" : "^%s$"), pattern);
   route->re = pcre2_compile((PCRE2_SPTR) route->pattern, PCRE2_ZERO_TERMINATED,
                             PCRE2_CASELESS, errnum, &off, NULL);
+  if (route->re)
+    *errnum = 0;
   if (!route->re) {
     pcre2_get_error_message(*errnum, err, sizeof(err));
     snprintf(errmsg, errlen,
