@@ -74,7 +74,7 @@ extern "C" {
 
 #define SG_VERSION_MAJOR 3
 #define SG_VERSION_MINOR 3
-#define SG_VERSION_PATCH 0
+#define SG_VERSION_PATCH 1
 #define SG_VERSION_HEX                                                         \
   ((SG_VERSION_MAJOR << 16) | (SG_VERSION_MINOR << 8) | (SG_VERSION_PATCH))
 
