@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2021 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -54,6 +54,10 @@ struct sg__math_manager {
 #define realpath(n, r) _fullpath((r), (n), PATH_MAX)
 
 SG__EXTERN char *strndup(const char *s, size_t n);
+
+SG__EXTERN wchar_t *stow(const char *str);
+
+SG__EXTERN char *wtos(const wchar_t *str);
 
 SG__EXTERN int sg__rename(const char *old, const char *new);
 

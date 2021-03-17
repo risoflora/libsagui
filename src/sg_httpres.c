@@ -47,53 +47,62 @@
 static void sg__httpres_openfile(struct sg_httpres *res, const char *filename,
                                  const char *disposition, uint64_t max_size,
                                  int *fd, struct stat *sbuf, int *errnum) {
-  const char *fn;
-  size_t fn_size;
-  char *disp;
+  const char *base_name;
+  size_t base_name_size;
+  char *header;
 #ifdef _WIN32
-  if (stat(filename, sbuf)) {
-    *errnum = errno;
-    return;
-  }
-  if (S_ISDIR(sbuf->st_mode)) {
-    *errnum = EISDIR;
-    return;
-  }
+#define SG__HTTPRES_OPENFILE_ERROR(e)                                          \
+  do {                                                                         \
+    *errnum = (e);                                                             \
+    goto error;                                                                \
+  } while (0)
+  wchar_t *file_name = stow(filename);
+#define SG__FILENAME file_name
+#else /* _WIN32 */
+#define SG__HTTPRES_OPENFILE_ERROR(e)                                          \
+  do {                                                                         \
+    *errnum = (e);                                                             \
+    return;                                                                    \
+  } while (0)
+#define SG__FILENAME filename
 #endif /* _WIN32 */
-  *fd = open(filename, O_RDONLY);
-  if ((*fd == -1) || fstat(*fd, sbuf)) {
-    *errnum = errno;
-    return;
-  }
+#ifdef _WIN32
+  if (SG__STAT(SG__FILENAME, sbuf))
+    SG__HTTPRES_OPENFILE_ERROR(errno);
+  if (S_ISDIR(sbuf->st_mode))
+    SG__HTTPRES_OPENFILE_ERROR(EISDIR);
+#endif /* _WIN32 */
+  *fd = SG__OPEN(SG__FILENAME, O_RDONLY);
+  if ((*fd == -1) || fstat(*fd, sbuf))
+    SG__HTTPRES_OPENFILE_ERROR(errno);
 #ifndef _WIN32
-  if (S_ISDIR(sbuf->st_mode)) {
-    *errnum = EISDIR;
-    return;
-  }
+  if (S_ISDIR(sbuf->st_mode))
+    SG__HTTPRES_OPENFILE_ERROR(EISDIR);
 #endif /* _WIN32 */
-  if (!S_ISREG(sbuf->st_mode)) {
-    *errnum = EBADF;
-    return;
-  }
-  if ((max_size > 0) && ((uint64_t) sbuf->st_size > max_size)) {
-    *errnum = EFBIG;
-    return;
-  }
+  if (!S_ISREG(sbuf->st_mode))
+    SG__HTTPRES_OPENFILE_ERROR(EBADF);
+  if ((max_size > 0) && ((uint64_t) sbuf->st_size > max_size))
+    SG__HTTPRES_OPENFILE_ERROR(EFBIG);
   if (disposition) {
-#define SG__FNFMT "%s; filename=\"%s\""
-    fn = sg__basename(filename);
-    fn_size = (size_t) snprintf(NULL, 0, SG__FNFMT, disposition, fn) + 1;
-    disp = sg_malloc(fn_size);
-    if (!disp) {
-      *errnum = ENOMEM;
-      return;
-    }
-    snprintf(disp, fn_size, SG__FNFMT, disposition, fn);
-#undef SG__FNFMT /* SG__FNFMT */
+#define SG__BASENAME_FMT "%s; filename=\"%s\""
+    base_name = sg__basename(filename);
+    base_name_size =
+      (size_t) snprintf(NULL, 0, SG__BASENAME_FMT, disposition, base_name) + 1;
+    header = sg_malloc(base_name_size);
+    if (!header)
+      SG__HTTPRES_OPENFILE_ERROR(ENOMEM);
+    snprintf(header, base_name_size, SG__BASENAME_FMT, disposition, base_name);
+#undef SG__BASENAME_FMT /* SG__BASENAME_FMT */
     *errnum =
-      sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_DISPOSITION, disp);
-    sg_free(disp);
+      sg_strmap_set(&res->headers, MHD_HTTP_HEADER_CONTENT_DISPOSITION, header);
+    sg_free(header);
   }
+#ifdef _WIN32
+error:
+  sg_free(SG__FILENAME);
+#endif /* _WIN32 */
+#undef SG__FILENAME /* SG__FILENAME */
+#undef SG__HTTPRES_OPENFILE_ERROR /* SG__HTTPRES_OPENFILE_ERROR */
 }
 
 #ifdef SG_HTTP_COMPRESSION

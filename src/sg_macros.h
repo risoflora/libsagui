@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2021 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -30,11 +30,35 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #ifndef NDEBUG
 #include <unistd.h>
 #include <errno.h>
 #endif /* NDEBUG */
 #include "sagui.h"
+#ifdef _WIN32
+#include <wchar.h>
+
+#ifndef SG__STAT
+#define SG__STAT wstat
+#endif /* SG_STAT */
+
+#ifndef SG__OPEN
+#define SG__OPEN _wopen
+#endif /* SG__OPEN */
+
+#else /* _WIN32 */
+
+#ifndef SG__STAT
+#define SG__STAT stat
+#endif /* SG_STAT */
+
+#ifndef SG__OPEN
+#define SG__OPEN open
+#endif /* SG__OPEN */
+
+#endif /* _WIN32 */
 
 /* used by utstring library */
 #ifndef utstring_oom

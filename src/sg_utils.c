@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2021 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -70,7 +70,7 @@ char *strndup(const char *s, size_t n) {
 }
 
 /* Maps a character string to a UTF-16 (wide character) string. */
-static wchar_t *stow(const char *str) {
+wchar_t *stow(const char *str) {
   wchar_t *res = NULL;
   int len;
   if (str) {
@@ -89,7 +89,7 @@ static wchar_t *stow(const char *str) {
 }
 
 /* Maps a UTF-16 (wide character) string to a character string. */
-static char *wtos(const wchar_t *str) {
+char *wtos(const wchar_t *str) {
   char *res = NULL;
   int len;
   if (str) {
