@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2021 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -42,5 +42,10 @@ struct sg_expr {
 struct sg_expr_argument {
   vec_expr_t *handle;
 };
+
+SG__EXTERN void sg__expr_clear(struct sg_expr *expr);
+
+SG__EXTERN expr_num_t sg__expr_func(__SG_UNUSED struct expr_func *func,
+                                    vec_expr_t *args, void *context);
 
 #endif /* SG_EXPR_H */

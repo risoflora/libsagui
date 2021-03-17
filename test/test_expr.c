@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2021 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -30,7 +30,6 @@
 #include "sg_assert.h"
 #include "sg_utils.h"
 #include "sg_expr.h"
-#include "sg_expr.c"
 #include <sagui.h>
 
 #define EXPR_1 "test_mul(2, 3)"

@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2021 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -30,7 +30,7 @@
 #include "sg_expr.h"
 #include "sagui.h"
 
-static void sg__expr_clear(struct sg_expr *expr) {
+void sg__expr_clear(struct sg_expr *expr) {
   expr_destroy(expr->handle, expr->vars);
   expr->vars->head = NULL;
   sg_free(expr->funcs);
@@ -39,8 +39,8 @@ static void sg__expr_clear(struct sg_expr *expr) {
   expr->near = 0;
 }
 
-static expr_num_t sg__expr_func(__SG_UNUSED struct expr_func *func,
-                                vec_expr_t *args, void *context) {
+expr_num_t sg__expr_func(__SG_UNUSED struct expr_func *func, vec_expr_t *args,
+                         void *context) {
   struct sg_expr_argument func_args;
   struct sg_expr_extension *extension = context;
   func_args.handle = args;
