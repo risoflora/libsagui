@@ -1,3 +1,15 @@
+2021-03-19  silvioprog  <silvioprog@gmail.com>
+
+	Bump v3.3.2
+
+2021-03-17  silvioprog  <silvioprog@gmail.com>
+
+	Fixed build and tests on Windows.
+
+2021-03-16  silvioprog  <silvioprog@gmail.com>
+
+	Used Unicode functions when opening files for downloading. (Fix #50)
+
 2021-03-03  silvioprog  <silvioprog@gmail.com>
 
 	Bump v3.3.1
