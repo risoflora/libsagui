@@ -1,18 +1,17 @@
 # `libsagui`
 
-[![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-lemmon.svg)](https://github.com/risoflora/libsagui/blob/master/LICENSE)
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/2140/badge)](https://bestpractices.coreinfrastructure.org/projects/2140)
-[![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/risoflora/libsagui.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/risoflora/libsagui/context:cpp)
-[![GitHub releases](https://img.shields.io/github/v/release/risoflora/libsagui?color=lemmon)](https://github.com/risoflora/libsagui/releases)
-[![Build status](https://travis-ci.org/risoflora/libsagui.svg?branch=master)](https://travis-ci.org/risoflora/libsagui)
+[![License: LGPL v2.1][license-badge]](LICENSE)
+[![CII Best Practices][bestpractices-badge]][1]
+[![Language grade: C/C++][lgtm-badge]][2]
+[![GitHub releases][releases-badge]][3]
+[![Build status][build-status-badge]][4]
 
 ## Overview
 
 Sagui is a cross-platform C library which helps to develop web servers or
-frameworks. Its core has been developed using the [GNU libmicrohttpd](https://www.gnu.org/software/libmicrohttpd),
-[uthash](https://troydhanson.github.io/uthash), [PCRE2](https://www.pcre.org),
-[ZLib](https://www.zlib.net) and [GnuTLS](https://www.gnutls.org), that's why it
-is so fast, compact and useful to run on embedded systems.
+frameworks. Its core has been developed using the [GNU libmicrohttpd][5],
+[uthash][6], [PCRE2][7], [ZLib][8] and [GnuTLS][9], that's why it is so fast,
+compact and useful to run on embedded systems.
 
 ## Features
 
@@ -22,16 +21,15 @@ is so fast, compact and useful to run on embedded systems.
   - Polling - pre-allocated threads.
   - Isolated request - request processed outside main thread.
 - **High-performance path routing that supports:**
-  - Regular expressions using [PCRE2](https://www.pcre.org/current/doc/html/pcre2pattern.html)
-    [syntax](https://www.pcre.org/current/doc/html/pcre2syntax.html).
-  - Just-in-time optimization ([JIT](https://www.pcre.org/current/doc/html/pcre2jit.html)).
+  - Regular expressions using [PCRE2][10] [syntax][11].
+  - Just-in-time optimization ([JIT][12]).
   - Binary search in path entry-points.
 - **HTTP compression:**
-  - [Deflate](https://en.wikipedia.org/wiki/DEFLATE) for static contents and
+  - [Deflate][13] for static contents and
     streams compression.
-  - [Gzip](https://en.wikipedia.org/wiki/Gzip) for files compression.
+  - [Gzip][14] for files compression.
 - **HTTPS support:**
-  - TLS 1.3 through [GnuTLS](https://www.gnutls.org) library.
+  - TLS 1.3 through [GnuTLS][9] library.
 - **Dual stack:**
   - Single socket for IPv4 and IPv6 support.
 - **Basic authentication:**
@@ -140,75 +138,108 @@ int main(void) {
 }
 ```
 
-There are other examples available in the
-[`examples/`](https://github.com/risoflora/libsagui/tree/master/examples)
-directory.
-
-## Versioning
-
-Starting from the version 1.0.0, Sagui follows the [SemVer](https://semver.org)
-rules regarding API changes with backwards compatibility and stable ABI across
-major releases.
-
-## Licensing
-
-Sagui is released under GNU Lesser General Public License v2.1. Check the
-[LICENSE file](https://github.com/risoflora/libsagui/blob/master/LICENSE) for
-more details.
-
-## Documentation
-
-The documentation has been written in [Doxygen](https://www.stack.nl/~dimitri/doxygen)
-and is available in HTML format at [libsagui-docs/index.html](https://risoflora.github.io/libsagui-docs/index.html).
+There are other examples available in the [`examples`](examples) directory.
 
 ## Downloading
 
-All stable binaries are available for download at the
-[releases page](https://github.com/risoflora/libsagui/releases) with their
-respective checksums. For other systems, the packages `Source code (tar.gz|zip)`
-contains the library source.
+All stable binaries are available for download at the [releases page][3] with
+their respective checksums. For other systems, the packages
+`Source code (tar.gz|zip)` contains the library source.
 
 ## Building/installing
 
 The easiest way to build the library is using a Docker container as a builder.
-Follow the instructions at [libsagui-docker/README.md](https://github.com/risoflora/libsagui-docker/blob/master/README.md)
-for more details.
+Follow the instructions at [libsagui-docker/README.md][18] for more details.
 
-Check the [docs/BUILD.md](https://github.com/risoflora/libsagui/blob/master/docs/BUILD.md)
-for more instructions for how to build the examples, tests, documentation and
-the library. Also, take a look at [docs/INSTALL.md](https://github.com/risoflora/libsagui/blob/master/docs/INSTALL.md)
-for how to install the library from sources on your system.
+Check the [docs/BUILD.md](docs/BUILD.md) for more instructions for how to build
+the examples, tests, documentation and the library. Also, take a look at
+[docs/INSTALL.md](docs/INSTALL.md) for how to install the library from sources
+on your system.
+
+## Documentation
+
+The documentation has been written in [Doxygen][16] and is available in HTML
+format at [libsagui-docs/index.html][17].
+
+## Versioning
+
+Starting from the version 1.0.0, Sagui follows the [SemVer][15] rules regarding
+API changes with backwards compatibility and stable ABI across major releases.
 
 ## Compatibility
 
 A typical upgrade of the Sagui library does not break the ABI at all. Take a
-look at the [API/ABI compatibility report](https://abi-laboratory.pro/?view=timeline&l=libsagui)
-to compare most recent library versions.
+look at the [API/ABI compatibility report][19] to compare most recent library
+versions.
 
-See also [Checking backward API/ABI compatibility of Sagui library versions](https://github.com/risoflora/libsagui/blob/master/docs/ABIComplianceChecker.md).
-
-## Projects using Sagui
-
-- [Brook framework](https://github.com/risoflora/brookframework) - Pascal
-  framework which helps to develop web applications.
-  [[LGPL v2.1](https://github.com/risoflora/brookframework/blob/master/LICENSE)]
-
-Would you like to add your project to that list above? Feel free to open a
-[new issue](https://github.com/risoflora/libsagui/issues/new?labels=documentation&template=project_using_sagui.md)
-requesting it! :-)
+See also [Checking backward API/ABI compatibility of Sagui library versions](docs/ABIComplianceChecker.md).
 
 ## Contributing
 
 Sagui is totally open source and would not be possible without our
-[contributors](https://github.com/risoflora/libsagui/blob/master/THANKS). If you
-want to submit contributions, please fork the project on GitHub and send a pull
-request. You retain the copyright on your contributions. If you have questions,
-open a new issue at the [issues page](https://github.com/risoflora/libsagui/issues).
-For donations to support this project, please click the button below.
+[contributors](THANKS). If you want to submit contributions, please fork the
+project on GitHub and send a pull request. You retain the copyright on your
+contributions.
 
-[![Support this project](https://www.paypalobjects.com/en_US/GB/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=silvioprog%40gmail%2ecom&lc=US&item_name=libsagui&item_number=libsagui&currency_code=USD&bn=PP%2dDonationsBF%3aproject%2dsupport%2ejpg%3aNonHosted)
+## Donations
+
+Many open source projects, large and small, receive donations to encourage their
+authors, therefore, it would be not different in Sagui.
+
+All money collected from donations are invested to the purchase of study
+materials. This way, directly or indirectly, all knowledge acquired in the
+studies influence the spread of this project.
+
+If you want to support this project, please click the button below:
+
+[![Support this project via PayPal][paypal-gif]][20]
 
 ## Support
 
-This project is completely self-explanatory, but, if you need a consulting
-service to integrate it on your project, [contact us](mailto:silvioprog@gmail.com).
+This project values being simple, direct and self-explanatory. However, if you
+need some help to integrate Sagui to your application, we have the option of a
+paid consulting service. [Contact us][21]!
+
+## Projects using Sagui
+
+- [Brook framework][22] - Pascal framework which helps to develop web
+  applications. [[LGPL v2.1][23]]
+
+Would you like to add your project to that list above? Feel free to open a
+[new issue][24] requesting it! :-)
+
+## Licensing
+
+Sagui is released under GNU Lesser General Public License v2.1. Check the
+[LICENSE file](LICENSE) for more details.
+
+[license-badge]: https://img.shields.io/badge/license-LGPL%20v2.1-lemmon.svg
+[bestpractices-badge]: https://bestpractices.coreinfrastructure.org/projects/2140/badge
+[lgtm-badge]: https://img.shields.io/lgtm/grade/cpp/g/risoflora/libsagui.svg?logo=lgtm&logoWidth=18
+[releases-badge]: https://img.shields.io/github/v/release/risoflora/libsagui?color=lemmon
+[build-status-badge]: https://travis-ci.org/risoflora/libsagui.svg?branch=master
+[paypal-gif]: https://www.paypalobjects.com/en_US/GB/i/btn/btn_donateCC_LG.gif
+[1]: https://bestpractices.coreinfrastructure.org/projects/2140 "Best practices link"
+[2]: https://lgtm.com/projects/g/risoflora/libsagui/context:cpp "LGTM link"
+[3]: https://github.com/risoflora/libsagui/releases "Releases page"
+[4]: https://travis-ci.org/risoflora/libsagui "Travis-CI status"
+[5]: https://www.gnu.org/software/libmicrohttpd "libmicrohttpd page"
+[6]: https://troydhanson.github.io/uthash "uthash page"
+[7]: https://www.pcre.org "PCRE page"
+[8]: https://www.zlib.net "ZLib page"
+[9]: https://www.gnutls.org "GnuTLS page"
+[10]: https://www.pcre.org/current/doc/html/pcre2pattern.html
+[11]: https://www.pcre.org/current/doc/html/pcre2syntax.html
+[12]: https://www.pcre.org/current/doc/html/pcre2jit.html
+[13]: https://en.wikipedia.org/wiki/DEFLATE "DEFLATE wiki"
+[14]: https://en.wikipedia.org/wiki/Gzip "Gzip wiki"
+[15]: https://semver.org "Semantic Versioning page"
+[16]: https://www.doxygen.nl/index.html "Doxygen page"
+[17]: https://risoflora.github.io/libsagui-docs/index.html "Sagui documentation"
+[18]: https://github.com/risoflora/libsagui-docker/blob/master/README.md "Sagui Docker"
+[19]: https://abi-laboratory.pro/?view=timeline&l=libsagui "Sagui ABI status"
+[20]: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=silvioprog%40gmail%2ecom&lc=US&item_name=libsagui&item_number=libsagui&currency_code=USD&bn=PP%2dDonationsBF%3aproject%2dsupport%2ejpg%3aNonHosted "PayPal link"
+[21]: mailto:silvioprog@gmail.com
+[22]: https://github.com/risoflora/brookframework
+[23]: https://github.com/risoflora/brookframework/blob/master/LICENSE
+[24]: https://github.com/risoflora/libsagui/issues/new?labels=documentation&template=project_using_sagui.md
