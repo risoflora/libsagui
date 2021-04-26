@@ -1,3 +1,17 @@
+2021-04-26  silvioprog  <silvioprog@gmail.com>
+
+	Bump v3.3.3
+
+	Updated Doxygen file.
+
+	Upgraded MHD library.
+
+2021-04-25  silvioprog  <silvioprog@gmail.com>
+
+	Added donors file with first donor (Thank you Waldir Paim! :-)).
+
+	Updated README file.
+
 2021-03-19  silvioprog  <silvioprog@gmail.com>
 
 	Bump v3.3.2
