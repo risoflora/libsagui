@@ -194,6 +194,8 @@ If you want to support this project, please click the button below:
 
 [![Support this project via PayPal][paypal-gif]][20]
 
+Check the list of [all donors](DONORS) that lovely supported this idea! :heart:
+
 ## Support
 
 This project values being simple, direct and self-explanatory. However, if you
