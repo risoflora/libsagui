@@ -65,6 +65,7 @@ if(SG_BUILD_EXAMPLES)
     httpuplds
     httpsrv_benchmark
     httpsrv_sse
+    httpreq_form
     httpreq_payload
     httpreq_isolate)
   if(SG_HTTPS_SUPPORT AND GNUTLS_FOUND)
