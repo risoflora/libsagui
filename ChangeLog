@@ -1,3 +1,17 @@
+2021-10-24  silvioprog  <silvioprog@gmail.com>
+
+	Bump v3.3.4
+
+	Fixed data corruption for long field values. (Fix #52)
+
+	Replaces Travis-CI by GitHub workflows. (Fix #37)
+
+	Upgraded PCRE library.
+
+2021-05-27  silvioprog  <silvioprog@gmail.com>
+
+	Added example for how to get HTML form fields. (Fix #51)
+
 2021-04-26  silvioprog  <silvioprog@gmail.com>
 
 	Bump v3.3.3
