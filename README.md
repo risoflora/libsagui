@@ -219,12 +219,12 @@ Sagui is released under GNU Lesser General Public License v2.1. Check the
 [bestpractices-badge]: https://bestpractices.coreinfrastructure.org/projects/2140/badge
 [lgtm-badge]: https://img.shields.io/lgtm/grade/cpp/g/risoflora/libsagui.svg?logo=lgtm&logoWidth=18
 [releases-badge]: https://img.shields.io/github/v/release/risoflora/libsagui?color=lemmon
-[build-status-badge]: https://travis-ci.org/risoflora/libsagui.svg?branch=master
+[build-status-badge]: https://img.shields.io/github/workflow/status/risoflora/libsagui/CI "CI"
 [paypal-gif]: https://www.paypalobjects.com/en_US/GB/i/btn/btn_donateCC_LG.gif
 [1]: https://bestpractices.coreinfrastructure.org/projects/2140 "Best practices link"
 [2]: https://lgtm.com/projects/g/risoflora/libsagui/context:cpp "LGTM link"
 [3]: https://github.com/risoflora/libsagui/releases "Releases page"
-[4]: https://travis-ci.org/risoflora/libsagui "Travis-CI status"
+[4]: https://github.com/risoflora/libsagui/actions/workflows/CI.yml "GitHub actions"
 [5]: https://www.gnu.org/software/libmicrohttpd "libmicrohttpd page"
 [6]: https://troydhanson.github.io/uthash "uthash page"
 [7]: https://www.pcre.org "PCRE page"
