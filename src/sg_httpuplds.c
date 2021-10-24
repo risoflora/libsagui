@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2021 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -113,11 +113,11 @@ static enum MHD_Result
           return MHD_NO;
         HASH_ADD_STR(holder->req->fields, key, holder->req->curr_field);
       } else {
-        val = sg_realloc(holder->req->curr_field->val, off + size);
+        val = sg_realloc(holder->req->curr_field->val, off + size + 1);
         if (!val)
           return MHD_NO;
         holder->req->curr_field->val = val;
-        memcpy(holder->req->curr_field->val + off, data, size);
+        memcpy(holder->req->curr_field->val + off, data, size + 1);
       }
       if (holder->srv->payld_limit > 0) {
         holder->req->total_fields_size += size;
