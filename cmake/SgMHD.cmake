@@ -43,13 +43,16 @@ endif()
 set(__SG_MHD_INCLUDED ON)
 
 set(MHD_NAME "libmicrohttpd")
-set(MHD_VER "0.9.73")
+set(MHD_VER "0.9.74")
 set(MHD_FULL_NAME "${MHD_NAME}-${MHD_VER}")
-set(MHD_URL "https://ftp.gnu.org/gnu/libmicrohttpd/${MHD_FULL_NAME}.tar.gz")
+set(MHD_URL
+    "https://github.com/Karlson2k/libmicrohttpd/releases/download/v${MHD_VER}/${MHD_FULL_NAME}.tar.gz"
+)
 set(MHD_URL_MIRROR
-    "https://espejito.fder.edu.uy/gnu/libmicrohttpd/${MHD_FULL_NAME}.tar.gz")
+    "https://ftp.gnu.org/gnu/libmicrohttpd/${MHD_FULL_NAME}.tar.gz"
+)
 set(MHD_SHA256
-    "a37b2f1b88fd1bfe74109586be463a434d34e773530fc2a74364cfcf734c032e")
+    "42035d0261373324bfb434018f4ab892514b10253d1af232e41b4cc2c11e650b")
 set(_libdir ${CMAKE_BINARY_DIR}/${MHD_FULL_NAME}/lib)
 if(${CMAKE_VERSION} VERSION_LESS "3.7")
   unset(MHD_URL_MIRROR)

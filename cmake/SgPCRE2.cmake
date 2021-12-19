@@ -46,14 +46,16 @@ set(__SG_PCRE2_INCLUDED ON)
 option(PCRE2_JIT_SUPPORT "Enable JIT support" ON)
 
 set(PCRE2_NAME "pcre2")
-set(PCRE2_VER "10.37")
+set(PCRE2_VER "10.39")
 set(PCRE2_FULL_NAME "${PCRE2_NAME}-${PCRE2_VER}")
-set(PCRE2_URL "https://ftp.pcre.org/pub/pcre/${PCRE2_FULL_NAME}.tar.gz")
+set(PCRE2_URL
+    "https://github.com/PhilipHazel/pcre2/releases/download/${PCRE2_FULL_NAME}/${PCRE2_FULL_NAME}.tar.gz"
+)
 set(PCRE2_URL_MIRROR
-    "https://downloads.sourceforge.net/project/pcre/pcre2/${PCRE2_VER}/${PCRE2_FULL_NAME}.tar.gz"
+    "https://github.com/PhilipHazel/pcre2/releases/download/${PCRE2_FULL_NAME}/${PCRE2_FULL_NAME}.tar.gz"
 )
 set(PCRE2_SHA256
-    "04e214c0c40a97b8a5c2b4ae88a3aa8a93e6f2e45c6b3534ddac351f26548577")
+    "0781bd2536ef5279b1943471fdcdbd9961a2845e1d2c9ad849b9bd98ba1a9bd4")
 if(${CMAKE_VERSION} VERSION_LESS "3.7")
   unset(PCRE2_URL_MIRROR)
 endif()

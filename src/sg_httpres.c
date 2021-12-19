@@ -116,10 +116,10 @@ static ssize_t sg__httpres_zread_cb(void *handle, __SG_UNUSED uint64_t offset,
     return MHD_CONTENT_READER_END_OF_STREAM;
   if (holder->status != SG__HTTPRES_ZWRITING) {
     have =
-      (size_t) holder->read_cb(holder->handle, holder->offset_in, mem, size);
-    if (have == MHD_CONTENT_READER_END_WITH_ERROR)
+      (z_size_t) holder->read_cb(holder->handle, holder->offset_in, mem, size);
+    if (have == (z_size_t) MHD_CONTENT_READER_END_WITH_ERROR)
       return MHD_CONTENT_READER_END_WITH_ERROR;
-    if (have == MHD_CONTENT_READER_END_OF_STREAM) {
+    if (have == (z_size_t) MHD_CONTENT_READER_END_OF_STREAM) {
       holder->status = SG__HTTPRES_ZFINISHED;
       have = 0;
       flush = Z_FINISH;
