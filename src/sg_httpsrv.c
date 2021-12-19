@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2021 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -144,7 +144,8 @@ static void sg__httpsrv_addopt(struct MHD_OptionItem ops[8], unsigned char *pos,
 static bool sg__httpsrv_listen(struct sg_httpsrv *srv, const char *key,
                                const char *pwd, const char *cert,
                                const char *trust, const char *dhparams,
-                               uint16_t port, bool threaded) {
+                               const char *priorities, uint16_t port,
+                               bool threaded) {
   struct MHD_OptionItem ops[8];
   unsigned int flags;
   unsigned char pos = 0;
@@ -186,6 +187,9 @@ static bool sg__httpsrv_listen(struct sg_httpsrv *srv, const char *key,
     if (dhparams)
       sg__httpsrv_addopt(ops, &pos, MHD_OPTION_HTTPS_MEM_DHPARAMS, 0,
                          (void *) dhparams);
+    if (priorities)
+      sg__httpsrv_addopt(ops, &pos, MHD_OPTION_HTTPS_PRIORITIES, 0,
+                         (void *) priorities);
   }
   sg__httpsrv_addopt(ops, &pos, MHD_OPTION_END, 0, NULL);
   srv->handle = MHD_start_daemon(flags, port, NULL, NULL, sg__httpsrv_ahc, srv,
@@ -303,12 +307,24 @@ void sg_httpsrv_free(struct sg_httpsrv *srv) {
 
 #ifdef SG_HTTPS_SUPPORT
 
+bool sg_httpsrv_tls_listen3(struct sg_httpsrv *srv, const char *key,
+                            const char *pwd, const char *cert,
+                            const char *trust, const char *dhparams,
+                            const char *priorities, uint16_t port,
+                            bool threaded) {
+  if (key && cert)
+    return sg__httpsrv_listen(srv, key, pwd, cert, trust, dhparams, priorities,
+                              port, threaded);
+  errno = EINVAL;
+  return false;
+}
+
 bool sg_httpsrv_tls_listen2(struct sg_httpsrv *srv, const char *key,
                             const char *pwd, const char *cert,
                             const char *trust, const char *dhparams,
                             uint16_t port, bool threaded) {
   if (key && cert)
-    return sg__httpsrv_listen(srv, key, pwd, cert, trust, dhparams, port,
+    return sg__httpsrv_listen(srv, key, pwd, cert, trust, dhparams, NULL, port,
                               threaded);
   errno = EINVAL;
   return false;
@@ -317,7 +333,8 @@ bool sg_httpsrv_tls_listen2(struct sg_httpsrv *srv, const char *key,
 bool sg_httpsrv_tls_listen(struct sg_httpsrv *srv, const char *key,
                            const char *cert, uint16_t port, bool threaded) {
   if (key && cert)
-    return sg__httpsrv_listen(srv, key, NULL, cert, NULL, NULL, port, threaded);
+    return sg__httpsrv_listen(srv, key, NULL, cert, NULL, NULL, NULL, port,
+                              threaded);
   errno = EINVAL;
   return false;
 }
@@ -325,7 +342,8 @@ bool sg_httpsrv_tls_listen(struct sg_httpsrv *srv, const char *key,
 #endif /* SG_HTTPS_SUPPORT */
 
 bool sg_httpsrv_listen(struct sg_httpsrv *srv, uint16_t port, bool threaded) {
-  return sg__httpsrv_listen(srv, NULL, NULL, NULL, NULL, NULL, port, threaded);
+  return sg__httpsrv_listen(srv, NULL, NULL, NULL, NULL, NULL, NULL, port,
+                            threaded);
 }
 
 int sg_httpsrv_shutdown(struct sg_httpsrv *srv) {

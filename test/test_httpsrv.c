@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2021 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -523,6 +523,17 @@ static void test_httpsrv_tls_listen2(struct sg_httpsrv *srv) {
   ASSERT(errno == EINVAL);
 }
 
+static void test_httpsrv_tls_listen3(struct sg_httpsrv *srv) {
+  errno = 0;
+  ASSERT(!sg_httpsrv_tls_listen3(srv, NULL, "", "", "", "", "",
+                                 TEST_HTTPSRV_PORT, false));
+  ASSERT(errno == EINVAL);
+  errno = 0;
+  ASSERT(!sg_httpsrv_tls_listen3(srv, "", "", NULL, "", "", "",
+                                 TEST_HTTPSRV_PORT, false));
+  ASSERT(errno == EINVAL);
+}
+
 #endif /* SG_HTTPS_SUPPORT */
 
 static void test_httpsrv_shutdown(struct sg_httpsrv *srv) {
@@ -782,6 +793,7 @@ int main(void) {
 #ifdef SG_HTTPS_SUPPORT
   test_httpsrv_tls_listen(srv);
   test_httpsrv_tls_listen2(srv);
+  test_httpsrv_tls_listen3(srv);
 #endif /* SG_HTTPS_SUPPORT */
   test_httpsrv_shutdown(srv);
   test_httpsrv_port(srv);
