@@ -1,3 +1,11 @@
+2021-12-19  silvioprog  <silvioprog@gmail.com>
+
+	Bump v3.4.0
+
+	Upgraded third party libraries
+
+	Added new function "sg_httpsrv_tls_listen3()"
+
 2021-10-24  silvioprog  <silvioprog@gmail.com>
 
 	Bump v3.3.4
