@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2022 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -74,7 +74,7 @@ static int sg__entrypoints_rm(struct sg_entrypoints *entrypoints,
 static int sg__entrypoints_find(struct sg_entrypoints *entrypoints,
                                 struct sg_entrypoint *key,
                                 struct sg_entrypoint **entrypoint) {
-  if ((entrypoints->count > 0)) {
+  if (entrypoints->count > 0) {
     *entrypoint = bsearch(key, entrypoints->list, entrypoints->count,
                           sizeof(struct sg_entrypoint), sg__entrypoint_cmp);
     if (*entrypoint)
