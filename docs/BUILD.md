@@ -30,7 +30,7 @@ There are a few options of the Sagui building, they are:
 
 and many specific variables, like `SG_LIBSAGUI_RC`, `GNUTLS_INCLUDE_DIR`,
 `PCRE2_INCLUDE_DIR`, `PCRE2_JIT_SUPPORT` and so on. Please take a look at the
-files in the [`/cmake`](https://github.com/risoflora/libsagui/tree/master/cmake)
+files in the [`/cmake`](https://github.com/risoflora/libsagui/tree/main/cmake)
 directory for more information.
 
 ## Build types

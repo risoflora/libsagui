@@ -238,10 +238,10 @@ Sagui is released under GNU Lesser General Public License v2.1. Check the
 [15]: https://semver.org "Semantic Versioning page"
 [16]: https://www.doxygen.nl/index.html "Doxygen page"
 [17]: https://risoflora.github.io/libsagui-docs/index.html "Sagui documentation"
-[18]: https://github.com/risoflora/libsagui-docker/blob/master/README.md "Sagui Docker"
+[18]: https://github.com/risoflora/libsagui-docker/blob/main/README.md "Sagui Docker"
 [19]: https://abi-laboratory.pro/?view=timeline&l=libsagui "Sagui ABI status"
 [20]: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=silvioprog%40gmail%2ecom&lc=US&item_name=libsagui&item_number=libsagui&currency_code=USD&bn=PP%2dDonationsBF%3aproject%2dsupport%2ejpg%3aNonHosted "PayPal link"
 [21]: mailto:silvioprog@gmail.com
 [22]: https://github.com/risoflora/brookframework
-[23]: https://github.com/risoflora/brookframework/blob/master/LICENSE
+[23]: https://github.com/risoflora/brookframework/blob/main/LICENSE
 [24]: https://github.com/risoflora/libsagui/issues/new?labels=documentation&template=project_using_sagui.md
