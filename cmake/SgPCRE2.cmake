@@ -21,7 +21,7 @@
 #
 # Cross-platform library which helps to develop web servers or frameworks.
 #
-# Copyright (C) 2016-2021 Silvio Clecio <silvioprog@gmail.com>
+# Copyright (C) 2016-2023 Silvio Clecio <silvioprog@gmail.com>
 #
 # Sagui library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -46,16 +46,15 @@ set(__SG_PCRE2_INCLUDED ON)
 option(PCRE2_JIT_SUPPORT "Enable JIT support" ON)
 
 set(PCRE2_NAME "pcre2")
-set(PCRE2_VER "10.39")
+set(PCRE2_VER "10.42")
 set(PCRE2_FULL_NAME "${PCRE2_NAME}-${PCRE2_VER}")
 set(PCRE2_URL
-    "https://github.com/PhilipHazel/pcre2/releases/download/${PCRE2_FULL_NAME}/${PCRE2_FULL_NAME}.tar.gz"
+  "https://github.com/PCRE2Project/pcre2/releases/download/${PCRE2_FULL_NAME}/${PCRE2_FULL_NAME}.tar.gz"
 )
 set(PCRE2_URL_MIRROR
-    "https://github.com/PhilipHazel/pcre2/releases/download/${PCRE2_FULL_NAME}/${PCRE2_FULL_NAME}.tar.gz"
+  "https://github.com/PCRE2Project/pcre2/releases/download/${PCRE2_FULL_NAME}/${PCRE2_FULL_NAME}.tar.gz"
 )
-set(PCRE2_SHA256
-    "0781bd2536ef5279b1943471fdcdbd9961a2845e1d2c9ad849b9bd98ba1a9bd4")
+set(PCRE2_SHA256 "c33b418e3b936ee3153de2c61cc638e7e4fe3156022a5c77d0711bcbb9d64f1f")
 if(${CMAKE_VERSION} VERSION_LESS "3.7")
   unset(PCRE2_URL_MIRROR)
 endif()

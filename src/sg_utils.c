@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2021 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2023 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -367,7 +367,7 @@ char *sg_extract_entrypoint(const char *path) {
 
 /* File/directory. */
 
-char *sg_tmpdir() {
+char *sg_tmpdir(void) {
 #ifdef _WIN32
   wchar_t path[MAX_PATH + 1]; /* max 261 */
   size_t len = GetTempPathW(MAX_PATH + 1, path);
