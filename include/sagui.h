@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2021 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2023 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -74,7 +74,7 @@ extern "C" {
 
 #define SG_VERSION_MAJOR 3
 #define SG_VERSION_MINOR 4
-#define SG_VERSION_PATCH 0
+#define SG_VERSION_PATCH 1
 #define SG_VERSION_HEX                                                         \
   ((SG_VERSION_MAJOR << 16) | (SG_VERSION_MINOR << 8) | (SG_VERSION_PATCH))
 
@@ -1755,7 +1755,7 @@ struct sg_entrypoints;
  * Callback signature used by #sg_entrypoints_iter() to iterate entry-point
  * items.
  * \param[out] cls User-defined closure.
- * \param[out] pair Current iterated entry-point.
+ * \param[out] entrypoint Current iterated entry-point.
  * \retval 0 Success.
  * \retval E<ERROR> User-defined error to stop the items iteration.
  */
