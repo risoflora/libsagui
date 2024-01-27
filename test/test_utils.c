@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2024 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -477,7 +477,9 @@ static void test_tmpdir(void) {
   ASSERT(strcmp(tmp, path) == 0);
 #elif defined(__ANDROID__) /* _WIN32 */
   ASSERT(strcmp(tmp, "/data/local/tmp") == 0);
-#else /* __ANDROID__ */
+#elif defined(__APPLE__) /* __ANDROID__*/
+  ASSERT(strncmp(tmp, getenv("TMPDIR"), strlen(tmp)) == 0);
+#else /* __APPLE__ */
   ASSERT(strcmp(tmp, "/tmp") == 0);
 #endif /* _WIN32 */
   sg_free(tmp);
