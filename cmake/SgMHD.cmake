@@ -20,7 +20,7 @@
 #
 # Cross-platform library which helps to develop web servers or frameworks.
 #
-# Copyright (C) 2016-2023 Silvio Clecio <silvioprog@gmail.com>
+# Copyright (C) 2016-2024 Silvio Clecio <silvioprog@gmail.com>
 #
 # Sagui library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -43,11 +43,11 @@ endif()
 set(__SG_MHD_INCLUDED ON)
 
 set(MHD_NAME "libmicrohttpd")
-set(MHD_VER "0.9.76")
+set(MHD_VER "0.9.77")
 set(MHD_FULL_NAME "${MHD_NAME}-${MHD_VER}")
 set(MHD_URL "https://ftp.gnu.org/gnu/libmicrohttpd/${MHD_FULL_NAME}.tar.gz")
 set(MHD_URL_MIRROR "https://ftp.gnu.org/gnu/libmicrohttpd/${MHD_FULL_NAME}.tar.gz")
-set(MHD_SHA256 "f0b1547b5a42a6c0f724e8e1c1cb5ce9c4c35fb495e7d780b9930d35011ceb4c")
+set(MHD_SHA256 "9e7023a151120060d2806a6ea4c13ca9933ece4eacfc5c9464d20edddb76b0a0")
 set(_libdir ${CMAKE_BINARY_DIR}/${MHD_FULL_NAME}/lib)
 if(${CMAKE_VERSION} VERSION_LESS "3.7")
   unset(MHD_URL_MIRROR)
