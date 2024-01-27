@@ -21,7 +21,7 @@
 #
 # Cross-platform library which helps to develop web servers or frameworks.
 #
-# Copyright (C) 2016-2023 Silvio Clecio <silvioprog@gmail.com>
+# Copyright (C) 2016-2024 Silvio Clecio <silvioprog@gmail.com>
 #
 # Sagui library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
