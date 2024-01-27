@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2023 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2024 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -135,7 +135,7 @@ int sg__rename(const char *old, const char *new) {
 #endif /* _WIN32 */
 
 #if defined(_WIN32) || defined(__ANDROID__) ||                                 \
-  (defined(__linux__) && !defined(__gnu_linux__))
+  (defined(__linux__) && !defined(__gnu_linux__)) || defined(__APPLE__)
 
 char *sg__basename(const char *path) {
   char *s1 = strrchr(path, '/');
@@ -149,7 +149,7 @@ char *sg__basename(const char *path) {
   return (char *) path;
 }
 
-#endif /* _WIN32 || __ANDROID__ || (__linux__ && !__gnu_linux__) */
+#endif /* _WIN32 || __ANDROID__ || (__linux__ && !__gnu_linux__) || __APPLE__ */
 
 char *sg__strdup(const char *str) {
   return str ? strdup(str) : NULL;
@@ -295,22 +295,22 @@ double sg__fmod(double x, double y) {
 
 char *sg_strerror(int errnum, char *errmsg, size_t errlen) {
 #if defined(_WIN32) || defined(__ANDROID__) ||                                 \
-  (defined(__linux__) && !defined(__gnu_linux__))
+  (defined(__linux__) && !defined(__gnu_linux__)) || defined(__APPLE__)
   int saved_errno;
-#else /* _WIN32 || __ANDROID__ || (__linux__ && !__gnu_linux__) */
+#else /* _WIN32 || __ANDROID__ || (__linux__ && !__gnu_linux__) || __APPLE__ */
   char *res;
-#endif /* _WIN32 || __ANDROID__ || (__linux__ && !__gnu_linux__) */
+#endif /* _WIN32 || __ANDROID__ || (__linux__ && !__gnu_linux__) || __APPLE__ */
   if (!errmsg || errlen < 1)
     return NULL;
 #if defined(_WIN32) || defined(__ANDROID__) ||                                 \
-  (defined(__linux__) && !defined(__gnu_linux__))
+  (defined(__linux__) && !defined(__gnu_linux__)) || defined(__APPLE__)
   saved_errno = errno;
-#else /* _WIN32 || __ANDROID__ || (__linux__ && !__gnu_linux__) */
+#else /* _WIN32 || __ANDROID__ || (__linux__ && !__gnu_linux__) || __APPLE__ */
   res = strerror_r(errnum, errmsg, errlen - 1);
   memcpy(errmsg, res, errlen - 1);
   errmsg[errlen - 1] = '\0';
   return errmsg;
-#endif /* _WIN32 || __ANDROID__ || (__linux__ && !__gnu_linux__) */
+#endif /* _WIN32 || __ANDROID__ || (__linux__ && !__gnu_linux__) || __APPLE__ */
 #ifdef _WIN32
   errnum = strerror_s(errmsg, errlen, errnum);
   errno = saved_errno;
@@ -318,13 +318,14 @@ char *sg_strerror(int errnum, char *errmsg, size_t errlen) {
     return "?";
   return errmsg;
 #endif /* _WIN32 */
-#if defined(__ANDROID__) || (defined(__linux__) && !defined(__gnu_linux__))
+#if defined(__ANDROID__) || (defined(__linux__) && !defined(__gnu_linux__)) || \
+  defined(__APPLE__)
   errnum = strerror_r(errnum, errmsg, errlen);
   errno = saved_errno;
   if ((errnum != 0) && (errnum != EINVAL) && (errnum != ERANGE))
     return "?";
   return errmsg;
-#endif /* __ANDROID__ || (__linux__ && !__gnu_linux__) */
+#endif /* __ANDROID__ || (__linux__ && !__gnu_linux__) || __APPLE__ */
 }
 
 bool sg_is_post(const char *method) {

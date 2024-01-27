@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2021 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2024 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -66,15 +66,15 @@ SG__EXTERN int sg__rename(const char *old, const char *new);
 #endif /* _WIN32 */
 
 #if defined(_WIN32) || defined(__ANDROID__) ||                                 \
-  (defined(__linux__) && !defined(__gnu_linux__))
+  (defined(__linux__) && !defined(__gnu_linux__)) || defined(__APPLE__)
 
 SG__EXTERN char *sg__basename(const char *path);
 
-#else /* _WIN32 || __ANDROID__ || (__linux__ && !__gnu_linux__) */
+#else /* _WIN32 || __ANDROID__ || (__linux__ && !__gnu_linux__) || __APPLE__ */
 
 #define sg__basename basename
 
-#endif /* _WIN32 || __ANDROID__ || (__linux__ && !__gnu_linux__) */
+#endif /* _WIN32 || __ANDROID__ || (__linux__ && !__gnu_linux__) || __APPLE__ */
 
 SG__EXTERN char *sg__strdup(const char *str);
 

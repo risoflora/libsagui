@@ -21,7 +21,7 @@
 #
 # Cross-platform library which helps to develop web servers or frameworks.
 #
-# Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
+# Copyright (C) 2016-2024 Silvio Clecio <silvioprog@gmail.com>
 #
 # Sagui library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -71,8 +71,9 @@ else()
   set(CC "CC=${CMAKE_C_COMPILER}")
 endif()
 
-if("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
-  set(CMAKE_COMPILER_IS_CLANG ON)
+if(CMAKE_C_COMPILER_LOADED AND CMAKE_C_COMPILER_ID MATCHES ".*[Cc][Ll][Aa][Nn][Gg].*")
+  set(CMAKE_COMPILER_IS_CLANG  ON)
+  set(CMAKE_COMPILER_IS_GNUCC  OFF)
 endif()
 
 if(NOT CMAKE_C_MACHINE)
