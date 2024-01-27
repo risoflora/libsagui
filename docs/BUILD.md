@@ -158,7 +158,7 @@ Scanning dependencies of target sagui
 [100%] Built target sagui
 ```
 
-## Building the shared library (.so/.dll)
+## Building the shared library (.so/.dylib/.dll)
 
 Supposing the shared library will be built using the `clang` front-end, set the
 variable `CMAKE_C_COMPILER` to `clang`:
