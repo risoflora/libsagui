@@ -20,7 +20,7 @@
 #
 # Cross-platform library which helps to develop web servers or frameworks.
 #
-# Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+# Copyright (C) 2016-2024 Silvio Clecio <silvioprog@gmail.com>
 #
 # Sagui library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -43,14 +43,14 @@ endif()
 set(__SG_ZLIB_INCLUDED ON)
 
 set(ZLIB_NAME "zlib")
-set(ZLIB_VER "1.2.11")
+set(ZLIB_VER "1.3.1")
 set(ZLIB_FULL_NAME "${ZLIB_NAME}-${ZLIB_VER}")
 set(ZLIB_URL "https://zlib.net/${ZLIB_FULL_NAME}.tar.gz")
 set(ZLIB_URL_MIRROR
-    "https://downloads.sourceforge.net/project/libpng/zlib/1.2.11/${ZLIB_FULL_NAME}.tar.gz"
+    "https://github.com/madler/zlib/releases/download/v${ZLIB_VER}/${ZLIB_FULL_NAME}.tar.gz"
 )
 set(ZLIB_SHA256
-    "c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1")
+    "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23")
 if(${CMAKE_VERSION} VERSION_LESS "3.7")
   unset(ZLIB_URL_MIRROR)
 endif()
