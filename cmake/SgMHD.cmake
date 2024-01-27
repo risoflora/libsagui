@@ -42,6 +42,8 @@ if(__SG_MHD_INCLUDED)
 endif()
 set(__SG_MHD_INCLUDED ON)
 
+cmake_policy(SET CMP0135 NEW)
+
 set(MHD_NAME "libmicrohttpd")
 set(MHD_VER "0.9.77")
 set(MHD_FULL_NAME "${MHD_NAME}-${MHD_VER}")

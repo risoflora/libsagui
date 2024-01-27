@@ -42,6 +42,8 @@ if(__SG_ZLIB_INCLUDED)
 endif()
 set(__SG_ZLIB_INCLUDED ON)
 
+cmake_policy(SET CMP0135 NEW)
+
 set(ZLIB_NAME "zlib")
 set(ZLIB_VER "1.3.1")
 set(ZLIB_FULL_NAME "${ZLIB_NAME}-${ZLIB_VER}")
