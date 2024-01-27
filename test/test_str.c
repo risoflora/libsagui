@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2024 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -44,9 +44,9 @@ static void test_str_printf_va(struct sg_str *str, const char *fmt,
                                va_list ap) {
   ASSERT(sg_str_printf_va(NULL, fmt, ap) == EINVAL);
   ASSERT(sg_str_printf_va(str, NULL, ap) == EINVAL);
-#ifndef __arm__
+#if !(defined(__arm__) || defined(__arm64__))
   ASSERT(sg_str_printf_va(str, fmt, NULL) == EINVAL);
-#endif /* __arm__ */
+#endif /* !(__arm__ || __arm64__) */
 
   sg_str_clear(str);
   sg_str_printf_va(str, fmt, ap);
