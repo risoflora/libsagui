@@ -1,0 +1,7 @@
+.github/
+build/
+docs/
+lib/
+_config.yml
+ChangeLog
+Dockerfile
