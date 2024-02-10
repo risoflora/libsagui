@@ -15,11 +15,8 @@ RUN apk add --no-cache \
   automake \
   clang \
   cmake
-
 WORKDIR /app
-
 COPY . /app/
-
 RUN mkdir build && \
   cd build/ && \
   cmake -DBUILD_SHARED_LIBS=OFF .. && \
