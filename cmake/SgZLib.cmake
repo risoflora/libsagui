@@ -42,7 +42,9 @@ if(__SG_ZLIB_INCLUDED)
 endif()
 set(__SG_ZLIB_INCLUDED ON)
 
-cmake_policy(SET CMP0135 NEW)
+if(CMAKE_VERSION VERSION_GREATER "3.23")
+  cmake_policy(SET CMP0135 NEW)
+endif()
 
 set(ZLIB_NAME "zlib")
 set(ZLIB_VER "1.3.1")

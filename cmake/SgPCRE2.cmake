@@ -45,7 +45,9 @@ set(__SG_PCRE2_INCLUDED ON)
 
 option(PCRE2_JIT_SUPPORT "Enable JIT support" ON)
 
-cmake_policy(SET CMP0135 NEW)
+if(CMAKE_VERSION VERSION_GREATER "3.23")
+  cmake_policy(SET CMP0135 NEW)
+endif()
 
 set(PCRE2_NAME "pcre2")
 set(PCRE2_VER "10.42")
