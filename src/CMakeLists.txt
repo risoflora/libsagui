@@ -66,7 +66,7 @@ list(
   ${SG_SOURCE_DIR}/sg_httpres.c
   ${SG_SOURCE_DIR}/sg_httpsrv.c)
 if(NOT HAVE_INET_NTOP)
-  list(APPEND SG_C_SOURCE ${SG_SOURCE_DIR}/inet.c)
+  list(APPEND SG_C_SOURCE ${SG_SOURCE_DIR}/inet_ntop.c)
 endif()
 if(SG_PATH_ROUTING)
   list(APPEND SG_C_SOURCE ${SG_SOURCE_DIR}/sg_entrypoint.c
