@@ -27,9 +27,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <unistd.h>
+#include <signal.h>
 #include <sagui.h>
 
 /* NOTE: Error checking has been omitted to make it clear. */
+
+static bool terminated = false;
+
+static void sig_handler(__SG_UNUSED int signum) {
+  terminated = true;
+}
 
 static void req_cb(__SG_UNUSED void *cls, __SG_UNUSED struct sg_httpreq *req,
                    struct sg_httpres *res) {
@@ -46,6 +54,8 @@ int main(int argc, const char *argv[]) {
     printf("%s <PORT>\n", argv[0]);
     return EXIT_FAILURE;
   }
+  signal(SIGTERM, sig_handler);
+  signal(SIGINT, sig_handler);
   port = strtol(argv[1], NULL, 10);
   srv = sg_httpsrv_new(req_cb, NULL);
   if (!sg_httpsrv_listen(srv, port, false)) {
@@ -55,7 +65,9 @@ int main(int argc, const char *argv[]) {
   fprintf(stdout, "Server running at http://localhost:%d\n",
           sg_httpsrv_port(srv));
   fflush(stdout);
-  getchar();
+  while (!terminated) {
+    usleep(100 * 1000);
+  }
   sg_httpsrv_free(srv);
   return EXIT_SUCCESS;
 }

@@ -73,8 +73,8 @@ extern "C" {
 #endif /* __SG_FORMAT */
 
 #define SG_VERSION_MAJOR 3
-#define SG_VERSION_MINOR 4
-#define SG_VERSION_PATCH 4
+#define SG_VERSION_MINOR 5
+#define SG_VERSION_PATCH 0
 #define SG_VERSION_HEX                                                         \
   ((SG_VERSION_MAJOR << 16) | (SG_VERSION_MINOR << 8) | (SG_VERSION_PATCH))
 
@@ -1438,6 +1438,38 @@ SG_EXTERN void sg_httpsrv_free(struct sg_httpsrv *srv);
  * to be used by the HTTPS server for key exchange.
  * \param[in] priorities Memory pointer specifying the cipher algorithm.
  * Default: `"NORMAL"`.
+ * \param[in] hostname Host name for listening to connections.
+ * \param[in] port Port for listening to connections.
+ * \param[in] backlog Maximum length of the queue of pending connections.
+ * Default: `511`.
+ * \param[in] threaded Enables/disables the threaded mode. If `true`, the
+ * server creates one thread per connection.
+ * \retval true If the server is started, `false` otherwise. If \pr{srv} is
+ * null, set the `errno` to `EINVAL`.
+ * \note If port is `0`, the operating system will assign an unused port
+ * randomly.
+ */
+SG_EXTERN bool sg_httpsrv_tls_listen4(struct sg_httpsrv *srv, const char *key,
+                                      const char *pwd, const char *cert,
+                                      const char *trust, const char *dhparams,
+                                      const char *priorities,
+                                      const char *hostname, uint16_t port,
+                                      uint32_t backlog, bool threaded);
+
+/**
+ * Starts the HTTPS server.
+ * \param[in] srv Server handle.
+ * \param[in] key Memory pointer for the private key (key.pem) to be used by
+ * the HTTPS server.
+ * \param[in] pwd Password for the private key.
+ * \param[in] cert Memory pointer for the certificate (cert.pem) to be used by
+ * the HTTPS server.
+ * \param[in] trust Memory pointer for the certificate (ca.pem) to be used by
+ * the HTTPS server for client authentication.
+ * \param[in] dhparams Memory pointer for the Diffie Hellman parameters (dh.pem)
+ * to be used by the HTTPS server for key exchange.
+ * \param[in] priorities Memory pointer specifying the cipher algorithm.
+ * Default: `"NORMAL"`.
  * \param[in] port Port for listening to connections.
  * \param[in] threaded Enables/disables the threaded mode. If `true`, the
  * server creates one thread per connection.
@@ -1497,6 +1529,24 @@ SG_EXTERN bool sg_httpsrv_tls_listen(struct sg_httpsrv *srv, const char *key,
                                      bool threaded);
 
 #endif /* SG_HTTPS_SUPPORT */
+
+/**
+ * Starts the HTTP server.
+ * \param[in] srv Server handle.
+ * \param[in] hostname Host name for listening to connections.
+ * \param[in] port Port for listening to connections.
+ * \param[in] backlog Maximum length of the queue of pending connections.
+ * Default: `511`.
+ * \param[in] threaded Enables/disables the threaded mode. If `true`, the
+ * server creates one thread per connection.
+ * \retval true If the server is started, `false` otherwise. If \pr{srv} is
+ * null, set the `errno` to `EINVAL`.
+ * \note If port is `0`, the operating system will randomly assign an unused
+ * port.
+ */
+SG_EXTERN bool sg_httpsrv_listen2(struct sg_httpsrv *srv, const char *hostname,
+                                  uint16_t port, uint32_t backlog,
+                                  bool threaded);
 
 /**
  * Starts the HTTP server.

@@ -22,7 +22,7 @@
 #
 # Cross-platform library which helps to develop web servers or frameworks.
 #
-# Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
+# Copyright (C) 2016-2024 Silvio Clecio <silvioprog@gmail.com>
 #
 # Sagui library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -65,9 +65,6 @@ list(
   ${SG_SOURCE_DIR}/sg_httpreq.c
   ${SG_SOURCE_DIR}/sg_httpres.c
   ${SG_SOURCE_DIR}/sg_httpsrv.c)
-if(NOT HAVE_INET_NTOP)
-  list(APPEND SG_C_SOURCE ${SG_SOURCE_DIR}/inet_ntop.c)
-endif()
 if(SG_PATH_ROUTING)
   list(APPEND SG_C_SOURCE ${SG_SOURCE_DIR}/sg_entrypoint.c
        ${SG_SOURCE_DIR}/sg_entrypoints.c ${SG_SOURCE_DIR}/sg_routes.c
