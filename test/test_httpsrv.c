@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2021 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2024 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -233,7 +233,7 @@ static void test__httpsrv_rcc(void) {
 }
 
 static void test__httpsrv_addopt(void) {
-  struct MHD_OptionItem ops[8];
+  struct MHD_OptionItem ops[14];
   unsigned char pos = 0;
   int dummy = 123;
   memset(ops, 0, sizeof(ops));
@@ -409,6 +409,83 @@ static void test_httpsrv_listen(struct sg_httpsrv *srv) {
   ASSERT(sg_httpsrv_shutdown(srv) == 0);
 }
 
+static void test_httpsrv_listen2(struct sg_httpsrv *srv) {
+  struct sg_httpsrv *dummy_srv;
+
+  errno = 0;
+  ASSERT(!sg_httpsrv_listen2(NULL, NULL, TEST_HTTPSRV_PORT, 0, true));
+  ASSERT(errno == EINVAL);
+  dummy_srv = sg_httpsrv_new(dummy_httpreq_cb, NULL);
+  dummy_srv->upld_cb = NULL;
+  errno = 0;
+  ASSERT(!sg_httpsrv_listen2(dummy_srv, NULL, TEST_HTTPSRV_PORT, 0, true));
+  ASSERT(errno == EINVAL);
+  sg_httpsrv_free(dummy_srv);
+  dummy_srv = sg_httpsrv_new(dummy_httpreq_cb, NULL);
+  dummy_srv->upld_write_cb = NULL;
+  errno = 0;
+  ASSERT(!sg_httpsrv_listen2(dummy_srv, NULL, TEST_HTTPSRV_PORT, 0, true));
+  ASSERT(errno == EINVAL);
+  sg_httpsrv_free(dummy_srv);
+  dummy_srv = sg_httpsrv_new(dummy_httpreq_cb, NULL);
+  dummy_srv->upld_save_cb = NULL;
+  errno = 0;
+  ASSERT(!sg_httpsrv_listen2(dummy_srv, NULL, TEST_HTTPSRV_PORT, 0, true));
+  ASSERT(errno == EINVAL);
+  sg_httpsrv_free(dummy_srv);
+  dummy_srv = sg_httpsrv_new(dummy_httpreq_cb, NULL);
+  dummy_srv->upld_save_as_cb = NULL;
+  errno = 0;
+  ASSERT(!sg_httpsrv_listen2(dummy_srv, NULL, TEST_HTTPSRV_PORT, 0, true));
+  ASSERT(errno == EINVAL);
+  sg_httpsrv_free(dummy_srv);
+  dummy_srv = sg_httpsrv_new(dummy_httpreq_cb, NULL);
+  sg_free(dummy_srv->uplds_dir);
+  dummy_srv->uplds_dir = NULL;
+  errno = 0;
+  ASSERT(!sg_httpsrv_listen2(dummy_srv, NULL, TEST_HTTPSRV_PORT, 0, true));
+  ASSERT(errno == EINVAL);
+  sg_httpsrv_free(dummy_srv);
+  dummy_srv = sg_httpsrv_new(dummy_httpreq_cb, NULL);
+  dummy_srv->post_buf_size = 255;
+  errno = 0;
+  ASSERT(!sg_httpsrv_listen2(dummy_srv, NULL, TEST_HTTPSRV_PORT, 0, true));
+  ASSERT(errno == EINVAL);
+  sg_httpsrv_free(dummy_srv);
+
+  ASSERT(sg_httpsrv_listen2(srv, NULL, 0, 0, true));
+  ASSERT(sg_httpsrv_shutdown(srv) == 0);
+
+  ASSERT(sg_httpsrv_listen2(srv, NULL, TEST_HTTPSRV_PORT, 0, false));
+  ASSERT(MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_FLAGS)->flags &
+         MHD_USE_DUAL_STACK);
+  ASSERT(MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_FLAGS)->flags &
+         MHD_USE_ERROR_LOG);
+  ASSERT(MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_FLAGS)->flags &
+         MHD_USE_AUTO_INTERNAL_THREAD);
+  ASSERT(!(MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_FLAGS)->flags &
+           MHD_USE_THREAD_PER_CONNECTION));
+  ASSERT(sg_httpsrv_shutdown(srv) == 0);
+  ASSERT(sg_httpsrv_listen2(srv, NULL, TEST_HTTPSRV_PORT, 0, true));
+  ASSERT(MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_FLAGS)->flags &
+         MHD_USE_DUAL_STACK);
+  ASSERT(MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_FLAGS)->flags &
+         MHD_USE_ERROR_LOG);
+  ASSERT(MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_FLAGS)->flags &
+         MHD_USE_AUTO_INTERNAL_THREAD);
+  ASSERT(MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_FLAGS)->flags &
+         MHD_USE_THREAD_PER_CONNECTION);
+#ifdef __linux__
+  dummy_srv =
+    sg_httpsrv_new2(NULL, dummy_httpreq_cb, dummy_httpreq_err_cb, NULL);
+  errno = 0;
+  ASSERT(!sg_httpsrv_listen2(dummy_srv, NULL, TEST_HTTPSRV_PORT, 0, true));
+  ASSERT(errno == EADDRINUSE);
+  sg_httpsrv_free(dummy_srv);
+#endif /* __linux__ */
+  ASSERT(sg_httpsrv_shutdown(srv) == 0);
+}
+
 #ifdef SG_HTTPS_SUPPORT
 
 static void test_httpsrv_tls_listen(struct sg_httpsrv *srv) {
@@ -520,6 +597,17 @@ static void test_httpsrv_tls_listen2(struct sg_httpsrv *srv) {
   errno = 0;
   ASSERT(!sg_httpsrv_tls_listen2(srv, "", "", NULL, "", "", TEST_HTTPSRV_PORT,
                                  false));
+  ASSERT(errno == EINVAL);
+}
+
+static void test_httpsrv_tls_listen4(struct sg_httpsrv *srv) {
+  errno = 0;
+  ASSERT(!sg_httpsrv_tls_listen4(srv, NULL, "", "", "", "", "", "",
+                                 TEST_HTTPSRV_PORT, 0, false));
+  ASSERT(errno == EINVAL);
+  errno = 0;
+  ASSERT(!sg_httpsrv_tls_listen4(srv, "", "", NULL, "", "", "", "",
+                                 TEST_HTTPSRV_PORT, 0, false));
   ASSERT(errno == EINVAL);
 }
 
@@ -790,10 +878,12 @@ int main(void) {
   test_httpsrv_new();
   test_httpsrv_free();
   test_httpsrv_listen(srv);
+  test_httpsrv_listen2(srv);
 #ifdef SG_HTTPS_SUPPORT
   test_httpsrv_tls_listen(srv);
   test_httpsrv_tls_listen2(srv);
   test_httpsrv_tls_listen3(srv);
+  test_httpsrv_tls_listen4(srv);
 #endif /* SG_HTTPS_SUPPORT */
   test_httpsrv_shutdown(srv);
   test_httpsrv_port(srv);

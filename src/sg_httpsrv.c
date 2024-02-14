@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2021 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2024 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -30,6 +30,11 @@
 #include <string.h>
 #include <errno.h>
 #include <pthread.h>
+#ifndef _WIN32
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#endif /* _WIN32 */
 #include "sg_macros.h"
 #include "utlist.h"
 #include "microhttpd.h"
@@ -133,34 +138,63 @@ static void sg__httpsrv_ncc(void *cls, __SG_UNUSED struct MHD_Connection *con,
   }
 }
 
-static void sg__httpsrv_addopt(struct MHD_OptionItem ops[8], unsigned char *pos,
-                               enum MHD_OPTION opt, intptr_t val, void *ptr) {
+static void sg__httpsrv_addopt(struct MHD_OptionItem ops[14],
+                               unsigned char *pos, enum MHD_OPTION opt,
+                               intptr_t val, void *ptr) {
   ops[*pos].option = opt;
   ops[*pos].value = val;
   ops[*pos].ptr_value = ptr;
   (*pos)++;
 }
 
-static bool sg__httpsrv_listen(struct sg_httpsrv *srv, const char *key,
-                               const char *pwd, const char *cert,
-                               const char *trust, const char *dhparams,
-                               const char *priorities, uint16_t port,
-                               bool threaded) {
-  struct MHD_OptionItem ops[8];
+static bool sg__httpsrv_listen2(struct sg_httpsrv *srv, const char *key,
+                                const char *pwd, const char *cert,
+                                const char *trust, const char *dhparams,
+                                const char *priorities, const char *hostname,
+                                uint16_t port, uint32_t backlog,
+                                bool threaded) {
+  struct MHD_OptionItem ops[14];
+  struct sockaddr_in addr;
+  struct sockaddr_in6 addr6;
   unsigned int flags;
   unsigned char pos = 0;
+  int errnum;
   if (!srv || !srv->upld_cb || !srv->upld_write_cb || !srv->upld_save_cb ||
       !srv->upld_save_as_cb || !srv->uplds_dir || (srv->post_buf_size < 256)) {
     errno = EINVAL;
     return false;
   }
-  flags = MHD_USE_DUAL_STACK | MHD_USE_ITC | MHD_USE_ERROR_LOG |
-          MHD_ALLOW_SUSPEND_RESUME |
+  flags = MHD_USE_ITC | MHD_USE_ERROR_LOG | MHD_ALLOW_SUSPEND_RESUME |
           (threaded ?
              MHD_USE_INTERNAL_POLLING_THREAD | MHD_USE_THREAD_PER_CONNECTION :
              MHD_USE_AUTO_INTERNAL_THREAD);
   sg__httpsrv_addopt(ops, &pos, MHD_OPTION_EXTERNAL_LOGGER,
                      (intptr_t) sg__httpsrv_oel, srv);
+  if (hostname) {
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+    errnum = inet_pton(AF_INET, hostname, &(addr.sin_addr));
+    if (errnum == 1) {
+      sg__httpsrv_addopt(ops, &pos, MHD_OPTION_SOCK_ADDR, 0,
+                         (struct sockaddr *) (&addr));
+    } else {
+      memset(&addr6, 0, sizeof(addr6));
+      addr6.sin6_family = AF_INET6;
+      addr6.sin6_port = htons(port);
+      errnum = inet_pton(AF_INET6, hostname, &(addr6.sin6_addr));
+      if (errnum != 1) {
+        sg__httpsrv_eprintf(srv, _("Invalid host name: %s.\n"), hostname);
+        errno = EINVAL;
+        return false;
+      }
+      flags |= MHD_USE_DUAL_STACK;
+      sg__httpsrv_addopt(ops, &pos, MHD_OPTION_SOCK_ADDR, 0,
+                         (struct sockaddr *) (&addr6));
+    }
+  } else {
+    flags |= MHD_USE_DUAL_STACK;
+  }
   sg__httpsrv_addopt(ops, &pos, MHD_OPTION_NOTIFY_COMPLETED,
                      (intptr_t) sg__httpsrv_rcc, srv);
   sg__httpsrv_addopt(ops, &pos, MHD_OPTION_NOTIFY_CONNECTION,
@@ -190,11 +224,24 @@ static bool sg__httpsrv_listen(struct sg_httpsrv *srv, const char *key,
     if (priorities)
       sg__httpsrv_addopt(ops, &pos, MHD_OPTION_HTTPS_PRIORITIES, 0,
                          (void *) priorities);
+    if (backlog > 0) {
+      sg__httpsrv_addopt(ops, &pos, MHD_OPTION_LISTEN_BACKLOG_SIZE, backlog,
+                         NULL);
+    }
   }
   sg__httpsrv_addopt(ops, &pos, MHD_OPTION_END, 0, NULL);
   srv->handle = MHD_start_daemon(flags, port, NULL, NULL, sg__httpsrv_ahc, srv,
                                  MHD_OPTION_ARRAY, ops, MHD_OPTION_END);
   return srv->handle != NULL;
+}
+
+static bool sg__httpsrv_listen(struct sg_httpsrv *srv, const char *key,
+                               const char *pwd, const char *cert,
+                               const char *trust, const char *dhparams,
+                               const char *priorities, uint16_t port,
+                               bool threaded) {
+  return sg__httpsrv_listen2(srv, key, pwd, cert, trust, dhparams, priorities,
+                             NULL, port, 0, threaded);
 }
 
 void sg__httpsrv_eprintf(struct sg_httpsrv *srv, const char *fmt, ...) {
@@ -307,6 +354,18 @@ void sg_httpsrv_free(struct sg_httpsrv *srv) {
 
 #ifdef SG_HTTPS_SUPPORT
 
+bool sg_httpsrv_tls_listen4(struct sg_httpsrv *srv, const char *key,
+                            const char *pwd, const char *cert,
+                            const char *trust, const char *dhparams,
+                            const char *priorities, const char *hostname,
+                            uint16_t port, uint32_t backlog, bool threaded) {
+  if (key && cert)
+    return sg__httpsrv_listen2(srv, key, pwd, cert, trust, dhparams, priorities,
+                               hostname, port, backlog, threaded);
+  errno = EINVAL;
+  return false;
+}
+
 bool sg_httpsrv_tls_listen3(struct sg_httpsrv *srv, const char *key,
                             const char *pwd, const char *cert,
                             const char *trust, const char *dhparams,
@@ -340,6 +399,12 @@ bool sg_httpsrv_tls_listen(struct sg_httpsrv *srv, const char *key,
 }
 
 #endif /* SG_HTTPS_SUPPORT */
+
+bool sg_httpsrv_listen2(struct sg_httpsrv *srv, const char *hostname,
+                        uint16_t port, uint32_t backlog, bool threaded) {
+  return sg__httpsrv_listen2(srv, NULL, NULL, NULL, NULL, NULL, NULL, hostname,
+                             port, backlog, threaded);
+}
 
 bool sg_httpsrv_listen(struct sg_httpsrv *srv, uint16_t port, bool threaded) {
   return sg__httpsrv_listen(srv, NULL, NULL, NULL, NULL, NULL, NULL, port,

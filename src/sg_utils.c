@@ -34,19 +34,11 @@
 #include "sg_macros.h"
 #ifdef _WIN32
 #include <ws2tcpip.h>
-#include <winsock2.h>
 #include <windows.h>
 #include <wchar.h>
 #else /* _WIN32 */
-#include <sys/socket.h>
-#include <netinet/in.h>
-#ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
-#endif /* HAVE_ARPA_INET_H */
 #endif /* _WIN32 */
-#ifndef HAVE_INET_NTOP
-#include "inet.h"
-#endif /* HAVE_INET_NTOP */
 #include "sagui.h"
 #include "sg_utils.h"
 
@@ -413,14 +405,14 @@ done:
 /* Sockets */
 
 int sg_ip(const void *socket, char *buf, size_t size) {
-  const struct sockaddr *sa;
+  const struct sockaddr *addr;
   const struct in6_addr *addr6;
   size_t len;
   if (!socket || !buf || (ssize_t) size < 0)
     return EINVAL;
-  sa = socket;
-  if (sa->sa_family == AF_INET6) {
-    addr6 = &(((struct sockaddr_in6 *) sa)->sin6_addr);
+  addr = socket;
+  if (addr->sa_family == AF_INET6) {
+    addr6 = &(((struct sockaddr_in6 *) addr)->sin6_addr);
     if (!inet_ntop(AF_INET6, addr6, buf, size))
       return errno;
     len = strlen("::ffff:");
@@ -428,7 +420,7 @@ int sg_ip(const void *socket, char *buf, size_t size) {
       memcpy(buf, buf + len, strlen(buf + len) + 1);
     return 0;
   }
-  if (!inet_ntop(AF_INET, &(((struct sockaddr_in *) sa)->sin_addr), buf, size))
+  if (!inet_ntop(AF_INET, &(((struct sockaddr_in *) addr)->sin_addr), buf, size))
     return errno;
   return 0;
 }

@@ -4,8 +4,8 @@
 # SPDX-License-Identifier: MIT
 ######################################################################
 
-# podman build --platform linux/amd64 -t hello_sagui .
-# podman run --platform linux/amd64 --rm -it -p 8080:8080 hello_sagui
+# podman build -t hello_sagui .
+# podman run --rm -p 8080:8080 -it hello_sagui
 
 FROM alpine:3.19.1 AS builder
 
@@ -15,11 +15,8 @@ RUN apk add --no-cache \
   automake \
   clang \
   cmake
-
 WORKDIR /app
-
 COPY . /app/
-
 RUN mkdir build && \
   cd build/ && \
   cmake -DBUILD_SHARED_LIBS=OFF .. && \
