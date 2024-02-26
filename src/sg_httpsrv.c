@@ -63,16 +63,12 @@ static enum MHD_Result sg__httpsrv_ahc(void *cls, struct MHD_Connection *con,
   struct sg_httpsrv *srv = cls;
   struct sg_httpreq *req = *con_cls;
   const union MHD_ConnectionInfo *info;
-#ifdef SG_TESTING
   if (con) {
-#endif /* SG_TESTING */
     info =
       MHD_get_connection_info(con, MHD_CONNECTION_INFO_SOCKET_CONTEXT, NULL);
     if (info && info->socket_context)
       return MHD_NO;
-#ifdef SG_TESTING
   }
-#endif /* SG_TESTING */
   if (!req) {
     req = sg__httpreq_new(srv, con, version, method, url);
     if (!req)
@@ -92,15 +88,11 @@ static enum MHD_Result sg__httpsrv_ahc(void *cls, struct MHD_Connection *con,
     if (!req->isolated)
       srv->req_cb(srv->cls, req, req->res);
   }
-#ifdef SG_TESTING
   if (con) {
-#endif /* SG_TESTING */
     info = MHD_get_connection_info(
       con, MHD_CONNECTION_INFO_CONNECTION_SUSPENDED, NULL);
-#ifdef SG_TESTING
   } else
     info = NULL;
-#endif /* SG_TESTING */
   return info && info->suspended ? MHD_YES : sg__httpres_dispatch(req->res);
 }
 
