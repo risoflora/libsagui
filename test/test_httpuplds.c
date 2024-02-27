@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2024 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -111,11 +111,11 @@ static ssize_t empty_httpupld_write_cb(void *handle, uint64_t offset,
   return -1;
 }
 
-static void test__httpuplds_add(void) {
+static void test__httpuplds_add(struct MHD_Connection *con) {
   char err[256];
   struct sg_httpsrv *srv =
     sg_httpsrv_new2(NULL, dummy_httpreq_cb, dummy_err_cb, err);
-  struct sg_httpreq *req = sg__httpreq_new(srv, NULL, "", "", "");
+  struct sg_httpreq *req = sg__httpreq_new(srv, con, "", "", "");
   ASSERT(sg_httpuplds_count(sg_httpreq_uploads(req)) == 0);
   sg__httpuplds_add(srv, req, "abc", "def", "ghi", "jkl");
   ASSERT(strcmp(sg_httpupld_field(req->curr_upld), "abc") == 0);
@@ -132,13 +132,13 @@ static void test__httpuplds_free(void) {
   sg__httpuplds_free(NULL, NULL);
 }
 
-static void test__httpuplds_iter(void) {
+static void test__httpuplds_iter(struct MHD_Connection *con) {
   const char *filename = "foo.txt";
   const size_t len = 3;
   char err[256], str[256];
   struct sg_httpsrv *srv =
     sg_httpsrv_new2(NULL, dummy_httpreq_cb, dummy_err_cb, err);
-  struct sg_httpreq *req = sg__httpreq_new(srv, NULL, "", "", "");
+  struct sg_httpreq *req = sg__httpreq_new(srv, con, "", "", "");
   struct sg__httpupld_holder holder = {srv, req};
   struct sg_strmap **fields;
   sg_httpupld_cb saved_upld_cb;
@@ -200,13 +200,12 @@ static void test__httpuplds_iter(void) {
   sg_httpsrv_free(srv);
 }
 
-static void test__httpuplds_process(void) {
+static void test__httpuplds_process(struct MHD_Connection *con) {
   const size_t len = 3;
   char err[256], str[256];
-  struct MHD_Connection *con = sg_alloc(64);
   struct sg_httpsrv *srv =
     sg_httpsrv_new2(NULL, dummy_httpreq_cb, dummy_err_cb, err);
-  struct sg_httpreq *req = sg__httpreq_new(srv, NULL, "", "", "");
+  struct sg_httpreq *req = sg__httpreq_new(srv, con, "", "", "");
   int ret = 0;
   size_t size = 0;
 
@@ -230,12 +229,11 @@ static void test__httpuplds_process(void) {
 
   sg__httpreq_free(req);
   sg_httpsrv_free(srv);
-  sg_free(con);
 }
 
-static void test__httpuplds_cleanup(void) {
+static void test__httpuplds_cleanup(struct MHD_Connection *con) {
   struct sg_httpsrv *srv = sg_httpsrv_new(dummy_httpreq_cb, NULL);
-  struct sg_httpreq *req = sg__httpreq_new(srv, NULL, "", "", "");
+  struct sg_httpreq *req = sg__httpreq_new(srv, con, "", "", "");
   struct sg_httpupld *tmp;
   size_t count = 0;
   ASSERT(srv);
@@ -679,11 +677,12 @@ static void test_httpupld_save_as(struct sg_httpupld *upld) {
 
 int main(void) {
   struct sg_httpupld *upld = sg_alloc(sizeof(struct sg_httpupld));
-  test__httpuplds_add();
+  struct MHD_Connection *con = sg_alloc(256);
+  test__httpuplds_add(con);
   test__httpuplds_free();
-  test__httpuplds_iter();
-  test__httpuplds_process();
-  test__httpuplds_cleanup();
+  test__httpuplds_iter(con);
+  test__httpuplds_process(con);
+  test__httpuplds_cleanup(con);
   test__httpupld_cb();
   test__httpupld_write_cb();
   test__httpupld_free_cb();
@@ -702,5 +701,6 @@ int main(void) {
   test_httpupld_save(upld);
   test_httpupld_save_as(upld);
   sg_free(upld);
+  sg_free(con);
   return EXIT_SUCCESS;
 }

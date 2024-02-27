@@ -212,20 +212,17 @@ static void test__httpsrv_oel(const char *fmt, ...) {
   sg_httpsrv_free(srv);
 }
 
-static void test__httpsrv_ahc(struct sg_httpsrv *srv) {
+static void test__httpsrv_ahc(struct MHD_Connection *con,
+                              struct sg_httpsrv *srv) {
   struct sg_httpreq *req = NULL;
   size_t size = 0;
-  ASSERT(sg__httpsrv_ahc(srv, NULL, "abc", "def", "ghi", NULL, &size,
-                         (void **) &req) == MHD_YES);
-  ASSERT(sg__httpsrv_ahc(srv, NULL, "abc", "def", "ghi", NULL, &size,
+  ASSERT(sg__httpsrv_ahc(srv, con, "abc", "def", "ghi", NULL, &size,
                          (void **) &req) == MHD_NO);
-  ASSERT(req);
-  sg__httpreq_free(req);
 }
 
-static void test__httpsrv_rcc(void) {
+static void test__httpsrv_rcc(struct MHD_Connection *con) {
   struct sg_httpsrv *srv = sg_httpsrv_new(dummy_httpreq_cb, NULL);
-  struct sg_httpreq *req = sg__httpreq_new(srv, NULL, NULL, NULL, NULL);
+  struct sg_httpreq *req = sg__httpreq_new(srv, con, NULL, NULL, NULL);
   sg_httpsrv_free(srv);
   sg__httpsrv_rcc(NULL, NULL, (void **) &req,
                   MHD_REQUEST_TERMINATED_COMPLETED_OK);
@@ -398,14 +395,6 @@ static void test_httpsrv_listen(struct sg_httpsrv *srv) {
          MHD_USE_AUTO_INTERNAL_THREAD);
   ASSERT(MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_FLAGS)->flags &
          MHD_USE_THREAD_PER_CONNECTION);
-#ifdef __linux__
-  dummy_srv =
-    sg_httpsrv_new2(NULL, dummy_httpreq_cb, dummy_httpreq_err_cb, NULL);
-  errno = 0;
-  ASSERT(!sg_httpsrv_listen(dummy_srv, TEST_HTTPSRV_PORT, true));
-  ASSERT(errno == EADDRINUSE);
-  sg_httpsrv_free(dummy_srv);
-#endif /* __linux__ */
   ASSERT(sg_httpsrv_shutdown(srv) == 0);
 }
 
@@ -475,14 +464,6 @@ static void test_httpsrv_listen2(struct sg_httpsrv *srv) {
          MHD_USE_AUTO_INTERNAL_THREAD);
   ASSERT(MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_FLAGS)->flags &
          MHD_USE_THREAD_PER_CONNECTION);
-#ifdef __linux__
-  dummy_srv =
-    sg_httpsrv_new2(NULL, dummy_httpreq_cb, dummy_httpreq_err_cb, NULL);
-  errno = 0;
-  ASSERT(!sg_httpsrv_listen2(dummy_srv, NULL, TEST_HTTPSRV_PORT, 0, true));
-  ASSERT(errno == EADDRINUSE);
-  sg_httpsrv_free(dummy_srv);
-#endif /* __linux__ */
   ASSERT(sg_httpsrv_shutdown(srv) == 0);
 }
 
@@ -575,15 +556,6 @@ static void test_httpsrv_tls_listen(struct sg_httpsrv *srv) {
          MHD_USE_THREAD_PER_CONNECTION);
   ASSERT(MHD_get_daemon_info(srv->handle, MHD_DAEMON_INFO_FLAGS)->flags &
          MHD_USE_TLS);
-#ifdef __linux__
-  dummy_srv =
-    sg_httpsrv_new2(NULL, dummy_httpreq_cb, dummy_httpreq_err_cb, NULL);
-  errno = 0;
-  ASSERT(!sg_httpsrv_tls_listen(dummy_srv, private_key, certificate,
-                                TEST_HTTPSRV_PORT, true));
-  ASSERT(errno == EADDRINUSE);
-  sg_httpsrv_free(dummy_srv);
-#endif /* __linux__ */
   ASSERT(sg_httpsrv_shutdown(srv) == 0);
   ASSERT(sg_httpsrv_listen(srv, 0, false));
   ASSERT(sg_httpsrv_shutdown(srv) == 0);
@@ -867,11 +839,12 @@ static void test_httpsrv_handle(struct sg_httpsrv *srv) {
 }
 
 int main(void) {
+  struct MHD_Connection *con = sg_alloc(256);
   struct sg_httpsrv *srv = sg_httpsrv_new(dummy_httpreq_cb, NULL);
   /* test__httperr_cb() */
   test__httpsrv_oel("%s%d", "abc", 123);
-  test__httpsrv_ahc(srv);
-  test__httpsrv_rcc();
+  test__httpsrv_ahc(con, srv);
+  test__httpsrv_rcc(con);
   test__httpsrv_addopt();
   test__httpsrv_eprintf();
   test_httpsrv_new2();

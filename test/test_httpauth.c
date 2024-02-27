@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2019 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2024 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -32,8 +32,8 @@
 #include "sg_httpres.h"
 #include "sg_httpauth.h"
 
-static void test__httpauth_new(void) {
-  struct sg_httpres *res = sg__httpres_new(NULL);
+static void test__httpauth_new(struct MHD_Connection *con) {
+  struct sg_httpres *res = sg__httpres_new(con);
   struct sg_httpauth *auth = sg__httpauth_new(res);
   ASSERT(auth);
   sg__httpauth_free(auth);
@@ -173,8 +173,10 @@ int main(void) {
   struct sg_httpauth *auth = sg_alloc(sizeof(struct sg_httpauth));
   ASSERT(auth);
   auth->res = sg_alloc(sizeof(struct sg_httpres));
+  auth->res->con = sg_alloc(256);
   ASSERT(auth->res);
-  test__httpauth_new();
+  ASSERT(auth->res->con);
+  test__httpauth_new(auth->res->con);
   test__httpauth_free();
   test__httpauth_dispatch(auth);
   test_httpauth_set_realm(auth);
@@ -184,6 +186,7 @@ int main(void) {
   test_httpauth_cancel(auth);
   test_httpauth_usr(auth);
   test_httpauth_pwd(auth);
+  sg_free(auth->res->con);
   sg_free(auth->res);
   sg_free(auth);
   return EXIT_SUCCESS;

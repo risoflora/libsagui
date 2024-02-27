@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2020 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2024 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -31,15 +31,14 @@
 #include "sg_httpreq.h"
 #include <sagui.h>
 
-static void test__httpreq_new(struct sg_httpsrv *srv) {
-  struct MHD_Connection *con = sg_alloc(64);
+static void test__httpreq_new(struct MHD_Connection *con,
+                              struct sg_httpsrv *srv) {
   struct sg_httpreq *req = sg__httpreq_new(srv, con, "abc", "def", "ghi");
   ASSERT(req);
   ASSERT(req->srv == srv);
   ASSERT(strcmp(req->version, "abc") == 0);
   ASSERT(strcmp(req->method, "def") == 0);
   ASSERT(strcmp(req->path, "ghi") == 0);
-  sg_free(con);
   sg__httpreq_free(req);
 }
 
@@ -308,8 +307,9 @@ static void test_httpreq_user_data(struct sg_httpreq *req) {
 
 int main(void) {
   struct sg_httpsrv *srv = sg_httpsrv_new(dummy_httpreq_cb, NULL);
-  struct sg_httpreq *req = sg__httpreq_new(srv, NULL, NULL, NULL, NULL);
-  test__httpreq_new(srv);
+  struct MHD_Connection *con = sg_alloc(256);
+  struct sg_httpreq *req = sg__httpreq_new(srv, con, NULL, NULL, NULL);
+  test__httpreq_new(con, srv);
   test__httpreq_free();
   test_httpreq_srv(req);
   test_httpreq_headers(req);
@@ -331,5 +331,6 @@ int main(void) {
   test_httpreq_user_data(req);
   sg__httpreq_free(req);
   sg_httpsrv_free(srv);
+  sg_free(con);
   return EXIT_SUCCESS;
 }
