@@ -26,7 +26,16 @@
 
 name: CI
 
-on: [push, pull_request]
+on:
+  schedule:
+    - cron:  '0 0 1 * *'
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - master
+      - main
 
 env:
   BUILD_TYPE: Debug
@@ -40,7 +49,20 @@ jobs:
 
       - name: Install packages
         run: |
-          sudo apt-get -y install libgnutls28-dev libcurl4-gnutls-dev
+          sudo bash -c '
+            apt-get update
+            apt-get -y install lib{gnutls28,curl4-gnutls}-dev cppcheck
+          ' >/dev/null
+
+      - name: Lint C code
+        run: |
+          find "${PWD}" -type 'f' -name '*.c' -exec cppcheck --quiet \
+            --enable=warning {} + >&2
+
+      - name: Lint C code
+        run: |
+          find "${PWD}" -type 'f' -name '*.c' -exec cppcheck --quiet \
+            --enable=warning {} + >&2
 
       - name: CMake configure
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_TESTING=ON -DSG_HTTPS_SUPPORT=ON
