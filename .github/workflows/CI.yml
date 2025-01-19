@@ -26,7 +26,16 @@
 
 name: CI
 
-on: [push, pull_request]
+on:
+  schedule:
+    - cron:  '0 0 1 * *'
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - master
+      - main
 
 env:
   BUILD_TYPE: Debug
