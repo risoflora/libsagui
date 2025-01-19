@@ -42,6 +42,11 @@ jobs:
         run: |
           sudo apt-get -y install libgnutls28-dev libcurl4-gnutls-dev
 
+      - name: Lint C code
+        run: |
+          find "${PWD}" -type 'f' -name '*.c' -exec cppcheck --quiet \
+            --enable=warning {} + >&2
+
       - name: CMake configure
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_TESTING=ON -DSG_HTTPS_SUPPORT=ON
 
