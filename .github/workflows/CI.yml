@@ -59,6 +59,11 @@ jobs:
           find "${PWD}" -type 'f' -name '*.c' -exec cppcheck --quiet \
             --enable=warning {} + >&2
 
+      - name: Lint C code
+        run: |
+          find "${PWD}" -type 'f' -name '*.c' -exec cppcheck --quiet \
+            --enable=warning {} + >&2
+
       - name: CMake configure
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_TESTING=ON -DSG_HTTPS_SUPPORT=ON
 
