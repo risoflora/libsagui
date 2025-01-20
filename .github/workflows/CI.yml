@@ -49,7 +49,7 @@ jobs:
 
       - name: Install packages
         run: |
-          sudo apt-get -y install libgnutls28-dev libcurl4-gnutls-dev
+          sudo apt-get -y install libgnutls28-dev libcurl4-gnutls-dev cppcheck
 
       - name: Lint C code
         run: |
