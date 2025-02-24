@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2024 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2025 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -74,7 +74,7 @@ extern "C" {
 
 #define SG_VERSION_MAJOR 3
 #define SG_VERSION_MINOR 5
-#define SG_VERSION_PATCH 1
+#define SG_VERSION_PATCH 2
 #define SG_VERSION_HEX                                                         \
   ((SG_VERSION_MAJOR << 16) | (SG_VERSION_MINOR << 8) | (SG_VERSION_PATCH))
 

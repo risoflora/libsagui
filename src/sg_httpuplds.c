@@ -7,7 +7,7 @@
  *
  * Cross-platform library which helps to develop web servers or frameworks.
  *
- * Copyright (C) 2016-2021 Silvio Clecio <silvioprog@gmail.com>
+ * Copyright (C) 2016-2025 Silvio Clecio <silvioprog@gmail.com>
  *
  * Sagui library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -108,6 +108,8 @@ static enum MHD_Result
       }
     } else {
       if (off == 0) {
+        if (!key || !data)
+          return MHD_NO;
         holder->req->curr_field = sg__strmap_new(key, data);
         if (!holder->req->curr_field)
           return MHD_NO;
